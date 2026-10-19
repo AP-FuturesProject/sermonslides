@@ -29,6 +29,7 @@
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
       <span style="font-size:14px; color:#555;">{{ summary }}</span>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
+      <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
       <button onClick="{{ exportAll }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
         <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 4</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
@@ -423,7 +424,7 @@ class Component extends DCLogic {
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
-      const pair = this.state.overrides[k] || (mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
+      const pair = this.state.overrides[k] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const emph = !!(this.state.emph || {})[k];
@@ -512,8 +513,9 @@ class Component extends DCLogic {
       if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
       overrides[s.key] = byPassage[pi];
     });
-    this.setState({ overrides });
+    this.setState({ overrides, trad: false });
   };
+  traditional = () => this.setState({ overrides: {}, trad: true });
   onTitle = e => this.setState({ title: e.target.value });
   toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
   openExample = () => this.setState({ showExample: true });
@@ -531,7 +533,7 @@ class Component extends DCLogic {
     const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 4,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
       exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
