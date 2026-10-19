@@ -18,7 +18,7 @@
 <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
-<style>@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#fff;} a{color:#5d1fec;} a:hover{color:#000;}</style>
+<style>@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
 <div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
   <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
@@ -29,8 +29,9 @@
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
       <span style="font-size:14px; color:#555;">{{ summary }}</span>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
-      <button onClick="{{ exportAll }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
-        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#ffff5f; color:#000; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 3</span>
+      <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
+      <button onClick="{{ exportAll }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
+        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 4</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
       </button>
       <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm,.pages,.doc" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none;">
@@ -39,32 +40,34 @@
   <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
     <div style="padding:14px max(40px, calc((100vw - 1400px) / 2)); background:#ffff5f; font-size:15px;">{{ error }}</div>
   </sc-if>
-  <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:32px max(40px, calc((100vw - 1400px) / 2)) 0;">
-    <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; font-size:14px; line-height:1.5; color:#333;">
+  <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:24px max(40px, calc((100vw - 1400px) / 2)) 0;">
+    <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; font-size:14px; line-height:1.4; color:#333;">
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
         <div>Long verses are split across screens for you.</div>
-        <div>If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
+        <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
+        <div>Please use this tool on a computer or tablet for best viewing experience.</div>
       </div>
     
   </section>
   <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px max(40px, calc((100vw - 1400px) / 2)) 64px;">
     <aside style="flex:1 1 300px; max-width:440px; box-sizing:border-box; display:flex; flex-direction:column; gap:20px; padding:28px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000;">
-      <div style="display:flex; flex-direction:column; gap:10px;"><span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Screen size</span>
+      <div style="display:flex; flex-direction:column; gap:10px;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 1</span>
+        <label style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1;">Select your screen size</label>
         <select value="{{ sizeVal }}" onChange="{{ onSize }}" style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #000; border-radius:12px; background:#fff; color:#000; font-family:var(--font-sans); font-size:15px; cursor:pointer;"><sc-for list="{{ sizeChoices }}" as="sc"><option value="{{ sc.id }}">{{ sc.text }}</option></sc-for></select>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px;">
           <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Message title on screens</span>
           <button onClick="{{ toggleTitle }}" role="switch" aria-checked="{{ titleOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ tglBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ tglX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
         </div>
         <sc-if value="{{ titleOn }}"><input value="{{ title }}" onChange="{{ onTitle }}" placeholder="Message title" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;"></sc-if>
-        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 1</span>
+        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 2</span>
         <button onClick="{{ openFile }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box; padding:18px 22px; border:2px dashed {{ uploadBorder }}; border-radius:14px; background:{{ uploadBg }}; color:#fff; text-align:left; cursor:pointer; animation:{{ uploadAnim }}; transition:transform 150ms ease-out, opacity 150ms ease-out;" style-hover="opacity:0.92;" style-active="transform:scale(0.98);">
           <span style="font-family:var(--font-display); font-weight:200; font-size:30px; line-height:1.05;">Upload your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> here</span>
           <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it here in this box.</span>
           <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fff;">Word, PDF or text files</span>
         </button>
         <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
-        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 2</span>
+        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 3</span>
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
         <textarea value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
@@ -221,6 +224,7 @@ class Component extends DCLogic {
     const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
     try {
       let text;
+      if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB). Try a smaller file.');
       if (ext === 'docx') text = await this.readDocx(f);
       else if (ext === 'pdf') text = await this.readPdf(f);
       else if (ext === 'odt') text = await this.readOdt(f);
@@ -228,13 +232,14 @@ class Component extends DCLogic {
       else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
       else if (ext === 'pages') throw new Error('Pages files can’t be read in the browser. In Pages, choose File › Export To › Word, then upload the .docx.');
       else if (ext === 'doc') throw new Error('Old .doc files aren’t supported. Re-save as .docx and upload again.');
-      else text = await f.text();
+      else if (ext === 'txt' || ext === 'md' || ext === 'text') { text = await f.text(); if (/[\u0000\uFFFD]/.test(text.slice(0, 4000))) throw new Error('That file doesn’t look like plain text. Save it as .txt or .docx and try again.'); }
+      else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
       if (!text.trim()) throw new Error('no text found in that file.');
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && first.length <= 60 ? first : this.state.title;
       this.setState({ text, title, overrides: {}, emph: {}, error: '', uploaded: true });
-    } catch (err) { this.setState({ error: /›|Re-save/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
+    } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
     const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer);
@@ -421,7 +426,7 @@ class Component extends DCLogic {
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
-      const pair = this.state.overrides[k] || (mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
+      const pair = this.state.overrides[k] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const emph = !!(this.state.emph || {})[k];
@@ -510,8 +515,9 @@ class Component extends DCLogic {
       if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
       overrides[s.key] = byPassage[pi];
     });
-    this.setState({ overrides });
+    this.setState({ overrides, trad: false });
   };
+  traditional = () => this.setState({ overrides: {}, trad: true });
   onTitle = e => this.setState({ title: e.target.value });
   toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
   openExample = () => this.setState({ showExample: true });
@@ -529,7 +535,7 @@ class Component extends DCLogic {
     const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 4,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
       exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
