@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/tokens/colors.css">
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/tokens/typography.css">
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/tokens/base.css">
+<link rel="stylesheet" href="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/styles.css">
+<script src="_ds/futures-church-design-system-732d6eae-45e9-5477-b0a6-28fc03e43ead/_ds_bundle.js"></script>
+<script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
+<style>@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#fff;} a{color:#5d1fec;} a:hover{color:#000;}</style>
+</helmet>
+<div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
+  <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px 40px 28px; border-bottom:1px solid #000; background:#fff;">
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; align-items:center; gap:12px; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase;"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:18px; height:18px;"><span>Futures Church</span></div>
+      <h1 style="margin:0; font-family:var(--font-display); font-weight:200; font-size:48px; line-height:1;">Scripture <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase;">screens</span></h1>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
+      <span style="font-size:14px; color:#555;">{{ summary }}</span>
+      <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
+      <button onClick="{{ exportAll }}" disabled="{{ exportDisabled }}" style="display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
+        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#ffff5f; color:#000; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 3</span>
+        <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
+      </button>
+      <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm,.pages,.doc" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none;">
+    </div>
+  </header>
+  <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px 40px; background:#ffff5f; font-size:15px;">{{ error }}</div>
+  </sc-if>
+  <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px 40px 64px;">
+    <aside style="flex:1 1 300px; max-width:440px; box-sizing:border-box; display:flex; flex-direction:column; gap:20px; padding:28px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000;">
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:14px; line-height:1.5; color:#333; padding-bottom:24px; border-bottom:1px solid #000;">
+        <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
+        <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
+        <div>Long verses are split across screens for you.</div>
+        <div>If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
+        <div style="display:flex; margin-top:6px;"><x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" size="sm" onClick="{{ openExample }}" hint-size="130px,36px">See example</x-import></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Screen size</span>
+        <div style="display:flex; flex-direction:column; border:1px solid #000; border-radius:12px; overflow:hidden;">
+          <sc-for list="{{ sizeOptions }}" as="so" hint-placeholder-count="3">
+            <button onClick="{{ so.on }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border:none; border-bottom:1px solid rgba(0,0,0,0.15); background:{{ so.bg }}; color:{{ so.fg }}; cursor:pointer; text-align:left; transition:background 150ms ease-out, color 150ms ease-out;">
+              <span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:{{ so.noteFg }};">{{ so.note }}</span>
+              <span style="font-family:var(--font-sans); font-size:14px; white-space:nowrap;">{{ so.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px;">
+          <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Message title on screens</span>
+          <button onClick="{{ toggleTitle }}" role="switch" aria-checked="{{ titleOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ tglBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ tglX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
+        </div>
+        <input value="{{ title }}" onChange="{{ onTitle }}" placeholder="Message title" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;">
+        <span style="margin-top:20px; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#5d1fec;">Step 1</span>
+        <button onClick="{{ openFile }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:14px; width:100%; box-sizing:border-box; padding:32px 28px; border:2px dashed {{ uploadBorder }}; border-radius:14px; background:{{ uploadBg }}; color:#fff; text-align:left; cursor:pointer; animation:{{ uploadAnim }}; transition:transform 150ms ease-out, opacity 150ms ease-out;" style-hover="opacity:0.92;" style-active="transform:scale(0.98);">
+          <span style="font-family:var(--font-display); font-weight:200; font-size:44px; line-height:1;">Upload your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> here</span>
+          <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it here in this box.</span>
+          <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fff;">Word, PDF or text files</span>
+        </button>
+        <span style="margin-top:20px; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#5d1fec;">Step 2</span>
+        <label style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1;">Check your words</label>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
+        <textarea value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
+      </div>
+    </aside>
+    <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+        <div style="grid-column:1 / -1; padding:64px 32px; border:1px dashed #000; border-radius:14px; text-align:center; font-family:var(--font-display); font-weight:300; font-size:28px;">No verses found yet. Upload a doc or paste text with references.</div>
+      </sc-if>
+      <sc-for list="{{ slides }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="display:flex; align-items:baseline; gap:10px; min-width:0;">
+              <span style="flex:none; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1; color:#000;">{{ s.slideLabel }}</span>
+              <span style="font-family:var(--font-grotesque); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:#5d1fec; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex:none;">
+            <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
+            <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
+              <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
+            </select>
+            </div>
+          </div>
+          <div style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }};">
+            <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
+              <div style="max-width:{{ dTextW }}px;">
+                <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
+              </div>
+              <sc-if value="{{ s.hasRef }}">
+                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}</span></div>
+              </sc-if>
+              <sc-if value="{{ hasTitle }}">
+                <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+  </main>
+  <sc-if value="{{ showExample }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeExample }}" style="position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.6); display:flex; align-items:flex-start; justify-content:center; padding:48px 20px; overflow:auto; box-sizing:border-box;">
+      <div onClick="{{ stop }}" style="width:100%; max-width:760px; background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 28px; border-bottom:1px solid #000;">
+          <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1;">Example <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">document</span></div>
+          <button onClick="{{ closeExample }}" aria-label="Close" style="border:none; background:none; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; color:#000; padding:8px;">Close</button>
+        </div>
+        <div style="padding:24px 28px; background:#f2f0ea;">
+          <div style="background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.12); padding:40px 44px; display:flex; flex-direction:column; gap:18px; font-family:Georgia, 'Times New Roman', serif; font-size:16px; line-height:1.55; color:#000;">
+            <sc-for list="{{ exampleRows }}" as="er" hint-placeholder-count="6">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div><sc-for list="{{ er.tokens }}" as="et"><sc-if value="{{ et.b }}"><strong>{{ et.t }}</strong></sc-if><sc-if value="{{ et.n }}"><span>{{ et.t }}</span></sc-if></sc-for></div>
+                <span style="align-self:flex-start; padding:3px 10px; border-radius:999px; background:{{ er.tagBg }}; color:{{ er.tagFg }}; font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase;">{{ er.note }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px; padding:20px 28px 26px; font-size:14px; line-height:1.5; color:#333;">
+          <div>Put the reference at the start of each verse, and make the words you want highlighted bold.</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
+class Component extends DCLogic {
+  static PAIRS = {
+    'Violet / Lemon': ['#5d1fec', '#fff', '#ffff5f'],
+    'Orange / Violet': ['#ff8432', '#000', '#5d1fec'],
+    'Lemon / Violet': ['#ffff5f', '#000', '#5d1fec'],
+    'Sky Blue / Violet': ['#62b4ff', '#000', '#5d1fec'],
+    'Pink / Lemon': ['#e444b9', '#000', '#ffff5f'],
+    'Ginger / Lemon': ['#c45236', '#fff', '#ffff5f'],
+    'Brown / Lemon': ['#765020', '#fff', '#ffff5f'],
+    'Judge Gray / Lemon': ['#50482e', '#fff', '#ffff5f'],
+    'Ink / Lemon': ['#000', '#fff', '#ffff5f'],
+    'Ink / Orange': ['#000', '#fff', '#ff8432'],
+    'Ink / Pink': ['#000', '#fff', '#e444b9'],
+    'Ink / Sky Blue': ['#000', '#fff', '#62b4ff']
+  };
+  static CYCLE = ['Violet / Lemon', 'Orange / Violet', 'Ink / Lemon', 'Sky Blue / Violet', 'Ginger / Lemon', 'Lemon / Violet', 'Ink / Pink', 'Judge Gray / Lemon', 'Pink / Lemon', 'Ink / Orange', 'Brown / Lemon', 'Ink / Sky Blue'];
+  static BOOKS = new Set('genesis exodus leviticus numbers deuteronomy joshua judges ruth samuel kings chronicles ezra nehemiah esther job psalm psalms proverbs ecclesiastes song isaiah jeremiah lamentations ezekiel daniel hosea joel amos obadiah jonah micah nahum habakkuk zephaniah haggai zechariah malachi matthew mark luke john acts romans corinthians galatians ephesians philippians colossians thessalonians timothy titus philemon hebrews james peter jude revelation gen ex exod lev num deut josh judg sam kgs chron neh esth ps psa prov eccl isa jer lam ezek dan hos obad mic nah hab zeph hag zech mal matt mk lk jn rom cor gal eph phil col thess tim tit philem heb jas pet rev'.split(' '));
+  static SAMPLE = [
+    '**YOU GOT A FRIEND IN ME**',
+    '**John 15:12-17** “This is my commandment: **Love each other** in the same way I have loved you. There is no greater love than to lay down one’s life for one’s **friends**. You are **my friends** if you do what I command. I no longer call you slaves, because a master doesn’t confide in his slaves. Now **you are my friends**, since I have told you everything the Father told me. This is my command: **Love each other**.”',
+    'Josh’s friend ladder story goes here (skipped, no reference).',
+    '**Psalm 41:9** Even **my close friend**, in whom I trusted, who ate my bread, has lifted his heel against me.',
+    '**John 15:1** I am the **TRUE** grapevine.',
+    '**John 15:5** Yes I am the vine; you are the **branches**.',
+    '**John 15:11** I have told you these things so that you will be filled with my **joy**. Yes your **joy will overflow**.',
+    '*SCREEN Jesus calls you **friend**.'
+  ].join('\n\n');
+
+  static SIZES = [{ id: 'std', label: '1920 × 1080', note: 'Standard', W: 1920, H: 1080 }, { id: 'south', label: '3264 × 960', note: 'South', W: 3264, H: 960 }, { id: 'city', label: '3072 × 960', note: 'City', W: 3072, H: 960 }];
+  dims() {
+    const sz = Component.SIZES.find(s => s.id === this.state.size) || Component.SIZES[0], k = sz.H / 1080;
+    const wide = sz.W / sz.H > 2, pad = Math.round(110 * k), side = wide ? Math.round(sz.W * 0.2) : Math.round(180 * k), textW = sz.W - 2 * side;
+    const r = (textW / (92 * k * 0.5)) / 36;
+    return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
+  }
+  state = { title: 'You got a friend in me', showTitle: false, size: 'std', gridW: 0, text: Component.SAMPLE, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
+  nodes = {}; refFns = {}; pairFns = {};
+
+  componentDidMount() { this.checkFit(); }
+  componentDidUpdate() { this.checkFit(); }
+  checkFit() {
+    clearTimeout(this._fitT);
+    this._fitT = setTimeout(() => {
+      const D = this.dims(), upd = {};
+      for (const s of this.slides || []) {
+        if (!s.emph) continue;
+        const node = this.nodes[s.key]; if (!node) continue;
+        const p = node.querySelector('[data-verse]'), ref = node.querySelector('[data-ref]'), title = node.querySelector('[data-title]');
+        if (!p) continue;
+        let over = false;
+        if (D.wide) {
+          const bottom = ref ? ref.offsetTop + ref.offsetHeight : p.offsetTop + p.offsetHeight;
+          const limit = title ? title.offsetTop - 24 * D.k : D.H - D.pad * 0.6;
+          over = bottom > limit;
+        } else {
+          const limit = ref ? ref.offsetTop - 40 * D.k : D.H - D.pad;
+          over = p.offsetTop + p.offsetHeight > limit;
+        }
+        const cur = (this.state.fit || {})[s.fitKey] || 1;
+        if (over && cur > 0.4) upd[s.fitKey] = cur * 0.94;
+      }
+      if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
+    }, 60);
+  }
+  componentWillUnmount() { clearTimeout(this._fitT); this.ro && this.ro.disconnect(); }
+  gridRef = el => {
+    this.ro && this.ro.disconnect();
+    if (!el) return;
+    const measure = () => { const gw = el.clientWidth; if (gw !== this.state.gridW) this.setState({ gridW: gw }); };
+    this.ro = new ResizeObserver(measure); this.ro.observe(el); measure();
+  };
+  fileEl = null;
+  fileRef = el => { this.fileEl = el; };
+  openFile = () => this.fileEl && this.fileEl.click();
+  onFile = e => { const f = e.target.files && e.target.files[0]; if (f) this.loadFile(f); e.target.value = ''; };
+  onDragOver = e => { e.preventDefault(); if (!this.state.drag) this.setState({ drag: true }); };
+  onDragLeave = e => { if (e.currentTarget === e.target) this.setState({ drag: false }); };
+  onDrop = e => { e.preventDefault(); this.setState({ drag: false }); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) this.loadFile(f); };
+  onText = e => this.setState({ text: e.target.value });
+
+  async loadFile(f) {
+    const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
+    try {
+      let text;
+      if (ext === 'docx') text = await this.readDocx(f);
+      else if (ext === 'pdf') text = await this.readPdf(f);
+      else if (ext === 'odt') text = await this.readOdt(f);
+      else if (ext === 'rtf') text = this.readRtf(await f.text());
+      else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
+      else if (ext === 'pages') throw new Error('Pages files can’t be read in the browser. In Pages, choose File › Export To › Word, then upload the .docx.');
+      else if (ext === 'doc') throw new Error('Old .doc files aren’t supported. Re-save as .docx and upload again.');
+      else text = await f.text();
+      if (!text.trim()) throw new Error('no text found in that file.');
+      text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
+      const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
+      const title = first && !this.validRef(first.match(this.refRegex(false))) && first.length <= 60 ? first : this.state.title;
+      this.setState({ text, title, overrides: {}, emph: {}, error: '', uploaded: true });
+    } catch (err) { this.setState({ error: /›|Re-save/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
+  }
+  async unzip(file, want) {
+    const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer);
+    let e = buf.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) throw new Error('file looks damaged.');
+    let p = dv.getUint32(e + 16, true); const n = dv.getUint16(e + 10, true);
+    for (let i = 0; i < n; i++) {
+      const method = dv.getUint16(p + 10, true), cs = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(buf.slice(p + 46, p + 46 + nl));
+      if (name === want) {
+        const off = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
+        const data = buf.slice(off, off + cs);
+        return method === 0 ? new TextDecoder().decode(data) : await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+      }
+      p += 46 + nl + el + cl;
+    }
+    throw new Error('no document body.');
+  }
+  async readPdf(file) {
+    if (!window.pdfjsLib) await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload = res; s.onerror = () => rej(new Error('PDF reader failed to load.')); document.head.appendChild(s); });
+    const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise, lines = [];
+    for (let n = 1; n <= pdf.numPages; n++) {
+      const page = await pdf.getPage(n); await page.getOperatorList();
+      const tc = await page.getTextContent(), boldOf = {};
+      const isBold = fn => { if (!(fn in boldOf)) { let nm = ''; try { const o = page.commonObjs.get(fn); nm = (o && (o.name || o.loadedName)) || ''; } catch (e) {} boldOf[fn] = /bold|black|heavy|semibold|demi/i.test(nm + ' ' + (tc.styles[fn]?.fontFamily || '')); } return boldOf[fn]; };
+      let cur = '', lastY = null, lastH = 12;
+      for (const it of tc.items) {
+        const y = it.transform[5], h = Math.abs(it.transform[3]) || lastH;
+        if (lastY != null && Math.abs(y - lastY) > h * 0.5) { if (Math.abs(y - lastY) > h * 1.8) { lines.push(cur); cur = ''; } else if (cur && !/\s$/.test(cur)) cur += ' '; }
+        if (it.str) cur += isBold(it.fontName) && it.str.trim() ? `**${it.str}**` : it.str;
+        if (it.hasEOL && cur && !/\s$/.test(cur)) cur += ' ';
+        lastY = y; lastH = h;
+      }
+      lines.push(cur);
+    }
+    return lines.map(l => l.replace(/\*\*\*\*/g, '').replace(/\*\*(\s+)\*\*/g, '$1').replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
+  }
+  async readOdt(file) {
+    const xml = await this.unzip(file, 'content.xml');
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), bold = new Set();
+    for (const st of doc.getElementsByTagName('style:style')) { const tp = st.getElementsByTagName('style:text-properties')[0]; if (tp && /bold|[6-9]00/.test(tp.getAttribute('fo:font-weight') || '')) bold.add(st.getAttribute('style:name')); }
+    const walk = (node, b) => { let s = ''; for (const c of node.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeName === 'text:s' || c.nodeName === 'text:tab' || c.nodeName === 'text:line-break') s += ' '; else s += walk(c, b || bold.has(c.getAttribute && c.getAttribute('text:style-name'))); } return s; };
+    return [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)).map(p => walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '').trim()).filter(Boolean).join('\n');
+  }
+  readHtml(src) {
+    const doc = new DOMParser().parseFromString(src, 'text/html');
+    doc.querySelectorAll('script,style').forEach(n => n.remove());
+    const isB = el => el.nodeType === 1 && (/^(B|STRONG)$/.test(el.tagName) || /bold|[6-9]00/.test(el.style.fontWeight || ''));
+    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
+    return walk(doc.body, false).replace(/\*\*\*\*/g, '').split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
+  }
+  readRtf(src) {
+    let out = '', bold = false, stack = [], skip = 0, i = 0;
+    const emit = ch => { if (skip) return; out += (bold && ch.trim() ? '\u0001' : '') + ch; };
+    while (i < src.length) {
+      const c = src[i];
+      if (c === '{') { stack.push({ bold, skip }); i++; if (src.startsWith('\\*', i) || /^\\(fonttbl|colortbl|stylesheet|info|pict|header|footer)/.test(src.slice(i, i + 12))) skip = 1; continue; }
+      if (c === '}') { const s = stack.pop() || {}; bold = !!s.bold; skip = s.skip || 0; i++; continue; }
+      if (c === '\\') {
+        const m = src.slice(i).match(/^\\([a-z]+)(-?\d+)? ?|^\\'([0-9a-f]{2})|^\\(.)/i);
+        if (!m) { i++; continue; }
+        i += m[0].length;
+        if (m[3]) emit(String.fromCharCode(parseInt(m[3], 16)));
+        else if (m[4]) { if (m[4] === '~') emit(' '); else if ('\\{}'.includes(m[4])) emit(m[4]); }
+        else { const w = m[1], v = m[2]; if (w === 'b') bold = v !== '0'; else if (w === 'plain') bold = false; else if (w === 'par' || w === 'line') { if (!skip) out += '\n'; } else if (w === 'tab') emit(' '); else if (w === 'u') { emit(String.fromCharCode((+v + 65536) % 65536)); if (src[i] === '?') i++; } }
+        continue;
+      }
+      if (c !== '\r' && c !== '\n') emit(c);
+      i++;
+    }
+    return out.split('\n').map(l => { let r = '', open = false; for (let k = 0; k < l.length; k++) { const b = l[k] === '\u0001'; if (b) { if (!open) { r += '**'; open = true; } r += l[++k]; } else { if (open && l[k].trim()) { r += '**'; open = false; } r += l[k]; } } if (open) r += '**'; return r.replace(/\*\*(\s+)\*\*/g, '$1').replace(/\s+/g, ' ').trim(); }).filter(Boolean).join('\n');
+  }
+  async readDocx(file) {
+    const xml = await this.unzip(file, 'word/document.xml');
+    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), lines = [];
+    for (const para of doc.getElementsByTagNameNS(W, 'p')) {
+      let s = '';
+      for (const r of para.getElementsByTagNameNS(W, 'r')) {
+        let t = '';
+        for (const c of r.childNodes) { if (c.localName === 't') t += c.textContent; else if (c.localName === 'tab' || c.localName === 'br') t += ' '; }
+        if (!t) continue;
+        const rpr = [...r.childNodes].find(c => c.localName === 'rPr');
+        const b = rpr && [...rpr.childNodes].find(c => c.localName === 'b');
+        const bold = b && !['0', 'false'].includes(b.getAttributeNS(W, 'val'));
+        s += bold && t.trim() ? `**${t}**` : t;
+      }
+      s = s.replace(/\*\*\*\*/g, '').trim();
+      if (s) lines.push(s);
+    }
+    return lines.join('\n');
+  }
+
+  clean(s) { return s.replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '').replace(/\u00a0/g, ' '); }
+  toChars(line) {
+    const out = [];
+    this.clean(line).split('**').forEach((part, i) => { for (const c of part) out.push({ c, b: i % 2 === 1 }); });
+    return out;
+  }
+  refRegex(atEnd) {
+    const BOOK = '((?:[1-3]\\s?)?[A-Za-z]+(?:\\s+of\\s+[A-Za-z]+)?)';
+    const NUMS = '(\\d+:\\d+(?:\\s*[-–—]\\s*\\d+(?::\\d+)?)?(?:\\s*,\\s*\\d+(?:\\s*[-–—]\\s*\\d+)?)*)';
+    const VER = '(?:\\s*\\(?(?:NLT|NIV|ESV|KJV|NKJV|NASB|MSG|TPT|CSB|AMP|NRSV|BSB)\\)?)?';
+    return atEnd ? new RegExp('[\\s(—–-]*\\(?\\s*' + BOOK + '\\.?\\s*' + NUMS + VER + '\\s*\\)?\\s*$') : new RegExp('^\\s*' + BOOK + '\\.?\\s*' + NUMS + VER);
+  }
+  validRef(m) { return m && Component.BOOKS.has(m[1].replace(/^[1-3]\s?/, '').split(/\s+/)[0].toLowerCase()); }
+  fmtRef(m) { return m[1].replace(/\s+/g, ' ') + ' ' + m[2].replace(/\s*[-–—]\s*/g, '–').replace(/\s*,\s*/g, ', '); }
+  trimChars(chars) {
+    let a = 0, b = chars.length;
+    while (a < b && /[\s:–—-]/.test(chars[a].c)) a++;
+    while (b > a && /[\s–—-]/.test(chars[b - 1].c)) b--;
+    return chars.slice(a, b);
+  }
+  passages(text) {
+    const out = []; let pending = null, pendingLine = -1, li = -1;
+    for (const raw of text.split(/\n+/)) {
+      if (!this.clean(raw).trim()) continue;
+      li++;
+      let chars = this.toChars(raw); let plain = chars.map(x => x.c).join('');
+      if (!plain.trim()) continue;
+      const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
+      if (sm) {
+        const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
+        chars = this.trimChars(chars); if (chars.length) out.push({ ref: '', chars, lines: [li] });
+        continue;
+      }
+      let m = plain.match(this.refRegex(false));
+      if (this.validRef(m)) {
+        const rest = this.trimChars(chars.slice(m[0].length));
+        if (rest.length) out.push({ ref: this.fmtRef(m), chars: rest, lines: [li] }); else { pending = this.fmtRef(m); pendingLine = li; }
+        continue;
+      }
+      m = plain.match(this.refRegex(true));
+      if (this.validRef(m)) { const rest = this.trimChars(chars.slice(0, m.index)); if (rest.length) out.push({ ref: this.fmtRef(m), chars: rest, lines: [li] }); continue; }
+      if (pending) { out.push({ ref: pending, chars: this.trimChars(chars), lines: [pendingLine, li] }); pending = null; }
+    }
+    return out;
+  }
+  pieces(chars) {
+    const ps = []; let cur = null;
+    for (const { c, b } of chars) {
+      if (/\s/.test(c)) { if (cur) { cur.sp = true; cur = null; } continue; }
+      if (!cur || cur.b !== b) { cur = { t: '', b, sp: false }; ps.push(cur); }
+      cur.t += c;
+    }
+    return ps;
+  }
+  w(p) { return p.t.length * (p.b ? 1.3 : 1) + (p.sp ? 1 : 0); }
+  chunk(ps, B) {
+    const W = ps.reduce((a, p) => a + this.w(p), 0), n = Math.ceil(W / B);
+    if (n <= 1) return [ps];
+    const target = W / n, chunks = []; let start = 0;
+    while (start < ps.length) {
+      let acc = 0, cands = [], j = start;
+      for (; j < ps.length; j++) {
+        acc += this.w(ps[j]);
+        if (j === ps.length - 1) break;
+        if (acc > B * 1.2) break;
+        if (!ps[j].sp) continue;
+        const t = ps[j].t, strong = /[.!?;]["”’)]*$/.test(t), weak = /[,:—–]["”’)]*$/.test(t);
+        cands.push({ j, acc, rank: strong ? 0 : weak ? 1 : 2 });
+      }
+      if (j === ps.length - 1 && acc <= B * 1.2) { chunks.push(ps.slice(start)); break; }
+      const ok = cands.filter(c => c.acc >= B * 0.45);
+      let pick = null;
+      for (const r of [0, 1]) {
+        const set = ok.filter(c => c.rank === r);
+        if (set.length) { pick = set.reduce((a, c) => Math.abs(c.acc - target) < Math.abs(a.acc - target) ? c : a); break; }
+      }
+      if (!pick) pick = cands.filter(c => c.acc <= B).pop() || cands[cands.length - 1] || { j };
+      chunks.push(ps.slice(start, pick.j + 1)); start = pick.j + 1;
+    }
+    if (chunks.length > 1) {
+      const last = chunks[chunks.length - 1], lw = last.reduce((a, p) => a + this.w(p), 0), pw = chunks[chunks.length - 2].reduce((a, p) => a + this.w(p), 0);
+      if (lw < B * 0.25 && lw + pw <= B * 1.15) chunks.splice(-2, 2, chunks[chunks.length - 2].concat(last));
+    }
+    return chunks;
+  }
+  build() {
+    const maxLines = this.props.maxLines ?? 4, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
+    const D = this.dims(); const key = this.state.text + '|' + maxLines + '|' + D.id;
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._parsed = ps.map(p => this.chunk(this.pieces(p.chars), maxLines * 36 * D.r).map(c => ({ ref: p.ref, ps: c }))); }
+    const slides = []; const P = Component.PAIRS, names = Object.keys(P);
+    this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
+      const k = pi + ':' + ci;
+      const pair = this.state.overrides[k] || (mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
+      const [bg, text, accent] = P[pair] || P[base];
+      const W = c.ps.reduce((a, p) => a + this.w(p), 0);
+      const emph = !!(this.state.emph || {})[k];
+      const fitKey = k + '|' + D.id + '|' + this._key, fit = emph ? ((this.state.fit || {})[fitKey] || 1) : 1;
+      const base = W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
+      let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
+      if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
+      let kwSize = null;
+      const kwW = c.ps.filter(p => p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0), bodyW = c.ps.filter(p => !p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0);
+      if (emph && kwW > 0) {
+        for (let s = Math.round(240 * D.k); s >= size; s -= 2) {
+          const ks = Math.round(s * 1.35), px = bodyW * s * 0.5 + kwW * ks * 0.62;
+          const lines = Math.max(2, Math.ceil(px / D.textW));
+          if (lines * ks * 1.0 <= D.availH) { size = s; kwSize = ks; break; }
+        }
+        if (!kwSize) kwSize = Math.round(size * 1.35);
+        size = Math.round(size * fit); kwSize = Math.round(kwSize * fit);
+        cpl = D.textW / (size * 0.5 + (kwW / Math.max(1, kwW + bodyW)) * (kwSize * 0.62 - size * 0.5));
+      } else if (emph) {
+        for (let s = Math.round(240 * D.k); s >= size; s -= 2) {
+          const perLine = D.textW / (s * 0.5), lines = Math.max(2, Math.ceil(W / perLine));
+          if (lines * s * 1.08 <= D.availH) { size = s; break; }
+        }
+        size = Math.round(size * fit);
+        cpl = D.textW / (size * 0.5);
+      }
+      let brAt = -1;
+      if (W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
+        let acc = 0, best = Infinity;
+        c.ps.forEach((p, i) => { acc += this.w(p); if (p.sp && Math.abs(acc - W / 2) < best) { best = Math.abs(acc - W / 2); brAt = i; } });
+      }
+      const tokens = c.ps.map((p, i) => ({ text: p.t + (p.sp && i !== brAt ? ' ' : ''), kw: p.b, plain: !p.b, br: i === brAt, color: accent, fs: p.b && kwSize ? kwSize + 'px' : '1em', klh: kwSize ? '0' : 'inherit', top: kwSize ? Math.round(0.35 * kwSize - 0.3 * size) + 'px' : '0px' }));
+      const part = chunks.length > 1 ? ` (${ci + 1}/${chunks.length})` : '';
+      const plainText = c.ps.map(p => p.t).join(' ');
+      const name = c.ref ? c.ref + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
+      const num = String(slides.length + 1).padStart(2, '0');
+      this.refFns[k] = this.refFns[k] || (el => { this.nodes[k] = el; });
+      this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
+      this.emphFns = this.emphFns || {};
+      this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
+      slides.push({ fitKey, key: k, num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+    }));
+    return slides;
+  }
+  exportAll = async () => {
+    if (this.state.exporting != null) return;
+    const H = window.htmlToImage, Z = window.JSZip, slides = this.slides || [];
+    if (!H || !Z) { this.setState({ error: 'Export tools are still loading. Try again in a moment.' }); return; }
+    if (!slides.length) return;
+    this.setState({ exporting: 0, error: '' });
+    try {
+      await document.fonts.ready;
+      const zip = new Z(), fontEmbedCSS = await H.getFontEmbedCSS(this.nodes[slides[0].key]);
+      for (let i = 0; i < slides.length; i++) {
+        const blob = await H.toBlob(this.nodes[slides[i].key], { width: this.dims().W, height: this.dims().H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
+        zip.file(slides[i].file, blob);
+        this.setState({ exporting: i + 1 });
+      }
+      const out = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = 'scripture-screens.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch (err) { this.setState({ error: 'Export failed: ' + (err && err.message || err) }); }
+    this.setState({ exporting: null });
+  };
+  dimVals() {
+    const D = this.dims(), gw = this.state.gridW || 900, gap = 24, min = Math.min(gw, D.W > 2000 ? 720 : 460);
+    const cols = Math.max(1, Math.floor((gw + gap) / (min + gap))), colW = (gw - gap * (cols - 1)) / cols;
+    return { tLeft: D.wide ? '0px' : 'auto', tRight: D.wide ? '0px' : D.side + 'px', tJustify: D.wide ? 'center' : 'flex-end', tBottom: D.wide ? Math.round(D.pad * 0.8) : D.pad, tSize: Math.round(28 * D.k), tLift: D.wide ? 0 : Math.round((D.markH - 28 * D.k) / 2), dJustify: 'flex-start', dAlign: D.wide ? 'center' : 'stretch', dTextAlign: D.wide ? 'center' : 'left', dPadB: 0, dRefPos: D.wide ? 'static' : 'absolute', dRefMt: D.wide ? Math.round(70 * D.k) : 0, dRefLeft: D.wide ? 0 : D.side, dRefRight: D.wide ? '0' : 'auto', dRefJustify: D.wide ? 'center' : 'flex-start', dW: D.W, dH: D.H, dPad: D.pad, dSide: D.side, dTextW: D.textW, dRef: D.ref, dRefGap: D.refGap, dMarkW: D.markW, dMarkH: D.markH, aspect: D.W + ' / ' + D.H, scale: colW / D.W, cardMin: D.W > 2000 ? 720 : 460 };
+  }
+  sizeFns = {};
+  sizeOptions() {
+    return Component.SIZES.map(s => {
+      const on = (this.state.size || 'std') === s.id;
+      this.sizeFns[s.id] = this.sizeFns[s.id] || (() => this.setState({ size: s.id }));
+      return { label: s.label, note: s.note, on: this.sizeFns[s.id], bg: on ? '#000' : '#fff', fg: on ? '#fff' : '#000', noteFg: on ? '#ffff5f' : '#5d1fec' };
+    });
+  }
+  shuffle = () => {
+    const names = Object.keys(Component.PAIRS), overrides = {}, byPassage = {};
+    let prev = null;
+    (this.slides || []).forEach(s => {
+      const pi = s.key.split(':')[0];
+      if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
+      overrides[s.key] = byPassage[pi];
+    });
+    this.setState({ overrides });
+  };
+  onTitle = e => this.setState({ title: e.target.value });
+  toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
+  openExample = () => this.setState({ showExample: true });
+  closeExample = () => this.setState({ showExample: false });
+  stop = e => e.stopPropagation();
+  exampleRows() {
+    const notes = [['Title · left out', 0], ['Becomes screens · reference first, bold = highlighted words', 1], ['Left out · no reference', 0], ['Becomes a screen', 1], ['Becomes a screen', 1], ['Becomes a screen', 1], ['Becomes a screen', 1], ['Becomes a screen · marked *SCREEN', 1]];
+    return Component.SAMPLE.split(/\n+/).filter(Boolean).map((l, i) => ({
+      tokens: l.split('**').map((t, k) => ({ t, b: k % 2 === 1, n: k % 2 === 0 })).filter(x => x.t),
+      note: (notes[i] || ['', 0])[0], tagBg: (notes[i] || [0, 0])[1] ? '#5d1fec' : '#e8e5dc', tagFg: (notes[i] || [0, 0])[1] ? '#fff' : '#333'
+    }));
+  }
+  renderVals() {
+    const slides = this.build(); this.slides = slides;
+    const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
+    const ex = this.state.exporting;
+    return {
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, ...this.dimVals(), sizeOptions: this.sizeOptions(), showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      maxLines: this.props.maxLines ?? 4,
+      summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
+      exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
+      dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
+      uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
+      uploadAnim: this.state.uploaded || this.state.drag ? 'none' : 'fcPulse 2s ease-out infinite',
+      onText: this.onText, openFile: this.openFile, onFile: this.onFile, fileRef: this.fileRef, gridRef: this.gridRef,
+      exportAll: this.exportAll, onDragOver: this.onDragOver, onDragLeave: this.onDragLeave, onDrop: this.onDrop
+    };
+  }
+}
+</script>
+</body>
+</html>
