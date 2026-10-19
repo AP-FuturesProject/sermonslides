@@ -426,7 +426,7 @@ class Component extends DCLogic {
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
-      const pair = this.state.overrides[k] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
+      const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const emph = !!(this.state.emph || {})[k];
