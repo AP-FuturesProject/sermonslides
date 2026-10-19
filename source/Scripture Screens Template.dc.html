@@ -18,7 +18,7 @@
 <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
-<style>@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
+<style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);color:transparent;animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
 <div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
   <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
@@ -70,7 +70,7 @@
         <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 3</span>
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
-        <textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
+        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
       </div>
     </aside>
     <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
@@ -218,7 +218,7 @@ class Component extends DCLogic {
   onDragOver = e => { e.preventDefault(); if (!this.state.drag) this.setState({ drag: true }); };
   onDragLeave = e => { if (e.currentTarget === e.target) this.setState({ drag: false }); };
   onDrop = e => { e.preventDefault(); this.setState({ drag: false }); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) this.loadFile(f); };
-  onText = e => this.setState({ text: e.target.value });
+  onText = e => { this.clearHl(); this.setState({ text: e.target.value }); };
 
   async loadFile(f) {
     const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
@@ -519,21 +519,32 @@ class Component extends DCLogic {
     this.setState({ overrides, trad: false });
   };
   traditional = () => this.setState({ overrides: {}, trad: true });
-  taRef = el => { this.ta = el; };
+  taRef = el => {
+    if (this.ta && this.ta !== el) this.ta.removeEventListener('scroll', this.syncHl);
+    this.ta = el; if (el) el.addEventListener('scroll', this.syncHl);
+  };
+  hlRef = el => { this.hl = el; };
+  syncHl = () => {
+    const ta = this.ta, hl = this.hl; if (!ta || !hl) return;
+    const cs = getComputedStyle(ta), bw = (parseFloat(cs.borderLeftWidth) || 0) * 2, sb = Math.max(0, ta.offsetWidth - ta.clientWidth - bw);
+    hl.style.width = (ta.getBoundingClientRect().width - sb) + 'px'; hl.style.height = ta.offsetHeight + 'px';
+    hl.scrollTop = ta.scrollTop;
+  };
+  clearHl = () => { if (this.hl) this.hl.innerHTML = ''; };
   selectSource(pi) {
-    const ta = this.ta, lines = (this._plines || [])[pi];
-    if (!ta || !lines || !lines.length) return;
+    const ta = this.ta, hl = this.hl, lines = (this._plines || [])[pi];
+    if (!ta || !hl || !lines || !lines.length) return;
     const text = this.state.text, re = /[^\n]+/g, off = []; let m, li = -1;
     while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
     const a = off[lines[0]], b = off[lines[lines.length - 1]];
     if (!a || !b) return;
-    ta.focus({ preventScroll: true });
-    ta.setSelectionRange(a[0], b[1]);
-    const cs = getComputedStyle(ta), d = document.createElement('div');
-    d.style.cssText = 'position:absolute;visibility:hidden;white-space:pre-wrap;word-wrap:break-word;box-sizing:border-box;border:0;width:' + ta.clientWidth + 'px;font:' + cs.font + ';letter-spacing:' + cs.letterSpacing + ';padding:' + cs.padding + ';';
-    d.textContent = text.slice(0, a[0]) + '\u200b';
-    document.body.appendChild(d); const y = d.offsetHeight; d.remove();
-    ta.scrollTop = Math.max(0, y - ta.clientHeight / 3);
+    const cs = getComputedStyle(ta), esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    for (const k of ['font', 'letterSpacing', 'wordSpacing', 'textRendering', 'fontKerning', 'fontFeatureSettings', 'fontVariantLigatures', 'textIndent', 'tabSize', 'wordBreak']) hl.style[k] = cs[k]; hl.style.padding = cs.padding; hl.style.border = cs.borderTopWidth + ' solid transparent';
+    hl.innerHTML = esc(text.slice(0, a[0])) + '<mark class="fc-hl">' + esc(text.slice(a[0], b[1])) + '</mark>' + esc(text.slice(b[1])) + '&#8203;';
+    this.syncHl();
+    const mk = hl.querySelector('mark');
+    ta.scrollTop = Math.max(0, mk.offsetTop - ta.clientHeight / 3);
+    this.syncHl();
     ta.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   onTitle = e => this.setState({ title: e.target.value });
@@ -553,7 +564,7 @@ class Component extends DCLogic {
     const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 4,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
       exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
