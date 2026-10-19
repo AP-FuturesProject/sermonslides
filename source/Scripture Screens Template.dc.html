@@ -224,6 +224,7 @@ class Component extends DCLogic {
     const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
     try {
       let text;
+      if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB). Try a smaller file.');
       if (ext === 'docx') text = await this.readDocx(f);
       else if (ext === 'pdf') text = await this.readPdf(f);
       else if (ext === 'odt') text = await this.readOdt(f);
@@ -231,13 +232,14 @@ class Component extends DCLogic {
       else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
       else if (ext === 'pages') throw new Error('Pages files can’t be read in the browser. In Pages, choose File › Export To › Word, then upload the .docx.');
       else if (ext === 'doc') throw new Error('Old .doc files aren’t supported. Re-save as .docx and upload again.');
-      else text = await f.text();
+      else if (ext === 'txt' || ext === 'md' || ext === 'text') { text = await f.text(); if (/[\u0000\uFFFD]/.test(text.slice(0, 4000))) throw new Error('That file doesn’t look like plain text. Save it as .txt or .docx and try again.'); }
+      else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
       if (!text.trim()) throw new Error('no text found in that file.');
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && first.length <= 60 ? first : this.state.title;
       this.setState({ text, title, overrides: {}, emph: {}, error: '', uploaded: true });
-    } catch (err) { this.setState({ error: /›|Re-save/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
+    } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
     const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer);
