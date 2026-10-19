@@ -45,7 +45,6 @@
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
         <div>Long verses are split across screens for you.</div>
         <div>If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
-        <div style="display:flex; justify-content:center; margin-top:6px;"><x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" size="sm" onClick="{{ openExample }}" hint-size="130px,36px">See example</x-import></div>
       </div>
     
   </section>
@@ -64,6 +63,7 @@
           <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it here in this box.</span>
           <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fff;">Word, PDF or text files</span>
         </button>
+        <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
         <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 2</span>
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
