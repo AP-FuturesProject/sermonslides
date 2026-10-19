@@ -70,7 +70,7 @@
         <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 3</span>
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
-        <textarea value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
+        <textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
       </div>
     </aside>
     <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
@@ -91,7 +91,7 @@
             </select>
             </div>
           </div>
-          <div style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }};">
+          <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
             <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;">
                 <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
@@ -176,7 +176,7 @@ class Component extends DCLogic {
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
-  nodes = {}; refFns = {}; pairFns = {};
+  nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
   componentDidUpdate() { this.checkFit(); }
@@ -464,10 +464,11 @@ class Component extends DCLogic {
       const name = c.ref ? c.ref + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
       const num = String(slides.length + 1).padStart(2, '0');
       this.refFns[k] = this.refFns[k] || (el => { this.nodes[k] = el; });
+      this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
-      slides.push({ fitKey, key: k, num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
   }
@@ -518,6 +519,23 @@ class Component extends DCLogic {
     this.setState({ overrides, trad: false });
   };
   traditional = () => this.setState({ overrides: {}, trad: true });
+  taRef = el => { this.ta = el; };
+  selectSource(pi) {
+    const ta = this.ta, lines = (this._plines || [])[pi];
+    if (!ta || !lines || !lines.length) return;
+    const text = this.state.text, re = /[^\n]+/g, off = []; let m, li = -1;
+    while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
+    const a = off[lines[0]], b = off[lines[lines.length - 1]];
+    if (!a || !b) return;
+    ta.focus({ preventScroll: true });
+    ta.setSelectionRange(a[0], b[1]);
+    const cs = getComputedStyle(ta), d = document.createElement('div');
+    d.style.cssText = 'position:absolute;visibility:hidden;white-space:pre-wrap;word-wrap:break-word;box-sizing:border-box;border:0;width:' + ta.clientWidth + 'px;font:' + cs.font + ';letter-spacing:' + cs.letterSpacing + ';padding:' + cs.padding + ';';
+    d.textContent = text.slice(0, a[0]) + '\u200b';
+    document.body.appendChild(d); const y = d.offsetHeight; d.remove();
+    ta.scrollTop = Math.max(0, y - ta.clientHeight / 3);
+    ta.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
   onTitle = e => this.setState({ title: e.target.value });
   toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
   openExample = () => this.setState({ showExample: true });
@@ -535,7 +553,7 @@ class Component extends DCLogic {
     const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 4,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
       exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
