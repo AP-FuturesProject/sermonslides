@@ -21,7 +21,7 @@
 <style>@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#fff;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
 <div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
-  <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px 40px 28px; border-bottom:1px solid #000; background:#fff;">
+  <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
     <div style="display:flex; flex-direction:column; gap:8px;">
       <div style="display:flex; align-items:center; gap:12px; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase;"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:18px; height:18px;"><span>Futures Church</span></div>
       <h1 style="margin:0; font-family:var(--font-display); font-weight:200; font-size:48px; line-height:1;">Scripture <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase;">screens</span></h1>
@@ -37,9 +37,9 @@
     </div>
   </header>
   <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
-    <div style="padding:14px 40px; background:#ffff5f; font-size:15px;">{{ error }}</div>
+    <div style="padding:14px max(40px, calc((100vw - 1400px) / 2)); background:#ffff5f; font-size:15px;">{{ error }}</div>
   </sc-if>
-  <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:32px 40px 0;">
+  <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:32px max(40px, calc((100vw - 1400px) / 2)) 0;">
     <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; font-size:14px; line-height:1.5; color:#333;">
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
@@ -49,7 +49,7 @@
       </div>
     
   </section>
-  <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px 40px 64px;">
+  <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px max(40px, calc((100vw - 1400px) / 2)) 64px;">
     <aside style="flex:1 1 300px; max-width:440px; box-sizing:border-box; display:flex; flex-direction:column; gap:20px; padding:28px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000;">
       <div style="display:flex; flex-direction:column; gap:10px;"><span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Screen size</span>
         <select value="{{ sizeVal }}" onChange="{{ onSize }}" style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #000; border-radius:12px; background:#fff; color:#000; font-family:var(--font-sans); font-size:15px; cursor:pointer;"><sc-for list="{{ sizeChoices }}" as="sc"><option value="{{ sc.id }}">{{ sc.text }}</option></sc-for></select>
