@@ -40,19 +40,19 @@
     <div style="padding:14px 40px; background:#ffff5f; font-size:15px;">{{ error }}</div>
   </sc-if>
   <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:32px 40px 0;">
-    <div style="flex:1 1 360px; max-width:560px; display:flex; flex-direction:column; gap:10px; font-size:14px; line-height:1.5; color:#333; box-sizing:border-box; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000; padding:28px;">
+    <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; font-size:14px; line-height:1.5; color:#333;">
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
         <div>Long verses are split across screens for you.</div>
         <div>If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
-        <div style="display:flex; margin-top:6px;"><x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" size="sm" onClick="{{ openExample }}" hint-size="130px,36px">See example</x-import></div>
+        <div style="display:flex; justify-content:center; margin-top:6px;"><x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" size="sm" onClick="{{ openExample }}" hint-size="130px,36px">See example</x-import></div>
       </div>
-    <div style="flex:1 1 280px; max-width:360px; display:flex; flex-direction:column; gap:10px; box-sizing:border-box; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000; padding:28px;"><span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Screen size</span>
-        <select value="{{ sizeVal }}" onChange="{{ onSize }}" style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #000; border-radius:12px; background:#fff; color:#000; font-family:var(--font-sans); font-size:15px; cursor:pointer;"><sc-for list="{{ sizeChoices }}" as="sc"><option value="{{ sc.id }}">{{ sc.text }}</option></sc-for></select></div>
+    
   </section>
   <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px 40px 64px;">
     <aside style="flex:1 1 300px; max-width:440px; box-sizing:border-box; display:flex; flex-direction:column; gap:20px; padding:28px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000;">
-      <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; flex-direction:column; gap:10px;"><span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Screen size</span>
+        <select value="{{ sizeVal }}" onChange="{{ onSize }}" style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #000; border-radius:12px; background:#fff; color:#000; font-family:var(--font-sans); font-size:15px; cursor:pointer;"><sc-for list="{{ sizeChoices }}" as="sc"><option value="{{ sc.id }}">{{ sc.text }}</option></sc-for></select>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px;">
           <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Message title on screens</span>
           <button onClick="{{ toggleTitle }}" role="switch" aria-checked="{{ titleOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ tglBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ tglX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
