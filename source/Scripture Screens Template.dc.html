@@ -245,7 +245,7 @@ class Component extends DCLogic {
       if (!text.trim()) throw new Error('no text found in that file.');
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
-      const title = first && !this.validRef(first.match(this.refRegex(false))) && first.length <= 60 ? first : this.state.title;
+      const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && first.length <= 60 ? first : this.state.title;
       this.setState({ text, title, overrides: {}, emph: {}, cond: {}, error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
@@ -348,6 +348,13 @@ class Component extends DCLogic {
     this.clean(line).split('**').forEach((part, i) => { for (const c of part) out.push({ c, b: i % 2 === 1 }); });
     return out;
   }
+  bookRe() { return '((?:[1-3]\\s?)?[A-Za-z]+(?:\\s+of\\s+[A-Za-z]+)?)'; }
+  verRe() { return '(?:[\\s,]*\\(?(NASB1995|NASB2020|NKJV|NIRV|NIVUK|NRSVUE|NRSV|NASB|NABRE|HCSB|AMPC|WEBBE|DARBY|EASY|NET|NIV|NLT|ESV|KJV|MSG|TPT|CSB|AMP|BSB|NCV|GNT|GNB|CEV|ERV|WEB|YLT|NJB|TLB|LSB|LEB|ISV|GWT|CEB|MEV|NOG|ICB|RSV|ASV|ESVUK|NIVUK|PHILLIPS|VOICE|GW|JB|NIB)\\)?(?![A-Za-z0-9]))?'; }
+  chapRegex(atEnd) {
+    const BOOK = this.bookRe(), VER = this.verRe(), CH = '(\\d{1,3}(?:\\s*[-–—]\\s*\\d{1,3})?)(?!\\s*[-–—]\\s*\\d)';
+    return atEnd ? new RegExp('\\s*[(—–-]\\s*\\(?\\s*' + BOOK + '\\.?\\s*' + CH + VER + '\\s*\\)?\\s*$') : new RegExp('^\\s*' + BOOK + '\\.?\\s*' + CH + VER + '(?=\\s*$|\\s*[:–—\\-)])');
+  }
+  verseRegex() { return /^\s*(?:verses?|vv?)\.?\s*(\d{1,3})(?:\s*(?:[-–—]|to|through)\s*(\d{1,3}))?(?!\d|:\d)(?:[\s,:;–—-]*(?:says?|reads?|states?)\b)?/i; }
   refRegex(atEnd) {
     const BOOK = '((?:[1-3]\\s?)?[A-Za-z]+(?:\\s+of\\s+[A-Za-z]+)?)';
     const NUMS = '(\\d+:\\d+(?:\\s*[-–—]\\s*\\d+(?::\\d+)?)?(?:\\s*,\\s*\\d+(?:\\s*[-–—]\\s*\\d+)?)*)';
@@ -363,7 +370,7 @@ class Component extends DCLogic {
     return chars.slice(a, b);
   }
   passages(text) {
-    const out = []; let pending = null, pendingLine = -1, li = -1;
+    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null;
     for (const raw of text.split(/\n+/)) {
       if (!this.clean(raw).trim()) continue;
       li++;
@@ -375,14 +382,19 @@ class Component extends DCLogic {
         chars = this.trimChars(chars); if (chars.length) out.push({ ref: '', chars, lines: [li] });
         continue;
       }
-      let m = plain.match(this.refRegex(false));
-      if (this.validRef(m)) {
-        const rest = this.trimChars(chars.slice(m[0].length));
-        if (rest.length) out.push({ ref: this.fmtRef(m), trans: m[3] || '', chars: rest, lines: [li] }); else { pending = { ref: this.fmtRef(m), trans: m[3] || '' }; pendingLine = li; }
+      let m = plain.match(this.refRegex(false)), ref = null;
+      const bc = (mm, n) => mm[1].replace(/\s+/g, ' ') + ' ' + n;
+      if (this.validRef(m)) { ref = { ref: this.fmtRef(m), trans: m[3] || '', cut: m[0].length, end: false }; ctx = { bc: bc(m, m[2].match(/^\d+/)[0]), trans: m[3] || '' }; }
+      else if (this.validRef(m = plain.match(this.refRegex(true)))) { ref = { ref: this.fmtRef(m), trans: m[3] || '', cut: m.index, end: true }; ctx = { bc: bc(m, m[2].match(/^\d+/)[0]), trans: m[3] || '' }; }
+      else if (this.validRef(m = plain.match(this.chapRegex(false)))) { ref = { ref: this.fmtRef(m), trans: m[3] || '', cut: m[0].length, end: false }; ctx = { bc: bc(m, m[2].match(/^\d+/)[0]), trans: m[3] || '' }; }
+      else if (this.validRef(m = plain.match(this.chapRegex(true)))) { ref = { ref: this.fmtRef(m), trans: m[3] || '', cut: m.index, end: true }; ctx = { bc: bc(m, m[2].match(/^\d+/)[0]), trans: m[3] || '' }; }
+      else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
+      if (ref) {
+        const rest = this.trimChars(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut));
+        if (rest.length) out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li] });
+        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; }
         continue;
       }
-      m = plain.match(this.refRegex(true));
-      if (this.validRef(m)) { const rest = this.trimChars(chars.slice(0, m.index)); if (rest.length) out.push({ ref: this.fmtRef(m), trans: m[3] || '', chars: rest, lines: [li] }); continue; }
       if (pending) { out.push({ ref: pending.ref, trans: pending.trans, chars: this.trimChars(chars), lines: [pendingLine, li] }); pending = null; }
     }
     return out;
