@@ -31,7 +31,7 @@
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
       <button onClick="{{ toggleMenu }}" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
-        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 4</span>
+        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 5</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
       </button>
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
@@ -84,6 +84,32 @@
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
         <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
+        <img data-ray="white" src="assets/ray-mark-ffffff.png" alt="" style="display:none;"><img data-ray="black" src="assets/ray-mark-000000.png" alt="" style="display:none;">
+        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 4</span>
+        <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Additional screens</label>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Paste one set of notes, like announcements or an event, and Claude designs a one-off screen for it. Add it to your slides when you like it.</span>
+        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Warning</span><br>Only give one prompt at a time. Wait for the screen to finish, then add it or discard it before you start the next one.</div>
+        <textarea value="{{ axNotes }}" onChange="{{ axOnNotes }}" placeholder="Paste one set of notes here" spellcheck="true" lang="en-AU" style="width:100%; box-sizing:border-box; min-height:160px; resize:vertical; padding:16px; border:1px solid rgba(0,0,0,0.2); border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
+        <input type="password" value="{{ axPass }}" onChange="{{ axOnPass }}" placeholder="Team passcode" autocomplete="off" aria-label="Team passcode" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;">
+        <button onClick="{{ axGenerate }}" disabled="{{ axBusy }}" style="align-self:flex-start; padding:12px 24px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:15px; cursor:pointer; opacity:{{ axBtnOpacity }};" style-hover="opacity:0.88;">{{ axGenLabel }}</button>
+        <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
+        <sc-if value="{{ axErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px; border:1px solid #000; border-radius:10px; background:#ffff5f; font-size:14px; line-height:1.4;">{{ axErr }}</div></sc-if>
+        <sc-if value="{{ axLoading }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px; line-height:1.5; color:#333;">Designing your screen. This can take up to a minute.</div></sc-if>
+        <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}">
+          <div ref="{{ axBoxRef }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; border:1px solid rgba(0,0,0,0.2); background:#000;"><div ref="{{ axRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ axScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button onClick="{{ axRegen }}" disabled="{{ axBusy }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Regenerate</button>
+            <button onClick="{{ axDiscard }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Discard</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Add to slides</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <select value="{{ axWhere }}" onChange="{{ axOnWhere }}" aria-label="Before or after" style="flex:none; padding:8px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px;"><option value="before">Before</option><option value="after">After</option></select>
+              <select value="{{ axTarget }}" onChange="{{ axOnTarget }}" aria-label="Slide" style="flex:1 1 140px; min-width:0; padding:8px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px;"><sc-for list="{{ axTargets }}" as="o"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
+            </div>
+            <button onClick="{{ axAdd }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Add to slides</button>
+          </div>
+        </sc-if>
       </div>
     </aside>
     <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
@@ -99,8 +125,8 @@
             </div>
           <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="flex:none; width:32px; height:32px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
           </div>
-          <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
-            <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
+          <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
+            <sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
@@ -109,15 +135,15 @@
               <sc-if value="{{ hasTitle }}">
                 <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
               </sc-if>
-            </div>
+            </div></sc-if>
           </div>
-        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+        <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
             <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
             <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
             <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="margin-left:auto; flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
               <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
             </select>
-            </div>
+            </div></sc-if>
         </div>
       </sc-for>
     </section>
@@ -189,11 +215,11 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', pass: '', status: 'idle', err: '', msg: '', attempt: 0, html: '', id: '', where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); }
+  componentDidMount() { try { const sp = localStorage.getItem('fc_passcode'); if (sp) this.setState(s => ({ ax: { ...s.ax, pass: sp } })); } catch (e) {} window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidUpdate() { this.checkFit(); this.syncAx(); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -252,7 +278,7 @@ class Component extends DCLogic {
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && first.length <= 60 ? first : this.state.title;
-      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, error: '', uploaded: true });
+      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, extras: [], error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
@@ -421,16 +447,110 @@ class Component extends DCLogic {
       if (!P.ref && !/\[screen\]|\*\s?screen\b/i.test(pre + suf)) pre = '*SCREEN ' + pre;
       nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
     }
-    const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1);
+    const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1), dts = (this.slides || []).find(s => s.key === pi + ':' + ci), dti = dts ? dts.tIndex : 0;
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
     this.clearHl();
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, label }, text: nt, overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label }, text: nt, extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
   }
   undoDelete = () => {
     const u = this.state.undo; if (!u) return;
     clearTimeout(this._undoT); this.clearHl();
-    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, fit: {}, undo: null });
+    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
   };
+  axSet = o => this.setState(s => ({ ax: { ...s.ax, ...o } }));
+  axOnNotes = e => this.axSet({ notes: e.target.value });
+  axOnPass = e => this.axSet({ pass: e.target.value });
+  axOnWhere = e => this.axSet({ where: e.target.value });
+  axOnTarget = e => this.axSet({ target: e.target.value });
+  axGenerate = () => this.axGen(false);
+  axRegen = () => this.axGen(true);
+  axDiscard = () => this.axSet({ status: 'idle', html: '', id: '', err: '' });
+  axGen = async regen => {
+    const ax = this.state.ax;
+    if (ax.status === 'loading') return;
+    if (!ax.notes.trim()) { this.axSet({ err: 'Paste your notes first.' }); return; }
+    if (!ax.pass.trim()) { this.axSet({ err: 'Enter the team passcode.' }); return; }
+    const attempt = regen ? (ax.attempt || 0) + 1 : 0, D = this.dims(), prev = ax.status === 'ready' ? 'ready' : 'idle';
+    this.axSet({ status: 'loading', err: '', msg: '', attempt });
+    try {
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 90000);
+      const res = await fetch(window.FC_API || '/api/generate-screen', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ passcode: ax.pass.trim(), notes: ax.notes, width: D.W, height: D.H, attempt }), signal: ctl.signal });
+      clearTimeout(to);
+      let data = null; try { data = await res.json(); } catch (e) {}
+      if (!res.ok || !data || !data.html) throw new Error((data && data.error) || (res.status === 504 || res.status === 502 ? 'That took too long. Try again, or paste fewer notes.' : 'Something went wrong. Try again.'));
+      const built = this.buildScreen(data.html);
+      try { localStorage.setItem('fc_passcode', ax.pass.trim()); } catch (e) {}
+      this.axSet({ status: 'ready', html: built.html, id: built.id });
+    } catch (err) { this.axSet({ status: prev, err: err && err.name === 'AbortError' ? 'That took too long. Try again.' : (err && err.message) || 'Something went wrong.' }); }
+  };
+  axAdd = () => {
+    const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [];
+    if (ax.status !== 'ready') return;
+    const tgt = slides.find(s => s.vk === ax.target) || slides[slides.length - 1], before = ax.where === 'before';
+    let at = 0, ord = 0;
+    if (tgt && !tgt.isExtra) {
+      at = before ? tgt.tIndex : tgt.tIndex + 1;
+      const g = ex.filter(e => e.at === at);
+      ord = g.length ? (before ? Math.max(...g.map(e => e.ord)) + 1 : Math.min(...g.map(e => e.ord)) - 1) : 0;
+    } else if (tgt) {
+      const e0 = ex.find(e => 'x:' + e.id === tgt.vk);
+      if (e0) { at = e0.at; ord = e0.ord + (before ? -0.5 : 0.5); }
+    }
+    const item = { id: ax.id, at, ord, html: ax.html, label: ax.notes.trim().slice(0, 200) };
+    this.setState(s => ({ extras: [...(s.extras || []), item], ax: { ...s.ax, status: 'idle', html: '', id: '', notes: '', err: '', attempt: 0, msg: 'Added to your slides.' } }));
+  };
+  rayUrl(white) { const el = document.querySelector('img[data-ray="' + (white ? 'white' : 'black') + '"]'); return el ? el.src : ''; }
+  safeCss(v) {
+    return String(v).replace(/url\(\s*(['"]?)(?!data:image\/|blob:)[^)]*\)/gi, 'none').replace(/expression\s*\(|javascript:|behavior\s*:|-moz-binding/gi, '');
+  }
+  scopeCss(css, scope) {
+    const src = String(css).replace(/@import[^;]*;/gi, '');
+    let rules = [];
+    try { const sh = new CSSStyleSheet(); sh.replaceSync(src); rules = [...sh.cssRules]; } catch (e) {
+      const d = document.implementation.createHTMLDocument(''), st = d.createElement('style'); st.textContent = src; d.head.appendChild(st); rules = st.sheet ? [...st.sheet.cssRules] : [];
+    }
+    const pre = sel => sel.split(',').map(x => { x = x.trim().replace(/^(html|body|:root)(?![\w-])/i, '').trim(); return x ? scope + ' ' + x : scope; }).join(', ');
+    return rules.filter(r => r.type === 1).map(r => pre(r.selectorText) + ' { ' + this.safeCss(r.style.cssText) + ' }').join('\n') + '\n' + scope + ' .screen { width:100% !important; height:100% !important; box-sizing:border-box; overflow:hidden; }';
+  }
+  buildScreen(raw) {
+    const id = 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), scope = '.fcx-' + id;
+    const src = String(raw || '').replace(/^\s*```[a-z]*\s*/i, '').replace(/\s*```\s*$/, '').replace(/\{\{RAY_WHITE\}\}/g, this.rayUrl(true)).replace(/\{\{RAY_BLACK\}\}/g, this.rayUrl(false));
+    const doc = new DOMParser().parseFromString('<!doctype html><body>' + src, 'text/html');
+    let css = ''; doc.querySelectorAll('style').forEach(n => { css += n.textContent + '\n'; n.remove(); });
+    doc.querySelectorAll('script,iframe,object,embed,link,meta,base,form,input,button,textarea,select,video,audio,canvas').forEach(n => n.remove());
+    const ok = v => /^(data:image\/|blob:|#)/i.test(String(v).trim());
+    doc.body.querySelectorAll('*').forEach(el => {
+      for (const a of [...el.attributes]) {
+        const n = a.name.toLowerCase();
+        if (n.startsWith('on')) el.removeAttribute(a.name);
+        else if ((n === 'src' || n === 'href' || n === 'xlink:href' || n === 'srcset' || n === 'action' || n === 'formaction') && !ok(a.value)) el.removeAttribute(a.name);
+        else if (n === 'style') el.setAttribute('style', this.safeCss(a.value));
+      }
+    });
+    return { id, html: '<style>' + this.scopeCss(css, scope) + '</style>' + doc.body.innerHTML };
+  }
+  syncAx() {
+    const el = this.axEl, a = this.state.ax;
+    if (el && a.status === 'ready' && el.dataset.xid !== a.id) { el.className = 'fcx-' + a.id; el.innerHTML = a.html; el.dataset.xid = a.id; }
+  }
+  axRef = el => { this.axEl = el; this.syncAx(); };
+  axBoxRef = el => {
+    this.axRo && this.axRo.disconnect();
+    if (!el) return;
+    const m = () => { const w = el.clientWidth; if (w !== this.state.axW) this.setState({ axW: w }); };
+    this.axRo = new ResizeObserver(m); this.axRo.observe(el); m();
+  };
+  extraSlide(e) {
+    const k = 'x:' + e.id;
+    this.exFns = this.exFns || {}; this.exDel = this.exDel || {};
+    this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; if (el.dataset.xid !== e.id) { el.className = 'fcx-' + e.id; el.innerHTML = e.html; el.dataset.xid = e.id; } });
+    this.exDel[e.id] = this.exDel[e.id] || (ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteExtra(e.id); });
+    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Additional screen', cardTitle: 'Additional screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
+  }
+  deleteExtra(id) {
+    clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label: 'Additional screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
+  }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
     chars.forEach((x, i) => { for (let k = 0; k < x.c.length; k++) map.push(i); });
@@ -584,9 +704,15 @@ class Component extends DCLogic {
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: true, isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
-    return slides;
+    const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
+    for (let i = 0; i <= slides.length; i++) {
+      while (ei < exs.length && Math.min(exs[ei].at, slides.length) <= i) merged.push(this.extraSlide(exs[ei++]));
+      if (i < slides.length) merged.push(slides[i]);
+    }
+    merged.forEach((s, i) => { const n = String(i + 1).padStart(2, '0'); s.slideLabel = 'Slide ' + (i + 1); s.num = n; s.file = n + '-' + (s.isExtra ? 'Additional-screen' : s.fname) + '.png'; });
+    return merged;
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
@@ -645,7 +771,7 @@ class Component extends DCLogic {
   shuffle = () => {
     const names = Object.keys(Component.PAIRS), overrides = {}, byPassage = {};
     let prev = null;
-    (this.slides || []).forEach(s => {
+    (this.slides || []).filter(s => !s.isExtra).forEach(s => {
       const pi = s.key.split(':')[0];
       if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
       overrides[s.key] = byPassage[pi];
@@ -695,12 +821,14 @@ class Component extends DCLogic {
   }
   renderVals() {
     const slides = this.build(); this.slides = slides;
-    const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
+    const passages = new Set(slides.filter(s => !s.isExtra).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
+    const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
-      summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
+      summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} additional` : '') : '',
+      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axPass: ax.pass || '', axOnPass: this.axOnPass, axGenerate: this.axGenerate, axRegen: this.axRegen, axDiscard: this.axDiscard, axAdd: this.axAdd, axBusy: ax.status === 'loading', axBtnOpacity: ax.status === 'loading' ? 0.5 : 1, axGenLabel: ax.status === 'loading' ? 'Designing…' : (ax.status === 'ready' ? 'Generate a new screen' : 'Generate screen'), axErr: ax.err || '', axMsg: ax.msg || '', axLoading: ax.status === 'loading', axReady: ax.status === 'ready', axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
       undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
