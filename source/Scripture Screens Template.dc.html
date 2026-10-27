@@ -30,6 +30,7 @@
       <span style="font-size:14px; color:#555;">{{ summary }}</span>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
+      <sc-if value="{{ hasOrder }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ resetOrder }}" hint-size="140px,44px">Reset order</x-import></sc-if>
       <button onClick="{{ toggleMenu }}" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
         <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 5</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
@@ -60,6 +61,7 @@
         <div>Long verses are split across screens for you.</div>
         <div><span style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">Bolded</span> or <span style="text-decoration:underline; text-underline-offset:3px;">underlined</span> words are emphasized.</div>
         <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like made that isn't a scripture, head to Step 4 to create an Illustration screen OR in your notes, add *SCREEN to it.</div>
+        <div>Click and hold a slide, then drag it to move it. Use Reset order to put the slides back.</div>
         <div>Please use this tool on a computer or tablet for best viewing experience.</div>
       </div>
     
@@ -115,8 +117,8 @@
         <div style="grid-column:1 / -1; padding:64px 32px; border:1px dashed #000; border-radius:14px; text-align:center; font-family:var(--font-display); font-weight:300; font-size:28px;">No verses found yet. Upload a doc or paste text with references.</div>
       </sc-if>
       <sc-for list="{{ slides }}" as="s" hint-placeholder-count="4">
-        <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div data-vk="{{ s.key }}" style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:grab;">
             <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 12px; min-width:0;">
               <span style="flex:none; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1; color:#000;">{{ s.slideLabel }}</span>
               <span style="font-family:var(--font-grotesque); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:#5d1fec; overflow-wrap:anywhere;">{{ s.name }}</span>
@@ -238,10 +240,10 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
   componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
   checkFit() {
     clearTimeout(this._fitT);
@@ -267,7 +269,95 @@ class Component extends DCLogic {
       if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
     }, 60);
   }
-  componentWillUnmount() { clearTimeout(this._undoT); window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
+  componentWillUnmount() { this.dragCleanup(); document.removeEventListener('pointerdown', this.dragDown, true); document.removeEventListener('click', this.clickGuard, true); clearTimeout(this._undoT); window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
+  remapOrder(order, pi, ci) {
+    if (!order) return null;
+    const out = [];
+    for (const k of order) {
+      const m = /^(\d+):(\d+)$/.exec(k);
+      if (!m) { out.push(k); continue; }
+      const a = +m[1], b = +m[2];
+      if (a < pi) out.push(k);
+      else if (a === pi) { if (ci == null) continue; if (b < ci) out.push(k); else if (b > ci) out.push(a + ':' + (b - 1)); }
+      else out.push(ci == null ? (a - 1) + ':' + b : k);
+    }
+    return out;
+  }
+  resetOrder = () => this.setState({ order: null });
+  dragDown = e => {
+    if (this._drag || (e.button !== undefined && e.button !== 0)) return;
+    const s = this.state; if (s.illus || s.zoom || s.showExample || s.menu) return;
+    const t = e.target; if (!t || !t.closest || t.closest('button, select, input, textarea, a, label')) return;
+    const card = t.closest('[data-vk]'); if (!card) return;
+    const r = card.getBoundingClientRect();
+    const d = this._drag = { vk: card.getAttribute('data-vk'), card, x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, id: e.pointerId, type: e.pointerType, on: false, target: null, side: 'after' };
+    document.addEventListener('pointermove', this.dragMove, true);
+    document.addEventListener('pointerup', this.dragEnd, true);
+    document.addEventListener('pointercancel', this.dragCancel, true);
+    document.addEventListener('keydown', this.dragKey, true);
+    if (e.pointerType !== 'mouse') d.timer = setTimeout(() => this.dragStart(), 350);
+  };
+  dragMove = e => {
+    const d = this._drag; if (!d || e.pointerId !== d.id) return;
+    d.cx = e.clientX; d.cy = e.clientY;
+    const dist = Math.hypot(d.cx - d.x, d.cy - d.y);
+    if (!d.on) { if (d.type === 'mouse') { if (dist > 6) this.dragStart(); } else if (dist > 10) this.dragCancel(); return; }
+    e.preventDefault(); this.dragUpdate();
+  };
+  dragStart() {
+    const d = this._drag; if (!d || d.on) return;
+    clearTimeout(d.timer); d.on = true;
+    const g = d.card.cloneNode(true), w = d.card.offsetWidth;
+    g.removeAttribute('data-vk');
+    g.style.cssText += ';position:fixed;left:0;top:0;width:' + w + 'px;transform-origin:0 0;transform:scale(0.55);pointer-events:none;z-index:70;opacity:0.92;box-shadow:0 12px 32px rgba(0,0,0,0.35);background:#f2f0ea;border-radius:8px;';
+    document.body.appendChild(g); d.ghost = g;
+    const bar = document.createElement('div'); bar.style.cssText = 'position:fixed;z-index:71;background:#5d1fec;border-radius:3px;pointer-events:none;display:none;'; document.body.appendChild(bar); d.bar = bar;
+    d.card.style.opacity = '0.35';
+    document.body.style.userSelect = 'none'; document.body.style.cursor = 'grabbing';
+    try { window.getSelection().removeAllRanges(); } catch (er) {}
+    d.touch = ev => ev.preventDefault(); document.addEventListener('touchmove', d.touch, { passive: false });
+    d.iv = setInterval(() => this.dragUpdate(), 40);
+    this.dragUpdate();
+  }
+  dragUpdate() {
+    const d = this._drag; if (!d || !d.on) return;
+    d.ghost.style.transform = 'translate(' + Math.round(d.cx - d.ox * 0.55) + 'px,' + Math.round(d.cy - d.oy * 0.55) + 'px) scale(0.55)';
+    if (d.cy < 70) window.scrollBy(0, -14); else if (d.cy > window.innerHeight - 70) window.scrollBy(0, 14);
+    const el = document.elementFromPoint(d.cx, d.cy), tc = el && el.closest ? el.closest('[data-vk]') : null;
+    if (tc && tc !== d.card) {
+      const r = tc.getBoundingClientRect(), grid = tc.parentElement, cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 1;
+      d.target = tc.getAttribute('data-vk');
+      d.side = cols > 1 ? (d.cx < r.left + r.width / 2 ? 'before' : 'after') : (d.cy < r.top + r.height / 2 ? 'before' : 'after');
+      const b = d.bar.style; b.display = 'block';
+      if (cols > 1) { b.width = '6px'; b.height = r.height + 'px'; b.top = r.top + 'px'; b.left = (d.side === 'before' ? r.left - 15 : r.right + 9) + 'px'; }
+      else { b.height = '6px'; b.width = r.width + 'px'; b.left = r.left + 'px'; b.top = (d.side === 'before' ? r.top - 9 : r.bottom + 3) + 'px'; }
+    }
+  }
+  dragEnd = e => {
+    const d = this._drag; if (!d || e.pointerId !== d.id) return;
+    const move = d.on && d.target && d.target !== d.vk ? { vk: d.vk, target: d.target, side: d.side } : null, was = d.on;
+    this.dragCleanup();
+    if (was) { this._swallow = true; setTimeout(() => { this._swallow = false; }, 100); }
+    if (move) {
+      const keys = (this.slides || []).map(s => s.key), others = keys.filter(k => k !== move.vk);
+      let ti = others.indexOf(move.target); if (ti < 0) return; if (move.side === 'after') ti++;
+      others.splice(ti, 0, move.vk); this.setState({ order: others });
+    }
+  };
+  dragCancel = () => this.dragCleanup();
+  dragKey = e => { if (e.key === 'Escape') this.dragCleanup(); };
+  dragCleanup() {
+    const d = this._drag; if (!d) return;
+    clearTimeout(d.timer); clearInterval(d.iv);
+    d.ghost && d.ghost.remove(); d.bar && d.bar.remove();
+    if (d.card) d.card.style.opacity = '';
+    if (d.touch) document.removeEventListener('touchmove', d.touch);
+    document.body.style.userSelect = ''; document.body.style.cursor = '';
+    document.removeEventListener('pointermove', this.dragMove, true); document.removeEventListener('pointerup', this.dragEnd, true);
+    document.removeEventListener('pointercancel', this.dragCancel, true); document.removeEventListener('keydown', this.dragKey, true);
+    this._drag = null;
+  }
+  clickGuard = e => { if (this._swallow) { e.stopPropagation(); e.preventDefault(); this._swallow = false; } };
   gridRef = el => {
     this.ro && this.ro.disconnect();
     if (!el) return;
@@ -301,7 +391,7 @@ class Component extends DCLogic {
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && first.length <= 60 ? first : this.state.title;
-      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, extras: [], error: '', uploaded: true });
+      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, extras: [], order: null, error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
@@ -473,12 +563,12 @@ class Component extends DCLogic {
     const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1), dts = (this.slides || []).find(s => s.key === pi + ':' + ci), dti = dts ? dts.tIndex : 0;
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
     this.clearHl();
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label }, text: nt, extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], order: s.order || null, label }, text: nt, order: this.remapOrder(s.order, pi, whole ? null : ci), extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
   }
   undoDelete = () => {
     const u = this.state.undo; if (!u) return;
     clearTimeout(this._undoT); this.clearHl();
-    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
+    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], order: u.order || null, fit: {}, undo: null });
   };
   openZoomAx = () => this.setState({ zoom: { src: 'ax' } });
   closeZoom = () => this.setState({ zoom: null });
@@ -543,7 +633,9 @@ class Component extends DCLogic {
       if (e0) { at = e0.at; ord = e0.ord + (before ? -0.5 : 0.5); }
     }
     const item = { id: 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), at, ord, notes, attempt: ax.attempt || 0, pair: this.pairFor(ax.attempt || 0), label: notes.slice(0, 200) };
-    this.setState(s => ({ extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', msg: 'Added to your slides.' } }));
+    let order = this.state.order || null;
+    if (order && tgt) { const keys = slides.map(x => x.key).filter(k => k !== 'x:' + item.id); let ti = keys.indexOf(tgt.key); if (ti >= 0) { if (!before) ti++; keys.splice(ti, 0, 'x:' + item.id); order = keys; } }
+    this.setState(s => ({ order, extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', msg: 'Added to your slides.' } }));
   };
   rayUrl(white) { const el = document.querySelector('img[data-ray="' + (white ? 'white' : 'black') + '"]'); return el ? el.src : ''; }
   pairFor(attempt) { return Component.CYCLE[(((this.state.extras || []).length * 7) + attempt * 5) % Component.CYCLE.length]; }
@@ -615,7 +707,7 @@ class Component extends DCLogic {
   }
   deleteExtra(id) {
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label: 'Illustration screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], order: s.order || null, label: 'Illustration screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
   }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
@@ -773,6 +865,12 @@ class Component extends DCLogic {
       while (ei < exs.length && Math.min(exs[ei].at, slides.length) <= i) merged.push(this.extraSlide(exs[ei++]));
       if (i < slides.length) merged.push(slides[i]);
     }
+    if (this.state.order) {
+      const by = {}; merged.forEach(s => { by[s.key] = s; });
+      const inOrd = this.state.order.filter(k => by[k]), res = inOrd.map(k => by[k]), have = new Set(inOrd); let last = -1;
+      merged.forEach(s => { if (have.has(s.key)) last = res.indexOf(s); else { res.splice(last + 1, 0, s); last++; } });
+      merged.splice(0, merged.length, ...res);
+    }
     merged.forEach((s, i) => { const n = String(i + 1).padStart(2, '0'); s.slideLabel = 'Slide ' + (i + 1); s.num = n; s.file = n + '-' + (s.isExtra ? 'Illustration-screen' : s.fname) + '.png'; });
     return merged;
   }
@@ -888,7 +986,7 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
