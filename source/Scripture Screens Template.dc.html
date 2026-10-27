@@ -93,20 +93,13 @@
       <sc-for list="{{ slides }}" as="s" hint-placeholder-count="4">
         <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-            <div style="display:flex; align-items:baseline; gap:10px; min-width:0;">
+            <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 12px; min-width:0;">
               <span style="flex:none; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1; color:#000;">{{ s.slideLabel }}</span>
-              <span style="font-family:var(--font-grotesque); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:#5d1fec; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</span>
+              <span style="font-family:var(--font-grotesque); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:#5d1fec; overflow-wrap:anywhere;">{{ s.name }}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; flex:none;">
-            <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
-            <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
-            <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
-              <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
-            </select>
-            </div>
+          <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="flex:none; width:32px; height:32px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
           </div>
           <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
-            <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="position:absolute; top:8px; right:8px; z-index:2; width:30px; height:30px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
             <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;">
                 <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
@@ -119,6 +112,13 @@
               </sc-if>
             </div>
           </div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+            <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
+            <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
+            <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="margin-left:auto; flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
+              <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
+            </select>
+            </div>
         </div>
       </sc-for>
     </section>
