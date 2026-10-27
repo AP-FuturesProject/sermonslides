@@ -126,7 +126,7 @@
           <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="flex:none; width:32px; height:32px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
           </div>
           <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
-            <sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
+            <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
@@ -240,7 +240,7 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
@@ -373,10 +373,53 @@ class Component extends DCLogic {
   onDrop = e => { e.preventDefault(); this.setState({ drag: false }); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) this.loadFile(f); };
   onText = e => { this.clearHl(); this.setState({ text: e.target.value }); };
 
+  imgMime(b) {
+    if (b[0] === 0x89 && b[1] === 0x50) return 'image/png';
+    if (b[0] === 0xFF && b[1] === 0xD8) return 'image/jpeg';
+    if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46) return 'image/gif';
+    if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[8] === 0x57) return 'image/webp';
+    if (b[0] === 0x42 && b[1] === 0x4D) return 'image/bmp';
+    return '';
+  }
+  addImg(bytes) {
+    const mime = bytes && bytes.length > 8 ? this.imgMime(bytes) : ''; if (!mime) return '';
+    this._cand = this._cand || []; this._cand.push({ bytes, mime });
+    return '[[Image ' + this._cand.length + ']]';
+  }
+  async finishImages(text) {
+    const cand = this._cand || []; this._cand = [];
+    const hashOf = b => { let h = b.length; for (let i = 0; i < b.length; i += 97) h = (h * 31 + b[i]) >>> 0; return h; };
+    const info = [];
+    for (const c of cand) {
+      let w = 0, h = 0;
+      try { const bm = await createImageBitmap(new Blob([c.bytes], { type: c.mime })); w = bm.width; h = bm.height; if (bm.close) bm.close(); } catch (e) {}
+      info.push({ ...c, w, h, hash: hashOf(c.bytes) });
+    }
+    const count = {}; info.forEach(i => { count[i.hash] = (count[i.hash] || 0) + 1; });
+    const keep = []; info.forEach(i => { i.keep = i.w >= 120 && i.h >= 120 && i.w * i.h >= 30000 && count[i.hash] === 1; if (i.keep) { keep.push(i); i.n = keep.length; } });
+    const urls = keep.map(i => URL.createObjectURL(new Blob([i.bytes], { type: i.mime })));
+    const out = text.split('\n').map(l => { const m = /^\[\[Image (\d+)\]\]$/.exec(l.trim()); if (!m) return l; const i = info[+m[1] - 1]; return i && i.keep ? '[[Image ' + i.n + ']]' : null; }).filter(l => l !== null).join('\n');
+    return { text: out, urls };
+  }
+  async pdfImgToPng(o) {
+    const w = o.width, h = o.height; if (!w || !h || w * h < 30000) return null;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d');
+    if (o.bitmap) cx.drawImage(o.bitmap, 0, 0);
+    else if (o.data) {
+      const id = cx.createImageData(w, h), d = id.data, s = o.data;
+      if (o.kind === 3 || s.length === w * h * 4) d.set(s.subarray(0, w * h * 4));
+      else if (o.kind === 2 || s.length === w * h * 3) { for (let i = 0, j = 0; i < w * h; i++) { d[j++] = s[i * 3]; d[j++] = s[i * 3 + 1]; d[j++] = s[i * 3 + 2]; d[j++] = 255; } }
+      else if (o.kind === 1) { const rb = (w + 7) >> 3; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = (s[y * rb + (x >> 3)] >> (7 - (x & 7))) & 1 ? 255 : 0, j = (y * w + x) * 4; d[j] = d[j + 1] = d[j + 2] = v; d[j + 3] = 255; } }
+      else return null;
+      cx.putImageData(id, 0, 0);
+    } else return null;
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    return blob ? new Uint8Array(await blob.arrayBuffer()) : null;
+  }
   async loadFile(f) {
     const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
     try {
-      let text;
+      let text; this._cand = [];
       if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB). Try a smaller file.');
       if (ext === 'docx') text = await this.readDocx(f);
       else if (ext === 'pdf') text = await this.readPdf(f);
@@ -387,15 +430,18 @@ class Component extends DCLogic {
       else if (ext === 'doc') throw new Error('Old .doc files aren’t supported. Re-save as .docx and upload again.');
       else if (ext === 'txt' || ext === 'md' || ext === 'text') { text = await f.text(); if (/[\u0000\uFFFD]/.test(text.slice(0, 4000))) throw new Error('That file doesn’t look like plain text. Save it as .txt or .docx and try again.'); }
       else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
+      const fin = await this.finishImages(text); text = fin.text;
       if (!text.trim()) throw new Error('no text found in that file.');
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
-      const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && first.length <= 60 ? first : this.state.title;
-      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, extras: [], order: null, error: '', uploaded: true });
+      const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && !/^\[\[Image/i.test(first) && first.length <= 60 ? first : this.state.title;
+      (this.state.images || []).forEach(u => URL.revokeObjectURL(u));
+      this.setState({ text, title, images: fin.urls, overrides: {}, emph: {}, cond: {}, extras: [], order: null, error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
-  async unzip(file, want) {
-    const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer);
+  async unzip(file, want, bin) {
+    if (this._zf !== file) { this._zf = file; this._zb = new Uint8Array(await file.arrayBuffer()); }
+    const buf = this._zb, dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     let e = buf.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
     if (e < 0) throw new Error('file looks damaged.');
     let p = dv.getUint32(e + 16, true); const n = dv.getUint16(e + 10, true);
@@ -405,6 +451,7 @@ class Component extends DCLogic {
       if (name === want) {
         const off = lho + 30 + dv.getUint16(lho + 26, true) + dv.getUint16(lho + 28, true);
         const data = buf.slice(off, off + cs);
+        if (bin) return method === 0 ? data : new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
         return method === 0 ? new TextDecoder().decode(data) : await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
       }
       p += 46 + nl + el + cl;
@@ -416,7 +463,7 @@ class Component extends DCLogic {
     const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise, lines = [];
     for (let n = 1; n <= pdf.numPages; n++) {
-      const page = await pdf.getPage(n); await page.getOperatorList();
+      const page = await pdf.getPage(n), opl = await page.getOperatorList();
       const tc = await page.getTextContent(), boldOf = {};
       const isBold = fn => { if (!(fn in boldOf)) { let nm = ''; try { const o = page.commonObjs.get(fn); nm = (o && (o.name || o.loadedName)) || ''; } catch (e) {} boldOf[fn] = /bold|black|heavy|semibold|demi/i.test(nm + ' ' + (tc.styles[fn]?.fontFamily || '')); } return boldOf[fn]; };
       const hs = tc.items.filter(it => /[A-Za-z]/.test(it.str)).map(it => Math.abs(it.transform[3])).sort((a, b) => a - b), med = hs[hs.length >> 1] || 0;
@@ -430,6 +477,16 @@ class Component extends DCLogic {
         lastY = y; lastH = h;
       }
       lines.push(cur);
+      try {
+        const seen = new Set();
+        for (let q = 0; q < opl.fnArray.length; q++) {
+          if (opl.fnArray[q] !== lib.OPS.paintImageXObject) continue;
+          const name = opl.argsArray[q][0]; if (seen.has(name)) continue; seen.add(name);
+          const obj = await new Promise(res => { try { page.objs.get(name, res); } catch (e) { res(null); } });
+          const png = obj && await this.pdfImgToPng(obj);
+          const mk = png && this.addImg(png); if (mk) lines.push(mk);
+        }
+      } catch (e) {}
     }
     return lines.map(l => l.replace(/\*\*\*\*/g, '').replace(/\*\*(\s+)\*\*/g, '$1').replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
   }
@@ -438,13 +495,18 @@ class Component extends DCLogic {
     const doc = new DOMParser().parseFromString(xml, 'application/xml'), bold = new Set(), sup = new Set();
     for (const st of doc.getElementsByTagName('style:style')) { const tp = st.getElementsByTagName('style:text-properties')[0]; if (tp && /bold|[6-9]00/.test(tp.getAttribute('fo:font-weight') || '')) bold.add(st.getAttribute('style:name')); if (tp && (tp.getAttribute('style:text-underline-style') || 'none') !== 'none') bold.add(st.getAttribute('style:name')); if (tp && /^(super|\d+%)/.test(tp.getAttribute('style:text-position') || '')) sup.add(st.getAttribute('style:name')); }
     const walk = (node, b) => { let s = ''; for (const c of node.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeName === 'text:s' || c.nodeName === 'text:tab' || c.nodeName === 'text:line-break') s += ' '; else if (sup.has(c.getAttribute && c.getAttribute('text:style-name')) && /^[\s\d,\-–]+$/.test(c.textContent)) continue; else s += walk(c, b || bold.has(c.getAttribute && c.getAttribute('text:style-name'))); } return s; };
-    return [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)).map(p => walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '').trim()).filter(Boolean).join('\n');
+    const paras = [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)), lines = [];
+    for (const p of paras) {
+      const t = walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '').trim(); if (t) lines.push(t);
+      for (const im of p.getElementsByTagName('draw:image')) { const href = im.getAttribute('xlink:href'); if (!href || /^(https?:|data:)/i.test(href)) continue; try { const mk = this.addImg(await this.unzip(file, href.replace(/^\.\//, ''), true)); if (mk) lines.push(mk); } catch (e) {} }
+    }
+    return lines.join('\n');
   }
-  readHtml(src) {
+  readHtml(src, imgs = true) {
     const doc = new DOMParser().parseFromString(src, 'text/html');
     doc.querySelectorAll('script,style').forEach(n => n.remove());
     const isB = el => el.nodeType === 1 && (/^(B|STRONG|U)$/.test(el.tagName) || /bold|[6-9]00/.test(el.style.fontWeight || '') || /underline/.test((el.style.textDecoration || '') + ' ' + (el.style.textDecorationLine || '')));
-    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if ((c.tagName === 'SUP' || /super/.test(c.style.verticalAlign || '')) && /^[\s\u00a0\d,\-–]+$/.test(c.textContent)) continue; if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
+    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if ((c.tagName === 'SUP' || /super/.test(c.style.verticalAlign || '')) && /^[\s\u00a0\d,\-–]+$/.test(c.textContent)) continue; if (c.tagName === 'IMG') { const dm = imgs && /^data:image\/[\w+.-]+;base64,(.*)$/i.exec(c.getAttribute('src') || ''); if (dm) { try { const bin = atob(dm[1]), by = new Uint8Array(bin.length); for (let q = 0; q < bin.length; q++) by[q] = bin.charCodeAt(q); const mk = this.addImg(by); if (mk) s += '\n' + mk + '\n'; } catch (e) {} } continue; } if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
     return walk(doc.body, false).replace(/\*\*\*\*/g, '').split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
   }
   readRtf(src) {
@@ -452,7 +514,14 @@ class Component extends DCLogic {
     const emit = ch => { if (skip || (sup && /[\d,\-–]/.test(ch))) return; out += ((bold || ul) && ch.trim() ? '\u0001' : '') + ch; };
     while (i < src.length) {
       const c = src[i];
-      if (c === '{') { stack.push({ bold, ul, skip, sup }); i++; if (src.startsWith('\\*', i) || /^\\(fonttbl|colortbl|stylesheet|info|pict|header|footer)/.test(src.slice(i, i + 12))) skip = 1; continue; }
+      if (c === '{' && src.startsWith('\\pict', i + 1)) {
+        let dep = 0, j = i; for (; j < src.length; j++) { if (src[j] === '{') dep++; else if (src[j] === '}' && --dep === 0) break; }
+        const grp = src.slice(i + 1, j).replace(/\{[^{}]*\}/g, '');
+        i = j + 1;
+        if (!skip && /\\(pngblip|jpegblip)/.test(grp)) { const hex = grp.replace(/\\[a-z]+-?\d* ?/gi, '').replace(/[^0-9a-f]/gi, ''), by = new Uint8Array(hex.length >> 1); for (let q = 0; q < by.length; q++) by[q] = parseInt(hex.substr(q * 2, 2), 16); const mk = this.addImg(by); if (mk) out += '\n' + mk + '\n'; }
+        continue;
+      }
+      if (c === '{') { stack.push({ bold, ul, skip, sup }); i++; if ((src.startsWith('\\*', i) && !src.startsWith('\\*\\shppict', i)) || /^\\(fonttbl|colortbl|stylesheet|info|pict|header|footer)/.test(src.slice(i, i + 12))) skip = 1; continue; }
       if (c === '}') { const s = stack.pop() || {}; bold = !!s.bold; ul = !!s.ul; skip = s.skip || 0; sup = !!s.sup; i++; continue; }
       if (c === '\\') {
         const m = src.slice(i).match(/^\\([a-z]+)(-?\d+)? ?|^\\'([0-9a-f]{2})|^\\(.)/i);
@@ -470,8 +539,9 @@ class Component extends DCLogic {
   }
   async readDocx(file) {
     const xml = await this.unzip(file, 'word/document.xml');
-    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-    const doc = new DOMParser().parseFromString(xml, 'application/xml'), lines = [];
+    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main', A = 'http://schemas.openxmlformats.org/drawingml/2006/main', R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), lines = [], rels = {};
+    try { const rd = new DOMParser().parseFromString(await this.unzip(file, 'word/_rels/document.xml.rels'), 'application/xml'); for (const r of rd.getElementsByTagName('Relationship')) rels[r.getAttribute('Id')] = r.getAttribute('Target'); } catch (e) {}
     for (const para of doc.getElementsByTagNameNS(W, 'p')) {
       let s = '';
       for (const r of para.getElementsByTagNameNS(W, 'r')) {
@@ -487,6 +557,8 @@ class Component extends DCLogic {
       }
       s = s.replace(/\*\*\*\*/g, '').trim();
       if (s) lines.push(s);
+      const ids = [...para.getElementsByTagNameNS(A, 'blip')].map(b => b.getAttributeNS(R, 'embed')).concat([...para.getElementsByTagName('v:imagedata')].map(v => v.getAttributeNS(R, 'id')));
+      for (const id of ids) { const tg = rels[id]; if (!tg) continue; try { const mk = this.addImg(await this.unzip(file, tg.startsWith('/') ? tg.slice(1) : 'word/' + tg.replace(/^\.\//, ''), true)); if (mk) lines.push(mk); } catch (e) {} }
     }
     return lines.join('\n');
   }
@@ -723,7 +795,7 @@ class Component extends DCLogic {
   onPaste = e => {
     const html = e.clipboardData && e.clipboardData.getData('text/html');
     if (!html || !/<sup[\s>]|vertical-align:\s*super/i.test(html)) return;
-    const text = this.readHtml(html).replace(/\*\*/g, '');
+    const text = this.readHtml(html, false).replace(/\*\*/g, '');
     if (!text) return;
     e.preventDefault();
     if (!document.execCommand('insertText', false, text)) { const ta = this.ta; ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -743,6 +815,8 @@ class Component extends DCLogic {
       li++;
       let chars = this.toChars(raw); let plain = chars.map(x => x.c).join('');
       if (!plain.trim()) continue;
+      const imk = plain.match(/^\s*\[\[\s*Image\s+(\d+)\s*\]\]\s*$/i);
+      if (imk) { out.push({ ref: '', chars: [], image: +imk[1] - 1, lines: [li], base, len: raw.length, vs: 0, ve: 0 }); continue; }
       const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
       if (sm) {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
@@ -805,10 +879,18 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed })); }); }
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, image: p.image })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
+      if (c.image !== undefined) {
+        const url = (this.state.images || [])[c.image]; if (!url) return;
+        this.imgFns = this.imgFns || {}; this.imgFns[k] = this.imgFns[k] || (el => { if (el) this.nodes[k] = el; });
+        this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
+        this.delFns = this.delFns || {}; this.delFns[k] = this.delFns[k] || (e => { if (e && e.stopPropagation) e.stopPropagation(); this.deleteSlide(pi, ci); });
+        slides.push({ key: k, vk: k, fitKey: k, isImage: true, isText: false, isExtra: false, tIndex: slides.length, fname: 'Image-' + (c.image + 1), name: 'Image ' + (c.image + 1), cardTitle: 'Click to find this text in Step 3', imgUrl: url, imgRef: this.imgFns[k], onSelect: this.selFns[k], onDelete: this.delFns[k], bg: '#000', ref: '', tokens: [{ text: '' }], size: 0, emph: false });
+        return;
+      }
       const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
@@ -931,7 +1013,7 @@ class Component extends DCLogic {
   shuffle = () => {
     const names = Object.keys(Component.PAIRS), overrides = {}, byPassage = {};
     let prev = null;
-    (this.slides || []).filter(s => !s.isExtra).forEach(s => {
+    (this.slides || []).filter(s => s.isText).forEach(s => {
       const pi = s.key.split(':')[0];
       if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
       overrides[s.key] = byPassage[pi];
@@ -982,7 +1064,7 @@ class Component extends DCLogic {
   }
   renderVals() {
     const slides = this.build(); this.slides = slides;
-    const passages = new Set(slides.filter(s => !s.isExtra).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
+    const passages = new Set(slides.filter(s => s.isText).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
