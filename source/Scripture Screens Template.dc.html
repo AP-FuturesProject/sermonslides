@@ -274,9 +274,11 @@ class Component extends DCLogic {
       const page = await pdf.getPage(n); await page.getOperatorList();
       const tc = await page.getTextContent(), boldOf = {};
       const isBold = fn => { if (!(fn in boldOf)) { let nm = ''; try { const o = page.commonObjs.get(fn); nm = (o && (o.name || o.loadedName)) || ''; } catch (e) {} boldOf[fn] = /bold|black|heavy|semibold|demi/i.test(nm + ' ' + (tc.styles[fn]?.fontFamily || '')); } return boldOf[fn]; };
+      const hs = tc.items.filter(it => /[A-Za-z]/.test(it.str)).map(it => Math.abs(it.transform[3])).sort((a, b) => a - b), med = hs[hs.length >> 1] || 0;
       let cur = '', lastY = null, lastH = 12;
       for (const it of tc.items) {
         const y = it.transform[5], h = Math.abs(it.transform[3]) || lastH;
+        if (med && it.str.trim() && /^[\s\d,\-–]+$/.test(it.str) && h < med * 0.75) continue;
         if (lastY != null && Math.abs(y - lastY) > h * 0.5) { if (Math.abs(y - lastY) > h * 1.8) { lines.push(cur); cur = ''; } else if (cur && !/\s$/.test(cur)) cur += ' '; }
         if (it.str) cur += isBold(it.fontName) && it.str.trim() ? `**${it.str}**` : it.str;
         if (it.hasEOL && cur && !/\s$/.test(cur)) cur += ' ';
@@ -288,32 +290,32 @@ class Component extends DCLogic {
   }
   async readOdt(file) {
     const xml = await this.unzip(file, 'content.xml');
-    const doc = new DOMParser().parseFromString(xml, 'application/xml'), bold = new Set();
-    for (const st of doc.getElementsByTagName('style:style')) { const tp = st.getElementsByTagName('style:text-properties')[0]; if (tp && /bold|[6-9]00/.test(tp.getAttribute('fo:font-weight') || '')) bold.add(st.getAttribute('style:name')); }
-    const walk = (node, b) => { let s = ''; for (const c of node.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeName === 'text:s' || c.nodeName === 'text:tab' || c.nodeName === 'text:line-break') s += ' '; else s += walk(c, b || bold.has(c.getAttribute && c.getAttribute('text:style-name'))); } return s; };
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), bold = new Set(), sup = new Set();
+    for (const st of doc.getElementsByTagName('style:style')) { const tp = st.getElementsByTagName('style:text-properties')[0]; if (tp && /bold|[6-9]00/.test(tp.getAttribute('fo:font-weight') || '')) bold.add(st.getAttribute('style:name')); if (tp && /^(super|\d+%)/.test(tp.getAttribute('style:text-position') || '')) sup.add(st.getAttribute('style:name')); }
+    const walk = (node, b) => { let s = ''; for (const c of node.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeName === 'text:s' || c.nodeName === 'text:tab' || c.nodeName === 'text:line-break') s += ' '; else if (sup.has(c.getAttribute && c.getAttribute('text:style-name')) && /^[\s\d,\-–]+$/.test(c.textContent)) continue; else s += walk(c, b || bold.has(c.getAttribute && c.getAttribute('text:style-name'))); } return s; };
     return [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)).map(p => walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '').trim()).filter(Boolean).join('\n');
   }
   readHtml(src) {
     const doc = new DOMParser().parseFromString(src, 'text/html');
     doc.querySelectorAll('script,style').forEach(n => n.remove());
     const isB = el => el.nodeType === 1 && (/^(B|STRONG)$/.test(el.tagName) || /bold|[6-9]00/.test(el.style.fontWeight || ''));
-    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
+    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if ((c.tagName === 'SUP' || /super/.test(c.style.verticalAlign || '')) && /^[\s\u00a0\d,\-–]+$/.test(c.textContent)) continue; if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
     return walk(doc.body, false).replace(/\*\*\*\*/g, '').split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
   }
   readRtf(src) {
-    let out = '', bold = false, stack = [], skip = 0, i = 0;
-    const emit = ch => { if (skip) return; out += (bold && ch.trim() ? '\u0001' : '') + ch; };
+    let out = '', bold = false, sup = false, stack = [], skip = 0, i = 0;
+    const emit = ch => { if (skip || (sup && /[\d,\-–]/.test(ch))) return; out += (bold && ch.trim() ? '\u0001' : '') + ch; };
     while (i < src.length) {
       const c = src[i];
-      if (c === '{') { stack.push({ bold, skip }); i++; if (src.startsWith('\\*', i) || /^\\(fonttbl|colortbl|stylesheet|info|pict|header|footer)/.test(src.slice(i, i + 12))) skip = 1; continue; }
-      if (c === '}') { const s = stack.pop() || {}; bold = !!s.bold; skip = s.skip || 0; i++; continue; }
+      if (c === '{') { stack.push({ bold, skip, sup }); i++; if (src.startsWith('\\*', i) || /^\\(fonttbl|colortbl|stylesheet|info|pict|header|footer)/.test(src.slice(i, i + 12))) skip = 1; continue; }
+      if (c === '}') { const s = stack.pop() || {}; bold = !!s.bold; skip = s.skip || 0; sup = !!s.sup; i++; continue; }
       if (c === '\\') {
         const m = src.slice(i).match(/^\\([a-z]+)(-?\d+)? ?|^\\'([0-9a-f]{2})|^\\(.)/i);
         if (!m) { i++; continue; }
         i += m[0].length;
         if (m[3]) emit(String.fromCharCode(parseInt(m[3], 16)));
         else if (m[4]) { if (m[4] === '~') emit(' '); else if ('\\{}'.includes(m[4])) emit(m[4]); }
-        else { const w = m[1], v = m[2]; if (w === 'b') bold = v !== '0'; else if (w === 'plain') bold = false; else if (w === 'par' || w === 'line') { if (!skip) out += '\n'; } else if (w === 'tab') emit(' '); else if (w === 'u') { emit(String.fromCharCode((+v + 65536) % 65536)); if (src[i] === '?') i++; } }
+        else { const w = m[1], v = m[2]; if (w === 'b') bold = v !== '0'; else if (w === 'plain') { bold = false; sup = false; } else if (w === 'super') sup = v !== '0'; else if (w === 'nosupersub') sup = false; else if (w === 'par' || w === 'line') { if (!skip) out += '\n'; } else if (w === 'tab') emit(' '); else if (w === 'u') { emit(String.fromCharCode((+v + 65536) % 65536)); if (src[i] === '?') i++; } }
         continue;
       }
       if (c !== '\r' && c !== '\n') emit(c);
@@ -332,6 +334,8 @@ class Component extends DCLogic {
         for (const c of r.childNodes) { if (c.localName === 't') t += c.textContent; else if (c.localName === 'tab' || c.localName === 'br') t += ' '; }
         if (!t) continue;
         const rpr = [...r.childNodes].find(c => c.localName === 'rPr');
+        const va = rpr && [...rpr.childNodes].find(c => c.localName === 'vertAlign');
+        if (va && va.getAttributeNS(W, 'val') === 'superscript' && /^[\s\d,\-–]+$/.test(t)) continue;
         const b = rpr && [...rpr.childNodes].find(c => c.localName === 'b');
         const bold = b && !['0', 'false'].includes(b.getAttributeNS(W, 'val'));
         s += bold && t.trim() ? `**${t}**` : t;
@@ -363,6 +367,25 @@ class Component extends DCLogic {
   }
   validRef(m) { return m && Component.BOOKS.has(m[1].replace(/^[1-3]\s?/, '').split(/\s+/)[0].toLowerCase()); }
   fmtRef(m) { return m[1].replace(/\s+/g, ' ') + ' ' + m[2].replace(/\s*[-–—]\s*/g, '–').replace(/\s*,\s*/g, ', '); }
+  stripMarks(chars) {
+    const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
+    chars.forEach((x, i) => { for (let k = 0; k < x.c.length; k++) map.push(i); });
+    const re = /\[\s*\d{1,3}(?:\s*[-–—,]\s*\d{1,3})*\s*\]|\(\s*\d{1,3}(?:\s*[-–—,]\s*\d{1,3})*\s*\)|[⁰¹²³⁴-⁹]+|[₀-₉]+/g;
+    let m;
+    while ((m = re.exec(plain))) {
+      for (let i = m.index; i < m.index + m[0].length; i++) drop.add(map[i]);
+      if (/[.,;:!?)”’]/.test(plain[m.index + m[0].length] || '') && /\s/.test(plain[m.index - 1] || '')) drop.add(map[m.index - 1]);
+    }
+    return drop.size ? chars.filter((_, i) => !drop.has(i)) : chars;
+  }
+  onPaste = e => {
+    const html = e.clipboardData && e.clipboardData.getData('text/html');
+    if (!html || !/<sup[\s>]|vertical-align:\s*super/i.test(html)) return;
+    const text = this.readHtml(html).replace(/\*\*/g, '');
+    if (!text) return;
+    e.preventDefault();
+    if (!document.execCommand('insertText', false, text)) { const ta = this.ta; ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input', { bubbles: true })); }
+  };
   trimChars(chars) {
     let a = 0, b = chars.length;
     while (a < b && /[\s:–—-]/.test(chars[a].c)) a++;
@@ -379,7 +402,7 @@ class Component extends DCLogic {
       const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
       if (sm) {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
-        chars = this.trimChars(chars); if (chars.length) out.push({ ref: '', chars, lines: [li] });
+        chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li] });
         continue;
       }
       let m = plain.match(this.refRegex(false)), ref = null;
@@ -390,12 +413,12 @@ class Component extends DCLogic {
       else if (this.validRef(m = plain.match(this.chapRegex(true)))) { ref = { ref: this.fmtRef(m), trans: m[3] || '', cut: m.index, end: true }; ctx = { bc: bc(m, m[2].match(/^\d+/)[0]), trans: m[3] || '' }; }
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
-        const rest = this.trimChars(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut));
+        const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
         if (rest.length) out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li] });
         else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; }
         continue;
       }
-      if (pending) { out.push({ ref: pending.ref, trans: pending.trans, chars: this.trimChars(chars), lines: [pendingLine, li] }); pending = null; }
+      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li] }); pending = null; } }
     }
     return out;
   }
@@ -560,8 +583,8 @@ class Component extends DCLogic {
   };
   traditional = () => this.setState({ overrides: {}, trad: true });
   taRef = el => {
-    if (this.ta && this.ta !== el) this.ta.removeEventListener('scroll', this.syncHl);
-    this.ta = el; if (el) el.addEventListener('scroll', this.syncHl);
+    if (this.ta && this.ta !== el) { this.ta.removeEventListener('scroll', this.syncHl); this.ta.removeEventListener('paste', this.onPaste); }
+    this.ta = el; if (el) { el.addEventListener('scroll', this.syncHl); el.addEventListener('paste', this.onPaste); }
   };
   hlRef = el => { this.hl = el; };
   syncHl = () => {
