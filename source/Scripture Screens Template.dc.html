@@ -41,6 +41,12 @@
           <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, one slide per screen</span></button>
         </div>
       </sc-if>
+      <sc-if value="{{ undoOn }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="position:fixed; left:50%; transform:translateX(-50%); bottom:40px; z-index:42; display:flex; align-items:center; gap:16px; padding:12px 12px 12px 20px; background:#000; color:#fff; border-radius:999px; box-shadow:0 10px 28px rgba(0,0,0,0.28); font-family:var(--font-sans); font-size:15px;">
+          <span>Deleted {{ undoLabel }}</span>
+          <button onClick="{{ undoDelete }}" style="padding:6px 16px; border:1px solid #ffff5f; border-radius:999px; background:transparent; color:#ffff5f; cursor:pointer; font-family:var(--font-sans); font-size:14px;" style-hover="background:#ffff5f; color:#000;">Undo</button>
+        </div>
+      </sc-if>
       <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm,.pages,.doc" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none;">
     </div>
   </header>
@@ -100,6 +106,7 @@
             </div>
           </div>
           <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
+            <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="position:absolute; top:8px; right:8px; z-index:2; width:30px; height:30px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
             <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;">
                 <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
@@ -212,7 +219,7 @@ class Component extends DCLogic {
       if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
     }, 60);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
+  componentWillUnmount() { clearTimeout(this._undoT); window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
   gridRef = el => {
     this.ro && this.ro.disconnect();
     if (!el) return;
@@ -348,8 +355,13 @@ class Component extends DCLogic {
 
   clean(s) { return s.replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '').replace(/\u00a0/g, ' '); }
   toChars(line) {
-    const out = [];
-    this.clean(line).split('**').forEach((part, i) => { for (const c of part) out.push({ c, b: i % 2 === 1 }); });
+    const out = []; let bold = false, i = 0;
+    while (i < line.length) {
+      if (line.startsWith('**', i)) { bold = !bold; i += 2; continue; }
+      const ch = String.fromCodePoint(line.codePointAt(i)); i += ch.length;
+      if (/[​-‏‪-‮⁦-⁩﻿]/.test(ch)) continue;
+      out.push({ c: ch === ' ' ? ' ' : ch, b: bold, o: i - ch.length });
+    }
     return out;
   }
   bookRe() { return '((?:[1-3]\\s?)?[A-Za-z]+(?:\\s+of\\s+[A-Za-z]+)?)'; }
@@ -367,6 +379,59 @@ class Component extends DCLogic {
   }
   validRef(m) { return m && Component.BOOKS.has(m[1].replace(/^[1-3]\s?/, '').split(/\s+/)[0].toLowerCase()); }
   fmtRef(m) { return m[1].replace(/\s+/g, ' ') + ' ' + m[2].replace(/\s*[-–—]\s*/g, '–').replace(/\s*,\s*/g, ', '); }
+  span(ch) { return ch.length ? { vs: ch[0].o, ve: ch[ch.length - 1].o + ch[ch.length - 1].c.length } : { vs: 0, ve: 0 }; }
+  buildPieces(ps) {
+    let s = '', open = false;
+    ps.forEach((p, i) => {
+      if (p.b && !open) { s += '**'; open = true; } else if (!p.b && open) { s += '**'; open = false; }
+      s += p.t;
+      if (p.sp) { const nx = ps[i + 1]; if (open && !(nx && nx.b)) { s += '**'; open = false; } s += ' '; }
+    });
+    if (open) s += '**';
+    return s.replace(/\s+$/, '');
+  }
+  remapKeys(obj, pi, ci) {
+    const out = {};
+    for (const k of Object.keys(obj || {})) {
+      const [a, b] = k.split(':').map(Number);
+      if (a < pi) out[k] = obj[k];
+      else if (a === pi) { if (ci == null) continue; if (b < ci) out[k] = obj[k]; else if (b > ci) out[a + ':' + (b - 1)] = obj[k]; }
+      else out[ci == null ? (a - 1) + ':' + b : k] = obj[k];
+    }
+    return out;
+  }
+  remapCond(c, pi, whole) {
+    const out = {};
+    for (const k of Object.keys(c || {})) { const a = +k; if (!whole || a < pi) out[a] = c[k]; else if (a > pi) out[a - 1] = c[k]; }
+    return out;
+  }
+  deleteSlide(pi, ci) {
+    const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi], lines = (this._plines || [])[pi];
+    if (!P || !chunks || !lines) return;
+    const re = /[^\n]+/g, off = []; let m, li = -1;
+    while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
+    const whole = chunks.length === 1; let nt;
+    if (whole) {
+      const a = off[lines[0]], b = off[lines[lines.length - 1]]; if (!a || !b) return;
+      let before = text.slice(0, a[0]); const after = text.slice(b[1]).replace(/^\n+/, '');
+      if (!after) before = before.replace(/\n+$/, '');
+      nt = before + after;
+    } else {
+      const body = this.buildPieces(chunks.flatMap((c, j) => j === ci ? [] : c.ps));
+      let pre = text.slice(P.base, P.base + P.vs); const suf = text.slice(P.base + P.ve, P.base + P.len);
+      if (!P.ref && !/\[screen\]|\*\s?screen\b/i.test(pre + suf)) pre = '*SCREEN ' + pre;
+      nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
+    }
+    const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1);
+    clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
+    this.clearHl();
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, label }, text: nt, overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
+  }
+  undoDelete = () => {
+    const u = this.state.undo; if (!u) return;
+    clearTimeout(this._undoT); this.clearHl();
+    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, fit: {}, undo: null });
+  };
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
     chars.forEach((x, i) => { for (let k = 0; k < x.c.length; k++) map.push(i); });
@@ -394,7 +459,9 @@ class Component extends DCLogic {
   }
   passages(text) {
     const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null;
-    for (const raw of text.split(/\n+/)) {
+    const lre = /[^\n]+/g; let lm;
+    while ((lm = lre.exec(text))) {
+      const raw = lm[0], base = lm.index;
       if (!this.clean(raw).trim()) continue;
       li++;
       let chars = this.toChars(raw); let plain = chars.map(x => x.c).join('');
@@ -402,7 +469,7 @@ class Component extends DCLogic {
       const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
       if (sm) {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
-        chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li] });
+        chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li], base, len: raw.length, ...this.span(chars) });
         continue;
       }
       let m = plain.match(this.refRegex(false)), ref = null;
@@ -414,20 +481,20 @@ class Component extends DCLogic {
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
         const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
-        if (rest.length) out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li] });
+        if (rest.length) out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) });
         else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; }
         continue;
       }
-      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li] }); pending = null; } }
+      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; } }
     }
     return out;
   }
   pieces(chars) {
     const ps = []; let cur = null;
-    for (const { c, b } of chars) {
+    for (const { c, b, o } of chars) {
       if (/\s/.test(c)) { if (cur) { cur.sp = true; cur = null; } continue; }
-      if (!cur || cur.b !== b) { cur = { t: '', b, sp: false }; ps.push(cur); }
-      cur.t += c;
+      if (!cur || cur.b !== b) { cur = { t: '', b, sp: false, o0: o, o1: o }; ps.push(cur); }
+      cur.t += c; cur.o1 = o + c.length;
     }
     return ps;
   }
@@ -465,7 +532,7 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed })); }); }
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
@@ -508,12 +575,13 @@ class Component extends DCLogic {
       const num = String(slides.length + 1).padStart(2, '0');
       this.refFns[k] = this.refFns[k] || (el => { this.nodes[k] = el; });
       this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
+      this.delFns = this.delFns || {}; this.delFns[k] = this.delFns[k] || (e => { if (e && e.stopPropagation) e.stopPropagation(); this.deleteSlide(pi, ci); });
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
       this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !(s.cond || {})[pi] } })));
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
-      slides.push({ fitKey, key: k, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
   }
@@ -630,7 +698,7 @@ class Component extends DCLogic {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
-      menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
+      undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
       uploadAnim: this.state.uploaded || this.state.drag ? 'none' : 'fcPulse 2s ease-out infinite',
