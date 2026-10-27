@@ -594,7 +594,8 @@ class Component extends DCLogic {
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const point = !!c.point, info = point && ci === 0 ? (c.info || '') : '', prevs = point && this.state.build !== false ? (c.prevs || []) : [];
-      const emph = !!(this.state.emph || {})[k];
+      const auto = !point && chunks.length === 1 && !c.cond && W <= 55 * D.r; this._auto = this._auto || {}; this._auto[k] = auto;
+      const eo = (this.state.emph || {})[k], emph = eo === undefined ? auto : !!eo;
       const fitKey = k + '|' + D.id + '|' + this._key, fit = (this.state.fit || {})[fitKey] || 1;
       const base = c.cond ? 72 : point ? (W <= 60 * D.r ? 160 : W <= 100 * D.r ? 130 : 104) : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
       let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
@@ -654,7 +655,7 @@ class Component extends DCLogic {
       this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !(s.cond || {})[pi] } })));
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
-      this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
+      this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
       slides.push({ fitKey, key: k, point, wantLines, minSize: Math.round(60 * D.k), marker: point && ci === 0 ? (c.marker || '') : '', info, infoSize, infoGap: Math.round(infoSize * 0.35), prevs, hasPrev: pn > 0, prevSize, prevGap: Math.round(prevSize * 0.9), prevItemGap: Math.round(prevSize * 0.25), vColor: (bg === '#000' || point) && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
