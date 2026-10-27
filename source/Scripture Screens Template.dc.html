@@ -30,10 +30,17 @@
       <span style="font-size:14px; color:#555;">{{ summary }}</span>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
-      <button onClick="{{ exportAll }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
+      <button onClick="{{ toggleMenu }}" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
         <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 4</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
       </button>
+      <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeMenu }}" style="position:fixed; inset:0; z-index:39;"></div>
+        <div role="menu" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:104px; z-index:41; width:280px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.25); overflow:hidden; display:flex; flex-direction:column;">
+          <button role="menuitem" onClick="{{ exportPng }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px; border-bottom:1px solid rgba(0,0,0,0.15);" style-hover="background:#f2f0ea;"><span>PNG images</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.zip, one picture per slide</span></button>
+          <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, one slide per screen</span></button>
+        </div>
+      </sc-if>
       <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm,.pages,.doc" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none;">
     </div>
   </header>
@@ -179,7 +186,7 @@ class Component extends DCLogic {
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidMount() { window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
   componentDidUpdate() { this.checkFit(); }
   checkFit() {
     clearTimeout(this._fitT);
@@ -205,7 +212,7 @@ class Component extends DCLogic {
       if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
     }, 60);
   }
-  componentWillUnmount() { clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
   gridRef = el => {
     this.ro && this.ro.disconnect();
     if (!el) return;
@@ -475,23 +482,41 @@ class Component extends DCLogic {
     }));
     return slides;
   }
-  exportAll = async () => {
-    this.setState({ pulse: false });
+  toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
+  closeMenu = () => this.setState({ menu: false });
+  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); };
+  exportPng = () => this.exportAs('png');
+  exportPptx = () => this.exportAs('pptx');
+  exportAll = () => this.exportAs('png');
+  loadScript(src) {
+    return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src.split('/')[2])); document.head.appendChild(s); });
+  }
+  exportAs = async fmt => {
+    this.setState({ pulse: false, menu: false });
     if (this.state.exporting != null) return;
     const H = window.htmlToImage, Z = window.JSZip, slides = this.slides || [];
-    if (!H || !Z) { this.setState({ error: 'Export tools are still loading. Try again in a moment.' }); return; }
+    if (!H || (fmt === 'png' && !Z)) { this.setState({ error: 'Export tools are still loading. Try again in a moment.' }); return; }
     if (!slides.length) return;
     this.setState({ exporting: 0, error: '' });
     try {
+      if (fmt === 'pptx' && !window.PptxGenJS) await this.loadScript('https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
       await document.fonts.ready;
-      const zip = new Z(), fontEmbedCSS = await H.getFontEmbedCSS(this.nodes[slides[0].key]);
+      const D = this.dims(), fontEmbedCSS = await H.getFontEmbedCSS(this.nodes[slides[0].key]);
+      const zip = fmt === 'png' ? new Z() : null, pptx = fmt === 'pptx' ? new window.PptxGenJS() : null;
+      if (pptx) { pptx.defineLayout({ name: 'SCREEN', width: D.W / 96, height: D.H / 96 }); pptx.layout = 'SCREEN'; }
       for (let i = 0; i < slides.length; i++) {
-        const blob = await H.toBlob(this.nodes[slides[i].key], { width: this.dims().W, height: this.dims().H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
-        zip.file(slides[i].file, blob);
+        const blob = await H.toBlob(this.nodes[slides[i].key], { width: D.W, height: D.H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
+        if (zip) zip.file(slides[i].file, blob);
+        else {
+          const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+          const sl = pptx.addSlide();
+          sl.addImage({ data, x: 0, y: 0, w: D.W / 96, h: D.H / 96 });
+          sl.addNotes(((slides[i].ref ? slides[i].ref + ': ' : '') + slides[i].tokens.map(t => t.text).join('')).trim());
+        }
         this.setState({ exporting: i + 1 });
       }
-      const out = await zip.generateAsync({ type: 'blob' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = 'scripture-screens.zip';
+      const out = zip ? await zip.generateAsync({ type: 'blob' }) : await pptx.write({ outputType: 'blob' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = zip ? 'scripture-screens.zip' : 'scripture-screens.pptx';
       document.body.appendChild(a); a.click(); a.remove();
     } catch (err) { this.setState({ error: 'Export failed: ' + (err && err.message || err) }); }
     this.setState({ exporting: null });
@@ -570,7 +595,7 @@ class Component extends DCLogic {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
-      exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
+      menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
       uploadAnim: this.state.uploaded || this.state.drag ? 'none' : 'fcPulse 2s ease-out infinite',
