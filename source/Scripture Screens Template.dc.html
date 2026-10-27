@@ -106,9 +106,9 @@
           </div>
           <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
             <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
-              <div style="max-width:{{ dTextW }}px;"><sc-if value="{{ s.hasPrev }}" hint-placeholder-val="{{ false }}"><div data-prev="1" style="margin-bottom:{{ s.prevGap }}px; font-family:var(--font-display); font-weight:300; font-size:{{ s.prevSize }}px; line-height:1.2; opacity:0.5; color:{{ s.text }};"><sc-for list="{{ s.prevs }}" as="pv"><div style="margin-bottom:{{ s.prevItemGap }}px;">{{ pv }}</div></sc-for></div></sc-if>
+              <div style="max-width:{{ dTextW }}px;"><sc-if value="{{ s.hasPrev }}" hint-placeholder-val="{{ false }}"><div data-prev="1" style="margin-bottom:{{ s.prevGap }}px; font-family:var(--font-display); font-weight:300; font-size:{{ s.prevSize }}px; line-height:1.2; opacity:0.5; color:{{ s.text }};"><sc-for list="{{ s.prevs }}" as="pv"><div style="display:flex; gap:0.3em; margin-bottom:{{ s.prevItemGap }}px;"><span style="flex:none;">{{ pv.m }}</span><span style="min-width:0;">{{ pv.t }}</span></div></sc-for></div></sc-if>
                 
-                <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
+                <div style="display:flex; align-items:flex-start; gap:0.3em; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; color:{{ s.vColor }};"><sc-if value="{{ s.marker }}" hint-placeholder-val="{{ false }}"><span style="flex:none;">{{ s.marker }}</span></sc-if><div style="flex:1 1 0; min-width:0;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p><sc-if value="{{ s.info }}" hint-placeholder-val="{{ false }}"><div data-info="1" style="margin-top:{{ s.infoGap }}px; font-family:var(--font-display); font-weight:300; font-size:{{ s.infoSize }}px; line-height:1.25; color:{{ s.text }}; opacity:0.92;">{{ s.info }}</div></sc-if></div></div>
               </div>
               <sc-if value="{{ s.hasRef }}">
                 <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
@@ -199,7 +199,7 @@ class Component extends DCLogic {
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.setState({ fr: 1 })); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
   componentDidUpdate() { this.checkFit(); }
   checkFit() {
     clearTimeout(this._fitT);
@@ -209,16 +209,18 @@ class Component extends DCLogic {
         const node = this.nodes[s.key]; if (!node) continue;
         const p = node.querySelector('[data-verse]'), ref = node.querySelector('[data-ref]'), title = node.querySelector('[data-title]');
         if (!p) continue;
+        const last = node.querySelector('[data-info]') || p;
         let over = false;
         if (D.wide) {
-          const bottom = ref ? ref.offsetTop + ref.offsetHeight : p.offsetTop + p.offsetHeight;
+          const bottom = ref ? ref.offsetTop + ref.offsetHeight : last.offsetTop + last.offsetHeight;
           const limit = title ? title.offsetTop - 24 * D.k : D.H - D.pad * 0.6;
           over = bottom > limit;
         } else {
           const limit = ref ? ref.offsetTop - 40 * D.k : D.H - D.pad;
-          over = p.offsetTop + p.offsetHeight > limit;
+          over = last.offsetTop + last.offsetHeight > limit;
         }
         if (p.scrollWidth > p.clientWidth + 1) over = true;
+        if (s.wantLines && !s.emph) { const lh = parseFloat(getComputedStyle(p).lineHeight) || s.size * 1.14, lines = Math.round(p.offsetHeight / lh); if (lines > s.wantLines && s.size > s.minSize) over = true; }
         const cur = (this.state.fit || {})[s.fitKey] || 1;
         if (over && cur > 0.3) upd[s.fitKey] = cur * 0.94;
       }
@@ -449,6 +451,21 @@ class Component extends DCLogic {
     clearTimeout(this._undoT); this.clearHl();
     this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, fit: {}, undo: null });
   };
+  findSep(arr) {
+    for (let i = 1; i < arr.length; i++) {
+      const c = arr[i], p = arr[i - 1], n = arr[i + 1] || '';
+      if (/[-–—]/.test(c) && /\s/.test(p) && /\s/.test(n)) return { at: i - 1, len: 3 };
+      if (c === ':' && /\s/.test(n)) return { at: i, len: 2 };
+      if (c === '(' && /\s/.test(p)) return { at: i - 1, len: 2 };
+    }
+    return null;
+  }
+  measure(text) {
+    if (!this._cv) this._cv = document.createElement('canvas').getContext('2d');
+    this._cv.font = '300 100px ' + (getComputedStyle(document.documentElement).getPropertyValue('--font-display') || 'serif');
+    const w = this._cv.measureText(text).width;
+    return w > 0 ? w : text.length * 46;
+  }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
     chars.forEach((x, i) => { for (let k = 0; k < x.c.length; k++) map.push(i); });
@@ -495,8 +512,10 @@ class Component extends DCLogic {
           const sub = lmk[3], cut = plain.length - sub.length;
           if (this.validRef(sub.match(this.refRegex(false))) || this.validRef(sub.match(this.chapRegex(false))) || this.verseRegex().test(sub)) { chars = chars.slice(cut); plain = sub; }
           else {
-            const pcs = this.trimChars(this.stripMarks(chars.slice(cut)));
-            if (pcs.length) out.push({ ref: '', chars: pcs, lines: [li], base, len: raw.length, ...this.span(pcs), point: true, marker: lmk[1] ? +lmk[1] + '.' : '•', kind: lmk[1] ? 'n' : 'b', num: lmk[1] ? +lmk[1] : 0, sk: skipCount });
+            const pcs = this.trimChars(this.stripMarks(chars.slice(cut))), sp = this.findSep(pcs.map(x => x.c));
+            let tch = pcs, info = '';
+            if (sp && sp.at > 0) { const t2 = this.trimChars(pcs.slice(0, sp.at)), i2 = pcs.slice(sp.at + sp.len).map(x => x.c).join('').replace(/\)\s*$/, '').replace(/\s+/g, ' ').trim(); if (t2.length && i2) { tch = t2; info = i2; } }
+            if (tch.length) out.push({ ref: '', chars: tch, info, lines: [li], base, len: raw.length, ...this.span(tch), point: true, marker: lmk[1] ? +lmk[1] + '.' : '•', kind: lmk[1] ? 'n' : 'b', num: lmk[1] ? +lmk[1] : 0, sk: skipCount });
             continue;
           }
         }
@@ -520,7 +539,7 @@ class Component extends DCLogic {
     for (const p of out) {
       if (!p.point) continue;
       if (!ser.length || p.kind !== kind || (p.kind === 'n' && p.num <= lastNum) || (p.kind === 'b' && p.sk !== lastSk)) { ser = []; kind = p.kind; }
-      p.prevs = ser.slice(); ser.push(p.marker + ' ' + p.chars.map(x => x.c).join('').replace(/\s+/g, ' ').trim()); lastNum = p.num; lastSk = p.sk;
+      p.prevs = ser.slice(); ser.push({ m: p.marker, t: p.chars.map(x => x.c).join('').replace(/\s+/g, ' ').trim() }); lastNum = p.num; lastSk = p.sk;
     }
     return out;
   }
@@ -567,22 +586,22 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, point: !!p.point, marker: p.marker || '', prevs: p.prevs || [] })); }); }
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, point: !!p.point, marker: p.marker || '', info: p.info || '', prevs: p.prevs || [] })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
       const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
-      const point = !!c.point, prevs = point && this.state.build !== false ? (c.prevs || []) : [];
+      const point = !!c.point, info = point && ci === 0 ? (c.info || '') : '', prevs = point && this.state.build !== false ? (c.prevs || []) : [];
       const emph = !!(this.state.emph || {})[k];
       const fitKey = k + '|' + D.id + '|' + this._key, fit = (this.state.fit || {})[fitKey] || 1;
       const base = c.cond ? 72 : point ? (W <= 60 * D.r ? 160 : W <= 100 * D.r ? 130 : 104) : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
       let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
       if (base === 72) cpl = 36 * D.r * (92 / 72); else if (point && base > 104) cpl = 36 * D.r * 92 / base; else if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
       const pn = prevs.length, prevSize = Math.round(Math.max(34, Math.min(72, 400 / Math.max(1, pn))) * D.k);
-      const prevLines = prevs.reduce((a, q) => a + Math.max(1, Math.ceil(q.length * prevSize * 0.5 / D.textW)), 0);
-      const prevH = pn ? Math.round(prevLines * prevSize * 1.2 + (pn - 1) * prevSize * 0.25 + prevSize * 0.9) : 0, availH = D.availH - prevH;
+      const prevLines = prevs.reduce((a, q) => a + Math.max(1, Math.ceil((q.t.length + q.m.length + 1) * prevSize * 0.5 / D.textW)), 0);
+      const prevH = pn ? Math.round(prevLines * prevSize * 1.2 + (pn - 1) * prevSize * 0.25 + prevSize * 0.9) : 0, infoRes = info ? Math.round(Math.ceil(info.length * 72 * D.k * 0.5 / D.textW) * 72 * D.k * 1.25 + 24 * D.k) : 0, availH = D.availH - prevH - infoRes;
       const kwMax = Math.max(0, ...c.ps.filter(p => p.b).map(p => p.t.length)), bodyMax = Math.max(0, ...c.ps.filter(p => !p.b).map(p => p.t.length));
       let kwSize = null;
       const kwW = c.ps.filter(p => p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0), bodyW = c.ps.filter(p => !p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0);
@@ -603,15 +622,27 @@ class Component extends DCLogic {
         size = Math.round(size * fit);
         cpl = D.textW / (size * 0.5);
       }
-      if (point && !emph) { while (size > 60 * D.k && Math.ceil(W / (D.textW / (size * 0.5))) * size * 1.14 > availH) size -= 4; cpl = D.textW / (size * 0.5); }
+      let wantLines = 0;
+      if (point && !emph) {
+        const full = (ci === 0 && c.marker ? c.marker + ' ' : '') + c.ps.map(q => q.t).join(' '), w100 = this.measure(full), minS = Math.round(84 * D.k), maxS = Math.round(160 * D.k), floorS = Math.round(60 * D.k);
+        const one = Math.floor(D.textW / w100 * 100 * 0.96);
+        wantLines = one >= minS ? 1 : 2;
+        size = one >= minS ? Math.min(maxS, one) : Math.max(floorS, Math.min(minS, Math.floor(2 * D.textW / w100 * 100 * 0.88)));
+        for (;;) {
+          const isz = Math.max(Math.round(30 * D.k), Math.min(Math.round(size * 0.42), Math.round(72 * D.k))), iH = info ? Math.ceil(info.length * isz * 0.5 / D.textW) * isz * 1.25 + isz * 0.4 : 0, tl = Math.ceil(w100 * size / 100 / D.textW) * size * 1.14;
+          if (size <= floorS || tl + iH <= D.availH - prevH) break;
+          size -= 4;
+        }
+        cpl = D.textW / (size * 0.5);
+      }
       if (!emph && fit < 1) { size = Math.round(size * fit); cpl = D.textW / (size * 0.5); }
       let brAt = -1;
-      if (W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
+      if (!point && W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
         let acc = 0, best = Infinity;
         c.ps.forEach((p, i) => { acc += this.w(p); if (p.sp && Math.abs(acc - W / 2) < best) { best = Math.abs(acc - W / 2); brAt = i; } });
       }
       const tokens = c.ps.map((p, i) => ({ text: p.t + (p.sp && i !== brAt ? ' ' : ''), kw: p.b, plain: !p.b, br: i === brAt, color: accent, fs: p.b && kwSize ? kwSize + 'px' : '1em', klh: kwSize ? '0' : 'inherit', top: kwSize ? Math.round(0.35 * kwSize - 0.3 * size) + 'px' : '0px' }));
-      if (point && ci === 0 && c.marker) tokens.unshift({ text: c.marker + ' ', kw: false, plain: true, br: false, color: accent, fs: '1em', klh: 'inherit', top: '0px' });
+      const infoSize = info ? Math.max(Math.round(30 * D.k), Math.min(Math.round(size * 0.42), Math.round(72 * D.k))) : 0;
       const part = chunks.length > 1 ? ` (${ci + 1}/${chunks.length})` : '';
       const plainText = c.ps.map(p => p.t).join(' ');
       const name = c.ref ? c.ref + (c.trans ? ' ' + c.trans : '') + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
@@ -624,7 +655,7 @@ class Component extends DCLogic {
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
-      slides.push({ fitKey, key: k, prevs, hasPrev: pn > 0, prevSize, prevGap: Math.round(prevSize * 0.9), prevItemGap: Math.round(prevSize * 0.25), vColor: (bg === '#000' || point) && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, point, wantLines, minSize: Math.round(60 * D.k), marker: point && ci === 0 ? (c.marker || '') : '', info, infoSize, infoGap: Math.round(infoSize * 0.35), prevs, hasPrev: pn > 0, prevSize, prevGap: Math.round(prevSize * 0.9), prevItemGap: Math.round(prevSize * 0.25), vColor: (bg === '#000' || point) && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
   }
