@@ -105,7 +105,7 @@
                 <p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
-                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}</span></div>
+                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
               </sc-if>
               <sc-if value="{{ hasTitle }}">
                 <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
@@ -351,7 +351,7 @@ class Component extends DCLogic {
   refRegex(atEnd) {
     const BOOK = '((?:[1-3]\\s?)?[A-Za-z]+(?:\\s+of\\s+[A-Za-z]+)?)';
     const NUMS = '(\\d+:\\d+(?:\\s*[-–—]\\s*\\d+(?::\\d+)?)?(?:\\s*,\\s*\\d+(?:\\s*[-–—]\\s*\\d+)?)*)';
-    const VER = '(?:\\s*\\(?(?:NLT|NIV|ESV|KJV|NKJV|NASB|MSG|TPT|CSB|AMP|NRSV|BSB)\\)?)?';
+    const VER = '(?:[\\s,]*\\(?(NASB1995|NASB2020|NKJV|NIRV|NIVUK|NRSVUE|NRSV|NASB|NABRE|HCSB|AMPC|WEBBE|DARBY|EASY|NET|NIV|NLT|ESV|KJV|MSG|TPT|CSB|AMP|BSB|NCV|GNT|GNB|CEV|ERV|WEB|YLT|NJB|TLB|LSB|LEB|ISV|GWT|CEB|MEV|NOG|ICB|RSV|ASV|ESVUK|NIVUK|PHILLIPS|VOICE|GW|JB|NIB)\\)?(?![A-Za-z0-9]))?';
     return atEnd ? new RegExp('[\\s(—–-]*\\(?\\s*' + BOOK + '\\.?\\s*' + NUMS + VER + '\\s*\\)?\\s*$') : new RegExp('^\\s*' + BOOK + '\\.?\\s*' + NUMS + VER);
   }
   validRef(m) { return m && Component.BOOKS.has(m[1].replace(/^[1-3]\s?/, '').split(/\s+/)[0].toLowerCase()); }
@@ -378,12 +378,12 @@ class Component extends DCLogic {
       let m = plain.match(this.refRegex(false));
       if (this.validRef(m)) {
         const rest = this.trimChars(chars.slice(m[0].length));
-        if (rest.length) out.push({ ref: this.fmtRef(m), chars: rest, lines: [li] }); else { pending = this.fmtRef(m); pendingLine = li; }
+        if (rest.length) out.push({ ref: this.fmtRef(m), trans: m[3] || '', chars: rest, lines: [li] }); else { pending = { ref: this.fmtRef(m), trans: m[3] || '' }; pendingLine = li; }
         continue;
       }
       m = plain.match(this.refRegex(true));
-      if (this.validRef(m)) { const rest = this.trimChars(chars.slice(0, m.index)); if (rest.length) out.push({ ref: this.fmtRef(m), chars: rest, lines: [li] }); continue; }
-      if (pending) { out.push({ ref: pending, chars: this.trimChars(chars), lines: [pendingLine, li] }); pending = null; }
+      if (this.validRef(m)) { const rest = this.trimChars(chars.slice(0, m.index)); if (rest.length) out.push({ ref: this.fmtRef(m), trans: m[3] || '', chars: rest, lines: [li] }); continue; }
+      if (pending) { out.push({ ref: pending.ref, trans: pending.trans, chars: this.trimChars(chars), lines: [pendingLine, li] }); pending = null; }
     }
     return out;
   }
@@ -430,7 +430,7 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, ps: c, cond: condensed })); }); }
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
@@ -469,7 +469,7 @@ class Component extends DCLogic {
       const tokens = c.ps.map((p, i) => ({ text: p.t + (p.sp && i !== brAt ? ' ' : ''), kw: p.b, plain: !p.b, br: i === brAt, color: accent, fs: p.b && kwSize ? kwSize + 'px' : '1em', klh: kwSize ? '0' : 'inherit', top: kwSize ? Math.round(0.35 * kwSize - 0.3 * size) + 'px' : '0px' }));
       const part = chunks.length > 1 ? ` (${ci + 1}/${chunks.length})` : '';
       const plainText = c.ps.map(p => p.t).join(' ');
-      const name = c.ref ? c.ref + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
+      const name = c.ref ? c.ref + (c.trans ? ' ' + c.trans : '') + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
       const num = String(slides.length + 1).padStart(2, '0');
       this.refFns[k] = this.refFns[k] || (el => { this.nodes[k] = el; });
       this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
@@ -478,7 +478,7 @@ class Component extends DCLogic {
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
-      slides.push({ fitKey, key: k, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
   }
