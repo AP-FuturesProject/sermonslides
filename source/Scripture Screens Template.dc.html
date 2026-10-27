@@ -87,20 +87,19 @@
         <img data-ray="white" src="assets/ray-mark-ffffff.png" alt="" style="display:none;"><img data-ray="black" src="assets/ray-mark-000000.png" alt="" style="display:none;">
         <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 4</span>
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Additional screens</label>
-        <span style="font-size:14px; line-height:1.5; color:#333;">Paste one set of notes, like announcements or an event, and Claude designs a one-off screen for it. Add it to your slides when you like it.</span>
-        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Warning</span><br>Only give one prompt at a time. Wait for the screen to finish, then add it or discard it before you start the next one.</div>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Paste one set of notes, like announcements or an event, or upload a file. The tool lays it out as a one-off screen in the Futures design. Not happy with it? Regenerate for a new layout and colours.</span>
+        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Warning</span><br>Only give one prompt at a time. Add the screen to your slides or clear it before you paste the next set of notes.</div>
         <textarea value="{{ axNotes }}" onChange="{{ axOnNotes }}" placeholder="Paste one set of notes here" spellcheck="true" lang="en-AU" style="width:100%; box-sizing:border-box; min-height:160px; resize:vertical; padding:16px; border:1px solid rgba(0,0,0,0.2); border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
-        <input type="password" value="{{ axPass }}" onChange="{{ axOnPass }}" placeholder="Team passcode" autocomplete="off" aria-label="Team passcode" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;">
-        <button onClick="{{ axGenerate }}" disabled="{{ axBusy }}" style="align-self:flex-start; padding:12px 24px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:15px; cursor:pointer; opacity:{{ axBtnOpacity }};" style-hover="opacity:0.88;">{{ axGenLabel }}</button>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button onClick="{{ axOpenFile }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Upload a file</button>
+          <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}"><button onClick="{{ axClear }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Clear</button></sc-if>
+        </div>
+        <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm" ref="{{ axFileRef }}" onChange="{{ axOnFile }}" style="display:none;">
         <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
         <sc-if value="{{ axErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px; border:1px solid #000; border-radius:10px; background:#ffff5f; font-size:14px; line-height:1.4;">{{ axErr }}</div></sc-if>
-        <sc-if value="{{ axLoading }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px; line-height:1.5; color:#333;">Designing your screen. This can take up to a minute.</div></sc-if>
         <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}">
           <div ref="{{ axBoxRef }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; border:1px solid rgba(0,0,0,0.2); background:#000;"><div ref="{{ axRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ axScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
-          <div style="display:flex; flex-wrap:wrap; gap:8px;">
-            <button onClick="{{ axRegen }}" disabled="{{ axBusy }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Regenerate</button>
-            <button onClick="{{ axDiscard }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Discard</button>
-          </div>
+          <button onClick="{{ axRegen }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Regenerate</button>
           <div style="display:flex; flex-direction:column; gap:8px;">
             <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Add to slides</span>
             <div style="display:flex; flex-wrap:wrap; gap:8px;">
@@ -215,11 +214,11 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', pass: '', status: 'idle', err: '', msg: '', attempt: 0, html: '', id: '', where: 'after', target: '' } };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { try { const sp = localStorage.getItem('fc_passcode'); if (sp) this.setState(s => ({ ax: { ...s.ax, pass: sp } })); } catch (e) {} window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); this.syncAx(); }
+  componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidUpdate() { this.checkFit(); this.syncAx(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -458,34 +457,34 @@ class Component extends DCLogic {
     this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
   };
   axSet = o => this.setState(s => ({ ax: { ...s.ax, ...o } }));
-  axOnNotes = e => this.axSet({ notes: e.target.value });
-  axOnPass = e => this.axSet({ pass: e.target.value });
+  axOnNotes = e => this.axSet({ notes: e.target.value, msg: '', err: '' });
   axOnWhere = e => this.axSet({ where: e.target.value });
   axOnTarget = e => this.axSet({ target: e.target.value });
-  axGenerate = () => this.axGen(false);
-  axRegen = () => this.axGen(true);
-  axDiscard = () => this.axSet({ status: 'idle', html: '', id: '', err: '' });
-  axGen = async regen => {
-    const ax = this.state.ax;
-    if (ax.status === 'loading') return;
-    if (!ax.notes.trim()) { this.axSet({ err: 'Paste your notes first.' }); return; }
-    if (!ax.pass.trim()) { this.axSet({ err: 'Enter the team passcode.' }); return; }
-    const attempt = regen ? (ax.attempt || 0) + 1 : 0, D = this.dims(), prev = ax.status === 'ready' ? 'ready' : 'idle';
-    this.axSet({ status: 'loading', err: '', msg: '', attempt });
+  axRegen = () => this.axSet({ attempt: (this.state.ax.attempt || 0) + 1 });
+  axClear = () => this.axSet({ notes: '', attempt: 0, err: '', msg: '' });
+  axFileEl = null;
+  axFileRef = el => { this.axFileEl = el; };
+  axOpenFile = () => this.axFileEl && this.axFileEl.click();
+  axOnFile = e => { const f = e.target.files && e.target.files[0]; if (f) this.axLoad(f); e.target.value = ''; };
+  async axLoad(f) {
+    const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
     try {
-      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 90000);
-      const res = await fetch(window.FC_API || '/api/generate-screen', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ passcode: ax.pass.trim(), notes: ax.notes, width: D.W, height: D.H, attempt }), signal: ctl.signal });
-      clearTimeout(to);
-      let data = null; try { data = await res.json(); } catch (e) {}
-      if (!res.ok || !data || !data.html) throw new Error((data && data.error) || (res.status === 504 || res.status === 502 ? 'That took too long. Try again, or paste fewer notes.' : 'Something went wrong. Try again.'));
-      const built = this.buildScreen(data.html);
-      try { localStorage.setItem('fc_passcode', ax.pass.trim()); } catch (e) {}
-      this.axSet({ status: 'ready', html: built.html, id: built.id });
-    } catch (err) { this.axSet({ status: prev, err: err && err.name === 'AbortError' ? 'That took too long. Try again.' : (err && err.message) || 'Something went wrong.' }); }
-  };
+      if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB).');
+      let text;
+      if (ext === 'docx') text = await this.readDocx(f);
+      else if (ext === 'pdf') text = await this.readPdf(f);
+      else if (ext === 'odt') text = await this.readOdt(f);
+      else if (ext === 'rtf') text = this.readRtf(await f.text());
+      else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
+      else if (ext === 'txt' || ext === 'md' || ext === 'text') text = await f.text();
+      else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
+      if (!text.trim()) throw new Error('No text found in that file.');
+      this.axSet({ notes: text.replace(/\*\*/g, '').trim(), attempt: 0, err: '', msg: '' });
+    } catch (err) { this.axSet({ err: err.message || 'Could not read that file.' }); }
+  }
   axAdd = () => {
-    const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [];
-    if (ax.status !== 'ready') return;
+    const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [], notes = (ax.notes || '').trim();
+    if (!notes) return;
     const tgt = slides.find(s => s.vk === ax.target) || slides[slides.length - 1], before = ax.where === 'before';
     let at = 0, ord = 0;
     if (tgt && !tgt.isExtra) {
@@ -496,42 +495,56 @@ class Component extends DCLogic {
       const e0 = ex.find(e => 'x:' + e.id === tgt.vk);
       if (e0) { at = e0.at; ord = e0.ord + (before ? -0.5 : 0.5); }
     }
-    const item = { id: ax.id, at, ord, html: ax.html, label: ax.notes.trim().slice(0, 200) };
-    this.setState(s => ({ extras: [...(s.extras || []), item], ax: { ...s.ax, status: 'idle', html: '', id: '', notes: '', err: '', attempt: 0, msg: 'Added to your slides.' } }));
+    const item = { id: 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), at, ord, notes, attempt: ax.attempt || 0, pair: this.pairFor(ax.attempt || 0), label: notes.slice(0, 200) };
+    this.setState(s => ({ extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', msg: 'Added to your slides.' } }));
   };
   rayUrl(white) { const el = document.querySelector('img[data-ray="' + (white ? 'white' : 'black') + '"]'); return el ? el.src : ''; }
-  safeCss(v) {
-    return String(v).replace(/url\(\s*(['"]?)(?!data:image\/|blob:)[^)]*\)/gi, 'none').replace(/expression\s*\(|javascript:|behavior\s*:|-moz-binding/gi, '');
+  pairFor(attempt) { return Component.CYCLE[(((this.state.extras || []).length * 7) + attempt * 5) % Component.CYCLE.length]; }
+  parseNotes(text) {
+    const strip = s => this.clean(s).replace(/\*\*/g, '').replace(/^\s*(?:#{1,6}\s+|[•●▪◦‣·○■□➢➤►]\s*|[-–—*]\s+|\d{1,2}[.)]\s+)/, '').replace(/\s+/g, ' ').trim();
+    const lines = String(text || '').split(/\n+/).map(strip).filter(Boolean);
+    if (!lines.length) return null;
+    const TIME = /^(\d{1,2}(?::\d{2})?\s?(?:am|pm)(?:\s*[-–]\s*\d{1,2}(?::\d{2})?\s?(?:am|pm)?)?)\s*[-–:|]?\s+(\S.*)$/i, KV = /^([A-Za-z][A-Za-z &\/'’-]{0,22}):\s+(\S.*)$/;
+    const rows = lines.slice(1).map(l => { let m = l.match(TIME); if (m) return { label: m[1], text: m[2] }; m = l.match(KV); if (m) return { label: m[1], text: m[2] }; return { label: '', text: l }; });
+    return { title: lines[0], rows };
   }
-  scopeCss(css, scope) {
-    const src = String(css).replace(/@import[^;]*;/gi, '');
-    let rules = [];
-    try { const sh = new CSSStyleSheet(); sh.replaceSync(src); rules = [...sh.cssRules]; } catch (e) {
-      const d = document.implementation.createHTMLDocument(''), st = d.createElement('style'); st.textContent = src; d.head.appendChild(st); rules = st.sheet ? [...st.sheet.cssRules] : [];
-    }
-    const pre = sel => sel.split(',').map(x => { x = x.trim().replace(/^(html|body|:root)(?![\w-])/i, '').trim(); return x ? scope + ' ' + x : scope; }).join(', ');
-    return rules.filter(r => r.type === 1).map(r => pre(r.selectorText) + ' { ' + this.safeCss(r.style.cssText) + ' }').join('\n') + '\n' + scope + ' .screen { width:100% !important; height:100% !important; box-sizing:border-box; overflow:hidden; }';
+  fitScreen(el) {
+    const r = el && el.querySelector('.screen'); if (!r) return;
+    let s = 1; r.style.setProperty('--s', '1');
+    for (let i = 0; i < 16 && s > 0.3 && (r.scrollHeight > r.clientHeight + 1 || r.scrollWidth > r.clientWidth + 1); i++) { s *= 0.92; r.style.setProperty('--s', s.toFixed(3)); }
   }
-  buildScreen(raw) {
-    const id = 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), scope = '.fcx-' + id;
-    const src = String(raw || '').replace(/^\s*```[a-z]*\s*/i, '').replace(/\s*```\s*$/, '').replace(/\{\{RAY_WHITE\}\}/g, this.rayUrl(true)).replace(/\{\{RAY_BLACK\}\}/g, this.rayUrl(false));
-    const doc = new DOMParser().parseFromString('<!doctype html><body>' + src, 'text/html');
-    let css = ''; doc.querySelectorAll('style').forEach(n => { css += n.textContent + '\n'; n.remove(); });
-    doc.querySelectorAll('script,iframe,object,embed,link,meta,base,form,input,button,textarea,select,video,audio,canvas').forEach(n => n.remove());
-    const ok = v => /^(data:image\/|blob:|#)/i.test(String(v).trim());
-    doc.body.querySelectorAll('*').forEach(el => {
-      for (const a of [...el.attributes]) {
-        const n = a.name.toLowerCase();
-        if (n.startsWith('on')) el.removeAttribute(a.name);
-        else if ((n === 'src' || n === 'href' || n === 'xlink:href' || n === 'srcset' || n === 'action' || n === 'formaction') && !ok(a.value)) el.removeAttribute(a.name);
-        else if (n === 'style') el.setAttribute('style', this.safeCss(a.value));
-      }
-    });
-    return { id, html: '<style>' + this.scopeCss(css, scope) + '</style>' + doc.body.innerHTML };
+  renderExtra(m, attempt, D, pairName) {
+    if (!m) return '';
+    const P = Component.PAIRS[pairName] || Component.PAIRS['Violet / Lemon'], bg = P[0], text = P[1], accent = P[2], k = D.k;
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'), fs = n => 'calc(' + Math.round(n * k) + 'px * var(--s))', px = n => Math.round(n * k) + 'px';
+    const lum = hex => { const h = hex.replace('#', ''), f = h.length === 3 ? h.split('').map(c => c + c).join('') : h, v = [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16)); return (0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]) / 255; };
+    const ink = hex => lum(hex) > 0.6 ? '#000' : '#fff', rgba = (hex, a) => { const h = hex.replace('#', ''), f = h.length === 3 ? h.split('').map(c => c + c).join('') : h, v = [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16)); return 'rgba(' + v.join(',') + ',' + a + ')'; };
+    const lc = Math.abs(lum(accent) - lum(bg)) < 0.35 ? text : accent, titleColor = bg === '#000' ? accent : text, pad = Math.round(110 * k), side = D.wide ? Math.round(D.W * 0.12) : Math.round(150 * k);
+    const title = m.title, rows = m.rows, tsz = title.length <= 18 ? 210 : title.length <= 32 ? 170 : title.length <= 55 ? 135 : title.length <= 90 ? 108 : 88;
+    const lab = (t, c) => '<div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + c + ';margin-bottom:' + px(6) + ';">' + esc(t) + '</div>';
+    const rowStack = (c, size) => rows.map(r => '<div style="margin-bottom:' + px(26) + ';">' + (r.label ? lab(r.label, c) : '') + '<div style="font-size:' + fs(size) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('');
+    const logo = (white, left, bottom) => '<img src="' + this.rayUrl(white) + '" alt="" style="position:absolute;left:' + left + ';bottom:' + bottom + ';width:' + px(62) + ';height:' + px(64) + ';">';
+    const root = (inner, pads) => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:flex;flex-direction:column;padding:' + (pads || (pad + 'px ' + side + 'px ' + (pad + Math.round(110 * k)) + 'px')) + ';">' + inner + '</div>';
+    const h1 = (size, c, extra) => '<h1 style="margin:0;font-weight:300;font-size:' + fs(size) + ';line-height:1.04;color:' + c + ';' + (extra || '') + '">' + esc(title) + '</h1>';
+    const white = text === '#fff';
+    const L = [
+      () => root('<div style="margin:auto 0;">' + h1(tsz, titleColor, 'margin-bottom:' + px(48) + ';') + rowStack(lc, 64) + '</div>' + logo(white, side + 'px', pad + 'px')),
+      () => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:grid;grid-template-columns:46% 54%;">' +
+        '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px ' + (pad + Math.round(110 * k)) + 'px;display:flex;flex-direction:column;position:relative;"><div style="margin:auto 0;">' + h1(Math.round(tsz * 0.72), ink(accent)) + '</div>' + logo(ink(accent) === '#fff', Math.round(side * 0.6) + 'px', pad + 'px') + '</div>' +
+        '<div style="padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px;display:flex;flex-direction:column;"><div style="margin:auto 0;">' + rowStack(lc, 64) + '</div></div></div>',
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(40) + ';') + '<div>' + rows.map(r => '<div style="display:grid;grid-template-columns:30% 1fr;gap:' + px(40) + ';padding:' + px(22) + ' 0;border-top:2px solid ' + rgba(text, 0.35) + ';"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(36) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</div><div style="font-size:' + fs(64) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px')),
+      () => root('<div style="margin:auto 0;text-align:center;">' + h1(tsz, titleColor) + '<div style="width:' + px(140) + ';height:' + px(8) + ';background:' + lc + ';margin:' + px(44) + ' auto;"></div>' + rows.map(r => '<div style="font-size:' + fs(60) + ';line-height:1.2;margin-bottom:' + px(14) + ';">' + (r.label ? '<span style="font-family:var(--font-grotesque);font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</span> ' : '') + esc(r.text) + '</div>').join('') + '</div>' + logo(white, 'calc(50% - ' + px(31) + ')', pad + 'px')),
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(36) + ';') + '<div>' + rows.map(r => '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + px(22) + ' ' + px(36) + ';margin-bottom:' + px(14) + ';">' + (r.label ? lab(r.label, ink(accent)) : '') + '<div style="font-size:' + fs(60) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px'))
+    ];
+    const lblRows = rows.filter(r => r.label).length, base = !rows.length ? 3 : (rows.length >= 3 && lblRows >= 2) ? 2 : rows.length >= 3 ? 4 : 0;
+    return L[(base + attempt) % L.length]();
   }
   syncAx() {
-    const el = this.axEl, a = this.state.ax;
-    if (el && a.status === 'ready' && el.dataset.xid !== a.id) { el.className = 'fcx-' + a.id; el.innerHTML = a.html; el.dataset.xid = a.id; }
+    const el = this.axEl, a = this.state.ax; if (!el) return;
+    const notes = (a.notes || '').trim(), D = this.dims(), key = notes + '|' + (a.attempt || 0) + '|' + D.id + '|' + (this.state.extras || []).length;
+    if (el.dataset.key === key) return;
+    el.innerHTML = notes ? this.renderExtra(this.parseNotes(notes), a.attempt || 0, D, this.pairFor(a.attempt || 0)) : '';
+    el.dataset.key = key; this.fitScreen(el);
   }
   axRef = el => { this.axEl = el; this.syncAx(); };
   axBoxRef = el => {
@@ -540,10 +553,16 @@ class Component extends DCLogic {
     const m = () => { const w = el.clientWidth; if (w !== this.state.axW) this.setState({ axW: w }); };
     this.axRo = new ResizeObserver(m); this.axRo.observe(el); m();
   };
+  paintExtra(id) {
+    const e = (this.state.extras || []).find(x => x.id === id), el = this._exEls && this._exEls[id];
+    if (!e || !el || !el.isConnected) return;
+    const D = this.dims(), key = D.id;
+    if (el.dataset.key !== key) { el.innerHTML = this.renderExtra(this.parseNotes(e.notes), e.attempt, D, e.pair); el.dataset.key = key; this.fitScreen(el); }
+  }
   extraSlide(e) {
     const k = 'x:' + e.id;
-    this.exFns = this.exFns || {}; this.exDel = this.exDel || {};
-    this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; if (el.dataset.xid !== e.id) { el.className = 'fcx-' + e.id; el.innerHTML = e.html; el.dataset.xid = e.id; } });
+    this.exFns = this.exFns || {}; this.exDel = this.exDel || {}; this._exEls = this._exEls || {};
+    this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; this._exEls[e.id] = el; this.paintExtra(e.id); });
     this.exDel[e.id] = this.exDel[e.id] || (ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteExtra(e.id); });
     return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Additional screen', cardTitle: 'Additional screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
   }
@@ -828,7 +847,7 @@ class Component extends DCLogic {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} additional` : '') : '',
-      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axPass: ax.pass || '', axOnPass: this.axOnPass, axGenerate: this.axGenerate, axRegen: this.axRegen, axDiscard: this.axDiscard, axAdd: this.axAdd, axBusy: ax.status === 'loading', axBtnOpacity: ax.status === 'loading' ? 0.5 : 1, axGenLabel: ax.status === 'loading' ? 'Designing…' : (ax.status === 'ready' ? 'Generate a new screen' : 'Generate screen'), axErr: ax.err || '', axMsg: ax.msg || '', axLoading: ax.status === 'loading', axReady: ax.status === 'ready', axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
+      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axOpenFile: this.axOpenFile, axFileRef: this.axFileRef, axOnFile: this.axOnFile, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
       undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',

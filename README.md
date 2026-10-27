@@ -13,11 +13,4 @@ Note: `index.html` embeds licensed Futures Church brand fonts. Keep this reposit
 
 ## Additional screens (Step 4)
 
-Step 4 lets a user paste one set of notes (announcements, an event, and so on) and have Claude design a one-off screen in the Futures brand. The screen can be regenerated, then added to the slide list before or after any slide. It is exported with the other screens as a PNG or in the PowerPoint file.
-
-It runs through a Netlify Function, `netlify/functions/generate-screen.mjs`, available at `/api/generate-screen`. Set these in Netlify under Site configuration > Environment variables, then redeploy:
-
-- `ANTHROPIC_API_KEY` – an Anthropic API key (never put it in the page).
-- `SCREENS_PASSCODE` – the team passcode users type once (it is remembered in their browser).
-
-The function uses the `claude-sonnet-5-5` model and limits notes to 6,000 characters. The page cleans Claude's HTML before showing it: scripts, event handlers, external images and external CSS URLs are removed, and its CSS is scoped to its own screen.
+Step 4 turns one set of pasted notes (or an uploaded file) into a one-off screen, with no AI service or API key. The tool reads the notes (first line is the title, `Label: value` lines and lines starting with a time such as `7pm` become labelled rows) and lays them out in one of five layouts using the Futures fonts and colour pairings. Regenerate cycles to the next layout and colour pairing. The screen can be added before or after any slide, and is exported with the other screens as a PNG or in the PowerPoint file.
