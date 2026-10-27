@@ -206,7 +206,6 @@ class Component extends DCLogic {
     this._fitT = setTimeout(() => {
       const D = this.dims(), upd = {};
       for (const s of this.slides || []) {
-        if (!s.emph) continue;
         const node = this.nodes[s.key]; if (!node) continue;
         const p = node.querySelector('[data-verse]'), ref = node.querySelector('[data-ref]'), title = node.querySelector('[data-title]');
         if (!p) continue;
@@ -219,8 +218,9 @@ class Component extends DCLogic {
           const limit = ref ? ref.offsetTop - 40 * D.k : D.H - D.pad;
           over = p.offsetTop + p.offsetHeight > limit;
         }
+        if (p.scrollWidth > p.clientWidth + 1) over = true;
         const cur = (this.state.fit || {})[s.fitKey] || 1;
-        if (over && cur > 0.4) upd[s.fitKey] = cur * 0.94;
+        if (over && cur > 0.3) upd[s.fitKey] = cur * 0.94;
       }
       if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
     }, 60);
@@ -576,20 +576,21 @@ class Component extends DCLogic {
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const point = !!c.point, prevs = point && this.state.build !== false ? (c.prevs || []) : [];
       const emph = !!(this.state.emph || {})[k];
-      const fitKey = k + '|' + D.id + '|' + this._key, fit = emph ? ((this.state.fit || {})[fitKey] || 1) : 1;
+      const fitKey = k + '|' + D.id + '|' + this._key, fit = (this.state.fit || {})[fitKey] || 1;
       const base = c.cond ? 72 : point ? (W <= 60 * D.r ? 160 : W <= 100 * D.r ? 130 : 104) : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
       let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
       if (base === 72) cpl = 36 * D.r * (92 / 72); else if (point && base > 104) cpl = 36 * D.r * 92 / base; else if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
       const pn = prevs.length, prevSize = Math.round(Math.max(34, Math.min(72, 400 / Math.max(1, pn))) * D.k);
       const prevLines = prevs.reduce((a, q) => a + Math.max(1, Math.ceil(q.length * prevSize * 0.5 / D.textW)), 0);
       const prevH = pn ? Math.round(prevLines * prevSize * 1.2 + (pn - 1) * prevSize * 0.25 + prevSize * 0.9) : 0, availH = D.availH - prevH;
+      const kwMax = Math.max(0, ...c.ps.filter(p => p.b).map(p => p.t.length)), bodyMax = Math.max(0, ...c.ps.filter(p => !p.b).map(p => p.t.length));
       let kwSize = null;
       const kwW = c.ps.filter(p => p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0), bodyW = c.ps.filter(p => !p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0);
       if (emph && kwW > 0) {
         for (let s = Math.round(240 * D.k); s >= size; s -= 2) {
           const ks = Math.round(s * 1.35), px = bodyW * s * 0.5 + kwW * ks * 0.62;
           const lines = Math.max(2, Math.ceil(px / D.textW));
-          if (lines * ks * 1.0 <= availH) { size = s; kwSize = ks; break; }
+          if (lines * ks * 1.0 <= availH && kwMax * ks * 0.72 <= D.textW && bodyMax * s * 0.55 <= D.textW) { size = s; kwSize = ks; break; }
         }
         if (!kwSize) kwSize = Math.round(size * 1.35);
         size = Math.round(size * fit); kwSize = Math.round(kwSize * fit);
@@ -597,12 +598,13 @@ class Component extends DCLogic {
       } else if (emph) {
         for (let s = Math.round(240 * D.k); s >= size; s -= 2) {
           const perLine = D.textW / (s * 0.5), lines = Math.max(2, Math.ceil(W / perLine));
-          if (lines * s * 1.08 <= availH) { size = s; break; }
+          if (lines * s * 1.08 <= availH && bodyMax * s * 0.55 <= D.textW) { size = s; break; }
         }
         size = Math.round(size * fit);
         cpl = D.textW / (size * 0.5);
       }
       if (point && !emph) { while (size > 60 * D.k && Math.ceil(W / (D.textW / (size * 0.5))) * size * 1.14 > availH) size -= 4; cpl = D.textW / (size * 0.5); }
+      if (!emph && fit < 1) { size = Math.round(size * fit); cpl = D.textW / (size * 0.5); }
       let brAt = -1;
       if (W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
         let acc = 0, best = Infinity;
