@@ -31,7 +31,7 @@
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ shuffle }}" hint-size="160px,44px">Shuffle colours</x-import>
       <x-import component-from-global-scope="FuturesChurchDesignSystem_511f8a.Button" variant="secondary" onClick="{{ traditional }}" hint-size="190px,44px">Traditional colours</x-import>
       <button onClick="{{ toggleMenu }}" aria-haspopup="menu" aria-expanded="{{ menuOpen }}" disabled="{{ exportDisabled }}" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:40px; z-index:40; animation:{{ exportAnim }}; outline:2px solid #fff; filter:drop-shadow(0 0 14px rgba(142,99,255,0.85)) drop-shadow(0 0 4px rgba(255,255,255,0.6)); box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.28); display:flex; align-items:stretch; padding:0; border:1px solid #000; border-radius:999px; overflow:hidden; background:#000; cursor:pointer; opacity:{{ exportOpacity }}; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">
-        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 4</span>
+        <span style="flex:none; white-space:nowrap; display:flex; align-items:center; padding:0 16px 0 20px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase;">Step 5</span>
         <span style="display:flex; align-items:center; padding:13px 22px 13px 16px; color:#fff; font-family:var(--font-sans); font-size:15px; white-space:nowrap;">{{ exportLabel }}</span>
       </button>
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
@@ -59,7 +59,6 @@
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
         <div>Long verses are split across screens for you.</div>
         <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
-        <div>Numbered or bullet points become title screens that build on each other.</div>
         <div>Please use this tool on a computer or tablet for best viewing experience.</div>
       </div>
     
@@ -74,10 +73,6 @@
           <button onClick="{{ toggleTitle }}" role="switch" aria-checked="{{ titleOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ tglBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ tglX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
         </div>
         <sc-if value="{{ titleOn }}"><input value="{{ title }}" onChange="{{ onTitle }}" placeholder="Message title" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;"></sc-if>
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px;">
-          <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Build points on each other</span>
-          <button onClick="{{ toggleBuild }}" role="switch" aria-checked="{{ buildOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ buildBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ buildX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
-        </div>
         <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 2</span>
         <button onClick="{{ openFile }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box; padding:18px 22px; border:2px dashed {{ uploadBorder }}; border-radius:14px; background:{{ uploadBg }}; color:#fff; text-align:left; cursor:pointer; animation:{{ uploadAnim }}; transition:transform 150ms ease-out, opacity 150ms ease-out;" style-hover="opacity:0.92;" style-active="transform:scale(0.98);">
           <span style="font-family:var(--font-display); font-weight:200; font-size:30px; line-height:1.05;">Upload your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> here</span>
@@ -89,6 +84,31 @@
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
         <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
+        <img data-ray="white" src="assets/ray-mark-ffffff.png" alt="" style="display:none;"><img data-ray="black" src="assets/ray-mark-000000.png" alt="" style="display:none;">
+        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 4</span>
+        <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Additional screens</label>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Paste one set of notes, like announcements or an event, or upload a file. The tool lays it out as a one-off screen in the Futures design. Not happy with it? Regenerate for a new layout and colours.</span>
+        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Warning</span><br>Only give one prompt at a time. Add the screen to your slides or clear it before you paste the next set of notes.</div>
+        <textarea value="{{ axNotes }}" onChange="{{ axOnNotes }}" placeholder="Paste one set of notes here" spellcheck="true" lang="en-AU" style="width:100%; box-sizing:border-box; min-height:160px; resize:vertical; padding:16px; border:1px solid rgba(0,0,0,0.2); border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button onClick="{{ axOpenFile }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Upload a file</button>
+          <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}"><button onClick="{{ axClear }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Clear</button></sc-if>
+        </div>
+        <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm" ref="{{ axFileRef }}" onChange="{{ axOnFile }}" style="display:none;">
+        <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
+        <sc-if value="{{ axErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px; border:1px solid #000; border-radius:10px; background:#ffff5f; font-size:14px; line-height:1.4;">{{ axErr }}</div></sc-if>
+        <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}">
+          <div ref="{{ axBoxRef }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; border:1px solid rgba(0,0,0,0.2); background:#000;"><div ref="{{ axRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ axScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
+          <button onClick="{{ axRegen }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Regenerate</button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Add to slides</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <select value="{{ axWhere }}" onChange="{{ axOnWhere }}" aria-label="Before or after" style="flex:none; padding:8px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px;"><option value="before">Before</option><option value="after">After</option></select>
+              <select value="{{ axTarget }}" onChange="{{ axOnTarget }}" aria-label="Slide" style="flex:1 1 140px; min-width:0; padding:8px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px;"><sc-for list="{{ axTargets }}" as="o"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
+            </div>
+            <button onClick="{{ axAdd }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Add to slides</button>
+          </div>
+        </sc-if>
       </div>
     </aside>
     <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
@@ -104,11 +124,9 @@
             </div>
           <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="flex:none; width:32px; height:32px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
           </div>
-          <div onClick="{{ s.onSelect }}" title="Click to find this text in Step 3" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
-            <div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
-              <div style="max-width:{{ dTextW }}px;"><sc-if value="{{ s.hasPrev }}" hint-placeholder-val="{{ false }}"><div data-prev="1" style="margin-bottom:{{ s.prevGap }}px; font-family:var(--font-display); font-weight:300; font-size:{{ s.prevSize }}px; line-height:1.2; opacity:0.5; color:{{ s.text }};"><sc-for list="{{ s.prevs }}" as="pv"><div style="display:flex; gap:0.3em; margin-bottom:{{ s.prevItemGap }}px;"><span style="flex:none;">{{ pv.m }}</span><span style="min-width:0;">{{ pv.t }}</span></div></sc-for></div></sc-if>
-                
-                <div style="display:flex; align-items:flex-start; gap:0.3em; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; color:{{ s.vColor }};"><sc-if value="{{ s.marker }}" hint-placeholder-val="{{ false }}"><span style="flex:none;">{{ s.marker }}</span></sc-if><div style="flex:1 1 0; min-width:0;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p><sc-if value="{{ s.info }}" hint-placeholder-val="{{ false }}"><div data-info="1" style="margin-top:{{ s.infoGap }}px; font-family:var(--font-display); font-weight:300; font-size:{{ s.infoSize }}px; line-height:1.25; color:{{ s.text }}; opacity:0.92;">{{ s.info }}</div></sc-if></div></div>
+          <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
+            <sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
+              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
                 <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
@@ -116,15 +134,15 @@
               <sc-if value="{{ hasTitle }}">
                 <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
               </sc-if>
-            </div>
+            </div></sc-if>
           </div>
-        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+        <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
             <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
             <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
             <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="margin-left:auto; flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
               <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
             </select>
-            </div>
+            </div></sc-if>
         </div>
       </sc-for>
     </section>
@@ -196,11 +214,11 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.setState({ fr: 1 })); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); }
+  componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidUpdate() { this.checkFit(); this.syncAx(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -209,18 +227,16 @@ class Component extends DCLogic {
         const node = this.nodes[s.key]; if (!node) continue;
         const p = node.querySelector('[data-verse]'), ref = node.querySelector('[data-ref]'), title = node.querySelector('[data-title]');
         if (!p) continue;
-        const last = node.querySelector('[data-info]') || p;
         let over = false;
         if (D.wide) {
-          const bottom = ref ? ref.offsetTop + ref.offsetHeight : last.offsetTop + last.offsetHeight;
+          const bottom = ref ? ref.offsetTop + ref.offsetHeight : p.offsetTop + p.offsetHeight;
           const limit = title ? title.offsetTop - 24 * D.k : D.H - D.pad * 0.6;
           over = bottom > limit;
         } else {
           const limit = ref ? ref.offsetTop - 40 * D.k : D.H - D.pad;
-          over = last.offsetTop + last.offsetHeight > limit;
+          over = p.offsetTop + p.offsetHeight > limit;
         }
         if (p.scrollWidth > p.clientWidth + 1) over = true;
-        if (s.wantLines && !s.emph) { const lh = parseFloat(getComputedStyle(p).lineHeight) || s.size * 1.14, lines = Math.round(p.offsetHeight / lh); if (lines > s.wantLines && s.size > s.minSize) over = true; }
         const cur = (this.state.fit || {})[s.fitKey] || 1;
         if (over && cur > 0.3) upd[s.fitKey] = cur * 0.94;
       }
@@ -260,8 +276,8 @@ class Component extends DCLogic {
       if (!text.trim()) throw new Error('no text found in that file.');
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
-      const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && !/^\s*(?:(\d{1,2})[.)]|([•●▪◦‣·○■□➢➤►]|[-–—*]))\s+(\S[\s\S]*)$/.test(first) && first.length <= 60 ? first : this.state.title;
-      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, error: '', uploaded: true });
+      const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && first.length <= 60 ? first : this.state.title;
+      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, extras: [], error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
@@ -308,13 +324,13 @@ class Component extends DCLogic {
     const doc = new DOMParser().parseFromString(xml, 'application/xml'), bold = new Set(), sup = new Set();
     for (const st of doc.getElementsByTagName('style:style')) { const tp = st.getElementsByTagName('style:text-properties')[0]; if (tp && /bold|[6-9]00/.test(tp.getAttribute('fo:font-weight') || '')) bold.add(st.getAttribute('style:name')); if (tp && /^(super|\d+%)/.test(tp.getAttribute('style:text-position') || '')) sup.add(st.getAttribute('style:name')); }
     const walk = (node, b) => { let s = ''; for (const c of node.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeName === 'text:s' || c.nodeName === 'text:tab' || c.nodeName === 'text:line-break') s += ' '; else if (sup.has(c.getAttribute && c.getAttribute('text:style-name')) && /^[\s\d,\-–]+$/.test(c.textContent)) continue; else s += walk(c, b || bold.has(c.getAttribute && c.getAttribute('text:style-name'))); } return s; };
-    return [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)).map(p => ((p.parentNode && p.parentNode.nodeName === 'text:list-item' ? '• ' : '') + walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '')).trim()).filter(Boolean).join('\n');
+    return [...doc.querySelectorAll('p, h')].filter(p => /^text:(p|h)$/.test(p.nodeName)).map(p => walk(p, bold.has(p.getAttribute('text:style-name'))).replace(/\*\*\*\*/g, '').trim()).filter(Boolean).join('\n');
   }
   readHtml(src) {
     const doc = new DOMParser().parseFromString(src, 'text/html');
     doc.querySelectorAll('script,style').forEach(n => n.remove());
     const isB = el => el.nodeType === 1 && (/^(B|STRONG)$/.test(el.tagName) || /bold|[6-9]00/.test(el.style.fontWeight || ''));
-    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if ((c.tagName === 'SUP' || /super/.test(c.style.verticalAlign || '')) && /^[\s\u00a0\d,\-–]+$/.test(c.textContent)) continue; if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + (c.tagName === 'LI' ? (c.parentNode && c.parentNode.tagName === 'OL' ? ([...c.parentNode.children].indexOf(c) + 1) + '. ' : '• ') : '') + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
+    const walk = (n, b) => { let s = ''; for (const c of n.childNodes) { if (c.nodeType === 3) s += b && c.textContent.trim() ? `**${c.textContent}**` : c.textContent; else if (c.nodeType === 1) { if ((c.tagName === 'SUP' || /super/.test(c.style.verticalAlign || '')) && /^[\s\u00a0\d,\-–]+$/.test(c.textContent)) continue; if (c.tagName === 'BR') s += '\n'; else if (/^(P|DIV|LI|H[1-6]|TR|BLOCKQUOTE)$/.test(c.tagName)) s += '\n' + walk(c, b || isB(c)) + '\n'; else s += walk(c, b || isB(c)); } } return s; };
     return walk(doc.body, false).replace(/\*\*\*\*/g, '').split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
   }
   readRtf(src) {
@@ -342,12 +358,6 @@ class Component extends DCLogic {
     const xml = await this.unzip(file, 'word/document.xml');
     const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
     const doc = new DOMParser().parseFromString(xml, 'application/xml'), lines = [];
-    const numFmt = {}, cnt = {};
-    try {
-      const nd = new DOMParser().parseFromString(await this.unzip(file, 'word/numbering.xml'), 'application/xml'), abs = {};
-      for (const a of nd.getElementsByTagNameNS(W, 'abstractNum')) { const lv = [...a.getElementsByTagNameNS(W, 'lvl')].find(l => l.getAttributeNS(W, 'ilvl') === '0'), f = lv && lv.getElementsByTagNameNS(W, 'numFmt')[0]; abs[a.getAttributeNS(W, 'abstractNumId')] = f ? f.getAttributeNS(W, 'val') : 'bullet'; }
-      for (const n of nd.getElementsByTagNameNS(W, 'num')) { const a = n.getElementsByTagNameNS(W, 'abstractNumId')[0]; numFmt[n.getAttributeNS(W, 'numId')] = a ? abs[a.getAttributeNS(W, 'val')] : 'bullet'; }
-    } catch (e) {}
     for (const para of doc.getElementsByTagNameNS(W, 'p')) {
       let s = '';
       for (const r of para.getElementsByTagNameNS(W, 'r')) {
@@ -362,11 +372,6 @@ class Component extends DCLogic {
         s += bold && t.trim() ? `**${t}**` : t;
       }
       s = s.replace(/\*\*\*\*/g, '').trim();
-      const ppr = [...para.childNodes].find(c => c.localName === 'pPr'), np = ppr && ppr.getElementsByTagNameNS(W, 'numPr')[0];
-      if (np && s) {
-        const ni = np.getElementsByTagNameNS(W, 'numId')[0], il = np.getElementsByTagNameNS(W, 'ilvl')[0], nid = ni && ni.getAttributeNS(W, 'val'), lv = il ? +il.getAttributeNS(W, 'val') : 0;
-        if (nid && nid !== '0') { const f = numFmt[nid] || 'bullet'; if (f !== 'bullet' && f !== 'none' && lv === 0) { cnt[nid] = (cnt[nid] || 0) + 1; s = cnt[nid] + '. ' + s; } else s = '• ' + s; }
-      }
       if (s) lines.push(s);
     }
     return lines.join('\n');
@@ -441,30 +446,129 @@ class Component extends DCLogic {
       if (!P.ref && !/\[screen\]|\*\s?screen\b/i.test(pre + suf)) pre = '*SCREEN ' + pre;
       nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
     }
-    const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1);
+    const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1), dts = (this.slides || []).find(s => s.key === pi + ':' + ci), dti = dts ? dts.tIndex : 0;
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
     this.clearHl();
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, label }, text: nt, overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label }, text: nt, extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
   }
   undoDelete = () => {
     const u = this.state.undo; if (!u) return;
     clearTimeout(this._undoT); this.clearHl();
-    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, fit: {}, undo: null });
+    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
   };
-  findSep(arr) {
-    for (let i = 1; i < arr.length; i++) {
-      const c = arr[i], p = arr[i - 1], n = arr[i + 1] || '';
-      if (/[-–—]/.test(c) && /\s/.test(p) && /\s/.test(n)) return { at: i - 1, len: 3 };
-      if (c === ':' && /\s/.test(n)) return { at: i, len: 2 };
-      if (c === '(' && /\s/.test(p)) return { at: i - 1, len: 2 };
-    }
-    return null;
+  axSet = o => this.setState(s => ({ ax: { ...s.ax, ...o } }));
+  axOnNotes = e => this.axSet({ notes: e.target.value, msg: '', err: '' });
+  axOnWhere = e => this.axSet({ where: e.target.value });
+  axOnTarget = e => this.axSet({ target: e.target.value });
+  axRegen = () => this.axSet({ attempt: (this.state.ax.attempt || 0) + 1 });
+  axClear = () => this.axSet({ notes: '', attempt: 0, err: '', msg: '' });
+  axFileEl = null;
+  axFileRef = el => { this.axFileEl = el; };
+  axOpenFile = () => this.axFileEl && this.axFileEl.click();
+  axOnFile = e => { const f = e.target.files && e.target.files[0]; if (f) this.axLoad(f); e.target.value = ''; };
+  async axLoad(f) {
+    const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
+    try {
+      if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB).');
+      let text;
+      if (ext === 'docx') text = await this.readDocx(f);
+      else if (ext === 'pdf') text = await this.readPdf(f);
+      else if (ext === 'odt') text = await this.readOdt(f);
+      else if (ext === 'rtf') text = this.readRtf(await f.text());
+      else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
+      else if (ext === 'txt' || ext === 'md' || ext === 'text') text = await f.text();
+      else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
+      if (!text.trim()) throw new Error('No text found in that file.');
+      this.axSet({ notes: text.replace(/\*\*/g, '').trim(), attempt: 0, err: '', msg: '' });
+    } catch (err) { this.axSet({ err: err.message || 'Could not read that file.' }); }
   }
-  measure(text) {
-    if (!this._cv) this._cv = document.createElement('canvas').getContext('2d');
-    this._cv.font = '300 100px ' + (getComputedStyle(document.documentElement).getPropertyValue('--font-display') || 'serif');
-    const w = this._cv.measureText(text).width;
-    return w > 0 ? w : text.length * 46;
+  axAdd = () => {
+    const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [], notes = (ax.notes || '').trim();
+    if (!notes) return;
+    const tgt = slides.find(s => s.vk === ax.target) || slides[slides.length - 1], before = ax.where === 'before';
+    let at = 0, ord = 0;
+    if (tgt && !tgt.isExtra) {
+      at = before ? tgt.tIndex : tgt.tIndex + 1;
+      const g = ex.filter(e => e.at === at);
+      ord = g.length ? (before ? Math.max(...g.map(e => e.ord)) + 1 : Math.min(...g.map(e => e.ord)) - 1) : 0;
+    } else if (tgt) {
+      const e0 = ex.find(e => 'x:' + e.id === tgt.vk);
+      if (e0) { at = e0.at; ord = e0.ord + (before ? -0.5 : 0.5); }
+    }
+    const item = { id: 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), at, ord, notes, attempt: ax.attempt || 0, pair: this.pairFor(ax.attempt || 0), label: notes.slice(0, 200) };
+    this.setState(s => ({ extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', msg: 'Added to your slides.' } }));
+  };
+  rayUrl(white) { const el = document.querySelector('img[data-ray="' + (white ? 'white' : 'black') + '"]'); return el ? el.src : ''; }
+  pairFor(attempt) { return Component.CYCLE[(((this.state.extras || []).length * 7) + attempt * 5) % Component.CYCLE.length]; }
+  parseNotes(text) {
+    const strip = s => this.clean(s).replace(/\*\*/g, '').replace(/^\s*(?:#{1,6}\s+|[•●▪◦‣·○■□➢➤►]\s*|[-–—*]\s+|\d{1,2}[.)]\s+)/, '').replace(/\s+/g, ' ').trim();
+    const lines = String(text || '').split(/\n+/).map(strip).filter(Boolean);
+    if (!lines.length) return null;
+    const TIME = /^(\d{1,2}(?::\d{2})?\s?(?:am|pm)(?:\s*[-–]\s*\d{1,2}(?::\d{2})?\s?(?:am|pm)?)?)\s*[-–:|]?\s+(\S.*)$/i, KV = /^([A-Za-z][A-Za-z &\/'’-]{0,22}):\s+(\S.*)$/;
+    const rows = lines.slice(1).map(l => { let m = l.match(TIME); if (m) return { label: m[1], text: m[2] }; m = l.match(KV); if (m) return { label: m[1], text: m[2] }; return { label: '', text: l }; });
+    return { title: lines[0], rows };
+  }
+  fitScreen(el) {
+    const r = el && el.querySelector('.screen'); if (!r) return;
+    let s = 1; r.style.setProperty('--s', '1');
+    for (let i = 0; i < 16 && s > 0.3 && (r.scrollHeight > r.clientHeight + 1 || r.scrollWidth > r.clientWidth + 1); i++) { s *= 0.92; r.style.setProperty('--s', s.toFixed(3)); }
+  }
+  renderExtra(m, attempt, D, pairName) {
+    if (!m) return '';
+    const P = Component.PAIRS[pairName] || Component.PAIRS['Violet / Lemon'], bg = P[0], text = P[1], accent = P[2], k = D.k;
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'), fs = n => 'calc(' + Math.round(n * k) + 'px * var(--s))', px = n => Math.round(n * k) + 'px';
+    const lum = hex => { const h = hex.replace('#', ''), f = h.length === 3 ? h.split('').map(c => c + c).join('') : h, v = [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16)); return (0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]) / 255; };
+    const ink = hex => lum(hex) > 0.6 ? '#000' : '#fff', rgba = (hex, a) => { const h = hex.replace('#', ''), f = h.length === 3 ? h.split('').map(c => c + c).join('') : h, v = [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16)); return 'rgba(' + v.join(',') + ',' + a + ')'; };
+    const lc = Math.abs(lum(accent) - lum(bg)) < 0.35 ? text : accent, titleColor = bg === '#000' ? accent : text, pad = Math.round(110 * k), side = D.wide ? Math.round(D.W * 0.12) : Math.round(150 * k);
+    const title = m.title, rows = m.rows, tsz = title.length <= 18 ? 210 : title.length <= 32 ? 170 : title.length <= 55 ? 135 : title.length <= 90 ? 108 : 88;
+    const lab = (t, c) => '<div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + c + ';margin-bottom:' + px(6) + ';">' + esc(t) + '</div>';
+    const rowStack = (c, size) => rows.map(r => '<div style="margin-bottom:' + px(26) + ';">' + (r.label ? lab(r.label, c) : '') + '<div style="font-size:' + fs(size) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('');
+    const logo = (white, left, bottom) => '<img src="' + this.rayUrl(white) + '" alt="" style="position:absolute;left:' + left + ';bottom:' + bottom + ';width:' + px(62) + ';height:' + px(64) + ';">';
+    const root = (inner, pads) => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:flex;flex-direction:column;padding:' + (pads || (pad + 'px ' + side + 'px ' + (pad + Math.round(110 * k)) + 'px')) + ';">' + inner + '</div>';
+    const h1 = (size, c, extra) => '<h1 style="margin:0;font-weight:300;font-size:' + fs(size) + ';line-height:1.04;color:' + c + ';' + (extra || '') + '">' + esc(title) + '</h1>';
+    const white = text === '#fff';
+    const L = [
+      () => root('<div style="margin:auto 0;">' + h1(tsz, titleColor, 'margin-bottom:' + px(48) + ';') + rowStack(lc, 64) + '</div>' + logo(white, side + 'px', pad + 'px')),
+      () => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:grid;grid-template-columns:46% 54%;">' +
+        '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px ' + (pad + Math.round(110 * k)) + 'px;display:flex;flex-direction:column;position:relative;"><div style="margin:auto 0;">' + h1(Math.round(tsz * 0.72), ink(accent)) + '</div>' + logo(ink(accent) === '#fff', Math.round(side * 0.6) + 'px', pad + 'px') + '</div>' +
+        '<div style="padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px;display:flex;flex-direction:column;"><div style="margin:auto 0;">' + rowStack(lc, 64) + '</div></div></div>',
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(40) + ';') + '<div>' + rows.map(r => '<div style="display:grid;grid-template-columns:30% 1fr;gap:' + px(40) + ';padding:' + px(22) + ' 0;border-top:2px solid ' + rgba(text, 0.35) + ';"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(36) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</div><div style="font-size:' + fs(64) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px')),
+      () => root('<div style="margin:auto 0;text-align:center;">' + h1(tsz, titleColor) + '<div style="width:' + px(140) + ';height:' + px(8) + ';background:' + lc + ';margin:' + px(44) + ' auto;"></div>' + rows.map(r => '<div style="font-size:' + fs(60) + ';line-height:1.2;margin-bottom:' + px(14) + ';">' + (r.label ? '<span style="font-family:var(--font-grotesque);font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</span> ' : '') + esc(r.text) + '</div>').join('') + '</div>' + logo(white, 'calc(50% - ' + px(31) + ')', pad + 'px')),
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(36) + ';') + '<div>' + rows.map(r => '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + px(22) + ' ' + px(36) + ';margin-bottom:' + px(14) + ';">' + (r.label ? lab(r.label, ink(accent)) : '') + '<div style="font-size:' + fs(60) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px'))
+    ];
+    const lblRows = rows.filter(r => r.label).length, base = !rows.length ? 3 : (rows.length >= 3 && lblRows >= 2) ? 2 : rows.length >= 3 ? 4 : 0;
+    return L[(base + attempt) % L.length]();
+  }
+  syncAx() {
+    const el = this.axEl, a = this.state.ax; if (!el) return;
+    const notes = (a.notes || '').trim(), D = this.dims(), key = notes + '|' + (a.attempt || 0) + '|' + D.id + '|' + (this.state.extras || []).length;
+    if (el.dataset.key === key) return;
+    el.innerHTML = notes ? this.renderExtra(this.parseNotes(notes), a.attempt || 0, D, this.pairFor(a.attempt || 0)) : '';
+    el.dataset.key = key; this.fitScreen(el);
+  }
+  axRef = el => { this.axEl = el; this.syncAx(); };
+  axBoxRef = el => {
+    this.axRo && this.axRo.disconnect();
+    if (!el) return;
+    const m = () => { const w = el.clientWidth; if (w !== this.state.axW) this.setState({ axW: w }); };
+    this.axRo = new ResizeObserver(m); this.axRo.observe(el); m();
+  };
+  paintExtra(id) {
+    const e = (this.state.extras || []).find(x => x.id === id), el = this._exEls && this._exEls[id];
+    if (!e || !el || !el.isConnected) return;
+    const D = this.dims(), key = D.id;
+    if (el.dataset.key !== key) { el.innerHTML = this.renderExtra(this.parseNotes(e.notes), e.attempt, D, e.pair); el.dataset.key = key; this.fitScreen(el); }
+  }
+  extraSlide(e) {
+    const k = 'x:' + e.id;
+    this.exFns = this.exFns || {}; this.exDel = this.exDel || {}; this._exEls = this._exEls || {};
+    this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; this._exEls[e.id] = el; this.paintExtra(e.id); });
+    this.exDel[e.id] = this.exDel[e.id] || (ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteExtra(e.id); });
+    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Additional screen', cardTitle: 'Additional screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
+  }
+  deleteExtra(id) {
+    clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label: 'Additional screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
   }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
@@ -492,7 +596,7 @@ class Component extends DCLogic {
     return chars.slice(a, b);
   }
   passages(text) {
-    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null, skipCount = 0;
+    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null;
     const lre = /[^\n]+/g; let lm;
     while ((lm = lre.exec(text))) {
       const raw = lm[0], base = lm.index;
@@ -505,20 +609,6 @@ class Component extends DCLogic {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
         chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li], base, len: raw.length, ...this.span(chars) });
         continue;
-      }
-      if (!pending) {
-        const lmk = plain.match(/^\s*(?:(\d{1,2})[.)]|([•●▪◦‣·○■□➢➤►]|[-–—*]))\s+(\S[\s\S]*)$/);
-        if (lmk) {
-          const sub = lmk[3], cut = plain.length - sub.length;
-          if (this.validRef(sub.match(this.refRegex(false))) || this.validRef(sub.match(this.chapRegex(false))) || this.verseRegex().test(sub)) { chars = chars.slice(cut); plain = sub; }
-          else {
-            const pcs = this.trimChars(this.stripMarks(chars.slice(cut))), sp = this.findSep(pcs.map(x => x.c));
-            let tch = pcs, info = '';
-            if (sp && sp.at > 0) { const t2 = this.trimChars(pcs.slice(0, sp.at)), i2 = pcs.slice(sp.at + sp.len).map(x => x.c).join('').replace(/\)\s*$/, '').replace(/\s+/g, ' ').trim(); if (t2.length && i2) { tch = t2; info = i2; } }
-            if (tch.length) out.push({ ref: '', chars: tch, info, lines: [li], base, len: raw.length, ...this.span(tch), point: true, marker: lmk[1] ? +lmk[1] + '.' : '•', kind: lmk[1] ? 'n' : 'b', num: lmk[1] ? +lmk[1] : 0, sk: skipCount });
-            continue;
-          }
-        }
       }
       let m = plain.match(this.refRegex(false)), ref = null;
       const bc = (mm, n) => mm[1].replace(/\s+/g, ' ') + ' ' + n;
@@ -533,13 +623,7 @@ class Component extends DCLogic {
         else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; }
         continue;
       }
-      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; } } else skipCount++;
-    }
-    let ser = [], kind = '', lastNum = 0, lastSk = -1;
-    for (const p of out) {
-      if (!p.point) continue;
-      if (!ser.length || p.kind !== kind || (p.kind === 'n' && p.num <= lastNum) || (p.kind === 'b' && p.sk !== lastSk)) { ser = []; kind = p.kind; }
-      p.prevs = ser.slice(); ser.push({ m: p.marker, t: p.chars.map(x => x.c).join('').replace(/\s+/g, ' ').trim() }); lastNum = p.num; lastSk = p.sk;
+      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; } }
     }
     return out;
   }
@@ -586,23 +670,20 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, point: !!p.point, marker: p.marker || '', info: p.info || '', prevs: p.prevs || [] })); }); }
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
       const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
-      const point = !!c.point, info = point && ci === 0 ? (c.info || '') : '', prevs = point && this.state.build !== false ? (c.prevs || []) : [];
-      const auto = !point && chunks.length === 1 && !c.cond && W <= 55 * D.r; this._auto = this._auto || {}; this._auto[k] = auto;
+      const auto = chunks.length === 1 && !c.cond && W <= 55 * D.r; this._auto = this._auto || {}; this._auto[k] = auto;
       const eo = (this.state.emph || {})[k], emph = eo === undefined ? auto : !!eo;
       const fitKey = k + '|' + D.id + '|' + this._key, fit = (this.state.fit || {})[fitKey] || 1;
-      const base = c.cond ? 72 : point ? (W <= 60 * D.r ? 160 : W <= 100 * D.r ? 130 : 104) : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
+      const base = c.cond ? 72 : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
       let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
-      if (base === 72) cpl = 36 * D.r * (92 / 72); else if (point && base > 104) cpl = 36 * D.r * 92 / base; else if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
-      const pn = prevs.length, prevSize = Math.round(Math.max(34, Math.min(72, 400 / Math.max(1, pn))) * D.k);
-      const prevLines = prevs.reduce((a, q) => a + Math.max(1, Math.ceil((q.t.length + q.m.length + 1) * prevSize * 0.5 / D.textW)), 0);
-      const prevH = pn ? Math.round(prevLines * prevSize * 1.2 + (pn - 1) * prevSize * 0.25 + prevSize * 0.9) : 0, infoRes = info ? Math.round(Math.ceil(info.length * 72 * D.k * 0.5 / D.textW) * 72 * D.k * 1.25 + 24 * D.k) : 0, availH = D.availH - prevH - infoRes;
+      if (base === 72) cpl = 36 * D.r * (92 / 72); else if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
+      const availH = D.availH;
       const kwMax = Math.max(0, ...c.ps.filter(p => p.b).map(p => p.t.length)), bodyMax = Math.max(0, ...c.ps.filter(p => !p.b).map(p => p.t.length));
       let kwSize = null;
       const kwW = c.ps.filter(p => p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0), bodyW = c.ps.filter(p => !p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0);
@@ -623,27 +704,13 @@ class Component extends DCLogic {
         size = Math.round(size * fit);
         cpl = D.textW / (size * 0.5);
       }
-      let wantLines = 0;
-      if (point && !emph) {
-        const full = (ci === 0 && c.marker ? c.marker + ' ' : '') + c.ps.map(q => q.t).join(' '), w100 = this.measure(full), minS = Math.round(84 * D.k), maxS = Math.round(160 * D.k), floorS = Math.round(60 * D.k);
-        const one = Math.floor(D.textW / w100 * 100 * 0.96);
-        wantLines = one >= minS ? 1 : 2;
-        size = one >= minS ? Math.min(maxS, one) : Math.max(floorS, Math.min(minS, Math.floor(2 * D.textW / w100 * 100 * 0.88)));
-        for (;;) {
-          const isz = Math.max(Math.round(30 * D.k), Math.min(Math.round(size * 0.42), Math.round(72 * D.k))), iH = info ? Math.ceil(info.length * isz * 0.5 / D.textW) * isz * 1.25 + isz * 0.4 : 0, tl = Math.ceil(w100 * size / 100 / D.textW) * size * 1.14;
-          if (size <= floorS || tl + iH <= D.availH - prevH) break;
-          size -= 4;
-        }
-        cpl = D.textW / (size * 0.5);
-      }
       if (!emph && fit < 1) { size = Math.round(size * fit); cpl = D.textW / (size * 0.5); }
       let brAt = -1;
-      if (!point && W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
+      if (W < cpl * 1.05 && c.ps.filter(p => p.sp).length) {
         let acc = 0, best = Infinity;
         c.ps.forEach((p, i) => { acc += this.w(p); if (p.sp && Math.abs(acc - W / 2) < best) { best = Math.abs(acc - W / 2); brAt = i; } });
       }
       const tokens = c.ps.map((p, i) => ({ text: p.t + (p.sp && i !== brAt ? ' ' : ''), kw: p.b, plain: !p.b, br: i === brAt, color: accent, fs: p.b && kwSize ? kwSize + 'px' : '1em', klh: kwSize ? '0' : 'inherit', top: kwSize ? Math.round(0.35 * kwSize - 0.3 * size) + 'px' : '0px' }));
-      const infoSize = info ? Math.max(Math.round(30 * D.k), Math.min(Math.round(size * 0.42), Math.round(72 * D.k))) : 0;
       const part = chunks.length > 1 ? ` (${ci + 1}/${chunks.length})` : '';
       const plainText = c.ps.map(p => p.t).join(' ');
       const name = c.ref ? c.ref + (c.trans ? ' ' + c.trans : '') + part : (plainText.length > 28 ? plainText.slice(0, 28) + '…' : plainText);
@@ -656,9 +723,15 @@ class Component extends DCLogic {
       const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, point, wantLines, minSize: Math.round(60 * D.k), marker: point && ci === 0 ? (c.marker || '') : '', info, infoSize, infoGap: Math.round(infoSize * 0.35), prevs, hasPrev: pn > 0, prevSize, prevGap: Math.round(prevSize * 0.9), prevItemGap: Math.round(prevSize * 0.25), vColor: (bg === '#000' || point) && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: true, isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
-    return slides;
+    const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
+    for (let i = 0; i <= slides.length; i++) {
+      while (ei < exs.length && Math.min(exs[ei].at, slides.length) <= i) merged.push(this.extraSlide(exs[ei++]));
+      if (i < slides.length) merged.push(slides[i]);
+    }
+    merged.forEach((s, i) => { const n = String(i + 1).padStart(2, '0'); s.slideLabel = 'Slide ' + (i + 1); s.num = n; s.file = n + '-' + (s.isExtra ? 'Additional-screen' : s.fname) + '.png'; });
+    return merged;
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
@@ -717,7 +790,7 @@ class Component extends DCLogic {
   shuffle = () => {
     const names = Object.keys(Component.PAIRS), overrides = {}, byPassage = {};
     let prev = null;
-    (this.slides || []).forEach(s => {
+    (this.slides || []).filter(s => !s.isExtra).forEach(s => {
       const pi = s.key.split(':')[0];
       if (!byPassage[pi]) { let pick; do { pick = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && (pick === prev || pick === s.pair)); byPassage[pi] = pick; prev = pick; }
       overrides[s.key] = byPassage[pi];
@@ -754,7 +827,6 @@ class Component extends DCLogic {
     ta.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   onTitle = e => this.setState({ title: e.target.value });
-  toggleBuild = () => this.setState(s => ({ build: s.build === false }));
   toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
   openExample = () => this.setState({ showExample: true });
   closeExample = () => this.setState({ showExample: false });
@@ -768,12 +840,14 @@ class Component extends DCLogic {
   }
   renderVals() {
     const slides = this.build(); this.slides = slides;
-    const passages = new Set(slides.map(s => s.key.split(':')[0])).size;
+    const passages = new Set(slides.filter(s => !s.isExtra).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
+    const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', buildOn: this.state.build !== false, buildBg: this.state.build !== false ? '#5d1fec' : '#d9d6cc', buildX: this.state.build !== false ? '20px' : '2px', toggleBuild: this.toggleBuild, shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
-      summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
+      summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} additional` : '') : '',
+      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axOpenFile: this.axOpenFile, axFileRef: this.axFileRef, axOnFile: this.axOnFile, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
       undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
