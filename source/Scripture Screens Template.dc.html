@@ -85,6 +85,7 @@
               <span style="font-family:var(--font-grotesque); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:#5d1fec; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px; flex:none;">
+            <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
             <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
             <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
               <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
@@ -133,7 +134,7 @@
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
 class Component extends DCLogic {
   static PAIRS = {
     'Violet / Lemon': ['#5d1fec', '#fff', '#ffff5f'],
@@ -238,7 +239,7 @@ class Component extends DCLogic {
       text = text.split(/\n+/).map(l => l.trim()).filter(Boolean).join('\n\n');
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && first.length <= 60 ? first : this.state.title;
-      this.setState({ text, title, overrides: {}, emph: {}, error: '', uploaded: true });
+      this.setState({ text, title, overrides: {}, emph: {}, cond: {}, error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want) {
@@ -420,9 +421,9 @@ class Component extends DCLogic {
     return chunks;
   }
   build() {
-    const maxLines = this.props.maxLines ?? 4, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
-    const D = this.dims(); const key = this.state.text + '|' + maxLines + '|' + D.id;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._parsed = ps.map(p => this.chunk(this.pieces(p.chars), maxLines * 36 * D.r).map(c => ({ ref: p.ref, ps: c }))); }
+    const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
+    const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, ps: c, cond: condensed })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
@@ -431,9 +432,9 @@ class Component extends DCLogic {
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const emph = !!(this.state.emph || {})[k];
       const fitKey = k + '|' + D.id + '|' + this._key, fit = emph ? ((this.state.fit || {})[fitKey] || 1) : 1;
-      const base = W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
+      const base = c.cond ? 72 : W <= 70 * D.r ? 120 : W <= 105 * D.r ? 104 : 92;
       let size = Math.round(base * D.k), cpl = D.textW / (size * 0.5);
-      if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
+      if (base === 72) cpl = 36 * D.r * (92 / 72); else if (base === 92) cpl = 36 * D.r; else if (base === 104) cpl = 32 * D.r; else cpl = 28 * D.r;
       let kwSize = null;
       const kwW = c.ps.filter(p => p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0), bodyW = c.ps.filter(p => !p.b).reduce((a, p) => a + p.t.length + (p.sp ? 1 : 0), 0);
       if (emph && kwW > 0) {
@@ -466,9 +467,11 @@ class Component extends DCLogic {
       this.refFns[k] = this.refFns[k] || (el => { this.nodes[k] = el; });
       this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
+      this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !(s.cond || {})[pi] } })));
+      const condOn = !!(this.state.cond || {})[pi];
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !(s.emph || {})[k] } })));
-      slides.push({ fitKey, key: k, onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     return slides;
   }
@@ -565,7 +568,7 @@ class Component extends DCLogic {
     const ex = this.state.exporting;
     return {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
-      maxLines: this.props.maxLines ?? 4,
+      maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens from ${passages} passage${passages === 1 ? '' : 's'}` : '',
       exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
