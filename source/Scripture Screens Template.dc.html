@@ -58,6 +58,7 @@
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
         <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
         <div>Long verses are split across screens for you.</div>
+        <div><span style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">Bolded</span> words are emphasized.</div>
         <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it.</div>
         <div>Please use this tool on a computer or tablet for best viewing experience.</div>
       </div>
@@ -65,7 +66,7 @@
   </section>
   <main style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:40px; padding:32px max(40px, calc((100vw - 1400px) / 2)) 64px;">
     <aside style="flex:1 1 300px; max-width:440px; box-sizing:border-box; display:flex; flex-direction:column; gap:20px; padding:28px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 2px 0 #000;">
-      <div style="display:flex; flex-direction:column; gap:10px;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 1</span>
+      <div style="display:flex; flex-direction:column; gap:10px;"><img data-ray="white" src="assets/ray-mark-ffffff.png" alt="" style="display:none;"><img data-ray="black" src="assets/ray-mark-000000.png" alt="" style="display:none;"><button onClick="{{ toggleStep1 }}" aria-expanded="{{ open1 }}" style="margin-top:0; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 1</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev1 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed1 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Screen size</span></sc-if></button><sc-if value="{{ open1 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1;">Select your screen size</label>
         <select value="{{ sizeVal }}" onChange="{{ onSize }}" style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #000; border-radius:12px; background:#fff; color:#000; font-family:var(--font-sans); font-size:15px; cursor:pointer;"><sc-for list="{{ sizeChoices }}" as="sc"><option value="{{ sc.id }}">{{ sc.text }}</option></sc-for></select>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px;">
@@ -73,28 +74,26 @@
           <button onClick="{{ toggleTitle }}" role="switch" aria-checked="{{ titleOn }}" style="position:relative; flex:none; width:44px; height:26px; padding:0; border:none; border-radius:999px; background:{{ tglBg }}; cursor:pointer; transition:background 150ms ease-out;"><span style="position:absolute; top:2px; left:{{ tglX }}; width:22px; height:22px; border-radius:50%; background:#fff; transition:left 180ms ease-out;"></span></button>
         </div>
         <sc-if value="{{ titleOn }}"><input value="{{ title }}" onChange="{{ onTitle }}" placeholder="Message title" style="width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid rgba(0,0,0,0.2); border-radius:10px; font-family:var(--font-sans); font-size:15px; color:#000; background:#f2f0ea; outline:none;"></sc-if>
-        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 2</span>
+        </sc-if><button onClick="{{ toggleStep2 }}" aria-expanded="{{ open2 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 2</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev2 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed2 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Upload your sermon doc</span></sc-if></button><sc-if value="{{ open2 }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ openFile }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box; padding:18px 22px; border:2px dashed {{ uploadBorder }}; border-radius:14px; background:{{ uploadBg }}; color:#fff; text-align:left; cursor:pointer; animation:{{ uploadAnim }}; transition:transform 150ms ease-out, opacity 150ms ease-out;" style-hover="opacity:0.92;" style-active="transform:scale(0.98);">
           <span style="font-family:var(--font-display); font-weight:200; font-size:30px; line-height:1.05;">Upload your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> here</span>
           <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it here in this box.</span>
           <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fff;">Word, PDF or text files</span>
         </button>
         <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
-        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 3</span>
+        </sc-if><button onClick="{{ toggleStep3 }}" aria-expanded="{{ open3 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 3</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev3 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed3 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Check your words</span></sc-if></button><sc-if value="{{ open3 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
         <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
-        <img data-ray="white" src="assets/ray-mark-ffffff.png" alt="" style="display:none;"><img data-ray="black" src="assets/ray-mark-000000.png" alt="" style="display:none;">
-        <span style="margin-top:28px; align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000;">Step 4</span>
-        <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Additional screens</label>
-        <span style="font-size:14px; line-height:1.5; color:#333;">Paste one set of notes, like announcements or an event, or upload a file. The tool lays it out as a one-off screen in the Futures design. Not happy with it? Regenerate for a new layout and colours.</span>
-        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">Warning</span><br>Only give one prompt at a time. Add the screen to your slides or clear it before you paste the next set of notes.</div>
+        </sc-if><button onClick="{{ toggleStep4 }}" aria-expanded="{{ open4 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 4</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev4 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed4 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Illustration Screens</span></sc-if></button><sc-if value="{{ open4 }}" hint-placeholder-val="{{ false }}">
+        <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Illustration Screens</label>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Use this tool if you would like to make a basic information screen to insert into your sermon.</span>
+        <button onClick="{{ openIllus }}" style="align-self:flex-start; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
+        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">To note</span><br>Only give one set of information per slide you want.</div>
         <textarea value="{{ axNotes }}" onChange="{{ axOnNotes }}" placeholder="Paste one set of notes here" spellcheck="true" lang="en-AU" style="width:100%; box-sizing:border-box; min-height:160px; resize:vertical; padding:16px; border:1px solid rgba(0,0,0,0.2); border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
         <div style="display:flex; flex-wrap:wrap; gap:8px;">
-          <button onClick="{{ axOpenFile }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Upload a file</button>
           <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}"><button onClick="{{ axClear }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Clear</button></sc-if>
         </div>
-        <input type="file" accept=".docx,.pdf,.odt,.rtf,.txt,.md,.html,.htm" ref="{{ axFileRef }}" onChange="{{ axOnFile }}" style="display:none;">
         <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
         <sc-if value="{{ axErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px; border:1px solid #000; border-radius:10px; background:#ffff5f; font-size:14px; line-height:1.4;">{{ axErr }}</div></sc-if>
         <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}">
@@ -108,7 +107,7 @@
             </div>
             <button onClick="{{ axAdd }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Add to slides</button>
           </div>
-        </sc-if>
+        </sc-if></sc-if>
       </div>
     </aside>
     <section ref="{{ gridRef }}" style="flex:999 1 480px; min-width:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, {{ cardMin }}px), 1fr)); gap:32px 24px;">
@@ -170,6 +169,20 @@
       </div>
     </div>
   </sc-if>
+  <sc-if value="{{ showIllus }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeIllus }}" style="position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.6); display:flex; align-items:flex-start; justify-content:center; padding:48px 20px; overflow:auto; box-sizing:border-box;">
+      <div onClick="{{ stop }}" style="width:100%; max-width:960px; background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 28px; border-bottom:1px solid #000;">
+          <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1;">Example <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">illustration screen</span></div>
+          <button onClick="{{ closeIllus }}" aria-label="Close" style="border:none; background:none; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; color:#000; padding:8px;">Close</button>
+        </div>
+        <div style="padding:24px 28px; background:#f2f0ea;">
+          <div ref="{{ illBoxRef }}" style="position:relative; aspect-ratio:16 / 9; overflow:hidden; border-radius:6px;"><div ref="{{ illRef }}" style="position:absolute; left:0; top:0; width:1920px; height:1080px; transform:scale({{ illScale }}); transform-origin:0 0;"></div></div>
+        </div>
+        <div style="padding:20px 28px 26px; font-size:14px; line-height:1.5; color:#333;">An illustration screen is a basic information screen you insert into your sermon, such as a list, an agenda or a set of details.</div>
+      </div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
@@ -214,7 +227,7 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, open: {}, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
@@ -456,32 +469,35 @@ class Component extends DCLogic {
     clearTimeout(this._undoT); this.clearHl();
     this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
   };
+  openIllus = () => this.setState({ illus: true });
+  closeIllus = () => this.setState({ illus: false });
+  illBoxRef = el => {
+    this.illRo && this.illRo.disconnect();
+    if (!el) return;
+    const m = () => { const w = el.clientWidth; if (w !== this.state.illW) this.setState({ illW: w }); };
+    this.illRo = new ResizeObserver(m); this.illRo.observe(el); m();
+  };
+  illRef = el => { if (el && !el.dataset.done) { el.innerHTML = this.illusHtml(); el.dataset.done = '1'; } };
+  illusHtml() {
+    const rows = [['Level 6', 'Friend Friend'], ['Level 5', 'Moving house friend'], ['Level 4', 'BBQ friend'], ['Level 3', 'The church foyer friend'], ['Level 2', 'School drop off friend'], ['Level 1', 'Facebook Friend']];
+    const list = rows.map((r, i) => '<div style="display:grid;grid-template-columns:232px 1fr;align-items:center;gap:0;flex:1 1 0;' + (i ? 'border-top:1px solid rgba(255,255,255,0.16);' : '') + '"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:36px;letter-spacing:0.2em;text-transform:uppercase;color:' + (i ? '#6b6b6b' : '#ffff5f') + ';">' + r[0] + '</div><div style="font-size:' + (i ? 84 : 92) + 'px;line-height:1.02;color:' + (i ? '#767676' : '#ffff5f') + ';">' + r[1] + '</div></div>').join('');
+    return '<div style="position:relative;width:1920px;height:1080px;display:flex;overflow:hidden;font-family:var(--font-display);font-weight:300;">' +
+      '<div style="flex:none;width:640px;background:#ffff5f;color:#000;display:flex;flex-direction:column;justify-content:center;padding:0 80px 0 90px;box-sizing:border-box;"><div style="font-style:italic;font-size:104px;line-height:1;">Josh’s</div><div style="font-family:var(--font-grotesque);font-weight:300;font-size:104px;line-height:0.95;text-transform:uppercase;">Friend Ladder.</div></div>' +
+      '<div style="flex:1 1 0;background:#000;padding:120px 140px 120px 110px;display:flex;flex-direction:column;box-sizing:border-box;">' + list + '</div></div>';
+  }
+  stepFns = { 1: () => this.toggleStep(1), 2: () => this.toggleStep(2), 3: () => this.toggleStep(3), 4: () => this.toggleStep(4) };
+  toggleStep(n) { this.setState(s => ({ open: { ...(s.open || {}), [n]: (s.open || {})[n] === false } })); }
+  stepVals() {
+    const o = this.state.open || {}, r = {};
+    for (const n of [1, 2, 3, 4]) { const op = o[n] !== false; r['open' + n] = op; r['closed' + n] = !op; r['chev' + n] = op ? 'rotate(0deg)' : 'rotate(-90deg)'; r['toggleStep' + n] = this.stepFns[n]; }
+    return r;
+  }
   axSet = o => this.setState(s => ({ ax: { ...s.ax, ...o } }));
   axOnNotes = e => this.axSet({ notes: e.target.value, msg: '', err: '' });
   axOnWhere = e => this.axSet({ where: e.target.value });
   axOnTarget = e => this.axSet({ target: e.target.value });
   axRegen = () => this.axSet({ attempt: (this.state.ax.attempt || 0) + 1 });
   axClear = () => this.axSet({ notes: '', attempt: 0, err: '', msg: '' });
-  axFileEl = null;
-  axFileRef = el => { this.axFileEl = el; };
-  axOpenFile = () => this.axFileEl && this.axFileEl.click();
-  axOnFile = e => { const f = e.target.files && e.target.files[0]; if (f) this.axLoad(f); e.target.value = ''; };
-  async axLoad(f) {
-    const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase() || '';
-    try {
-      if (f.size > 25 * 1024 * 1024) throw new Error('That file is too big (over 25 MB).');
-      let text;
-      if (ext === 'docx') text = await this.readDocx(f);
-      else if (ext === 'pdf') text = await this.readPdf(f);
-      else if (ext === 'odt') text = await this.readOdt(f);
-      else if (ext === 'rtf') text = this.readRtf(await f.text());
-      else if (ext === 'html' || ext === 'htm') text = this.readHtml(await f.text());
-      else if (ext === 'txt' || ext === 'md' || ext === 'text') text = await f.text();
-      else throw new Error('That file type isn’t supported' + (ext ? ' (.' + ext + ')' : '') + '. Upload a Word (.docx), PDF, .odt, .rtf, .html or text file.');
-      if (!text.trim()) throw new Error('No text found in that file.');
-      this.axSet({ notes: text.replace(/\*\*/g, '').trim(), attempt: 0, err: '', msg: '' });
-    } catch (err) { this.axSet({ err: err.message || 'Could not read that file.' }); }
-  }
   axAdd = () => {
     const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [], notes = (ax.notes || '').trim();
     if (!notes) return;
@@ -564,11 +580,11 @@ class Component extends DCLogic {
     this.exFns = this.exFns || {}; this.exDel = this.exDel || {}; this._exEls = this._exEls || {};
     this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; this._exEls[e.id] = el; this.paintExtra(e.id); });
     this.exDel[e.id] = this.exDel[e.id] || (ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteExtra(e.id); });
-    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Additional screen', cardTitle: 'Additional screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
+    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Illustration screen', cardTitle: 'Illustration screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
   }
   deleteExtra(id) {
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label: 'Additional screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], label: 'Illustration screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
   }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
@@ -638,34 +654,30 @@ class Component extends DCLogic {
   }
   w(p) { return p.t.length * (p.b ? 1.3 : 1) + (p.sp ? 1 : 0); }
   chunk(ps, B) {
-    const W = ps.reduce((a, p) => a + this.w(p), 0), n = Math.ceil(W / B);
-    if (n <= 1) return [ps];
-    const target = W / n, chunks = []; let start = 0;
-    while (start < ps.length) {
-      let acc = 0, cands = [], j = start;
-      for (; j < ps.length; j++) {
-        acc += this.w(ps[j]);
-        if (j === ps.length - 1) break;
-        if (acc > B * 1.2) break;
-        if (!ps[j].sp) continue;
-        const t = ps[j].t, strong = /[.!?;]["”’)]*$/.test(t), weak = /[,:—–]["”’)]*$/.test(t);
-        cands.push({ j, acc, rank: strong ? 0 : weak ? 1 : 2 });
-      }
-      if (j === ps.length - 1 && acc <= B * 1.2) { chunks.push(ps.slice(start)); break; }
-      const ok = cands.filter(c => c.acc >= B * 0.45);
-      let pick = null;
-      for (const r of [0, 1]) {
-        const set = ok.filter(c => c.rank === r);
-        if (set.length) { pick = set.reduce((a, c) => Math.abs(c.acc - target) < Math.abs(a.acc - target) ? c : a); break; }
-      }
-      if (!pick) pick = cands.filter(c => c.acc <= B).pop() || cands[cands.length - 1] || { j };
-      chunks.push(ps.slice(start, pick.j + 1)); start = pick.j + 1;
+    const wt = a => a.reduce((s, p) => s + this.w(p), 0), W = wt(ps);
+    if (W <= B * 1.2) return [ps];
+    const isEnd = (p, nx) => /[.!?…]["”’)\]]*$/.test(p.t) && !(nx && /^["“‘(\[]*[a-z]/.test(nx.t));
+    const weakEnd = p => /[,;:—–]["”’)\]]*$/.test(p.t);
+    const sents = []; let cur = [];
+    ps.forEach((p, i) => { cur.push(p); if (isEnd(p, ps[i + 1])) { sents.push(cur); cur = []; } });
+    if (cur.length) sents.push(cur);
+    const units = [];
+    for (const s of sents) {
+      if (wt(s) <= B * 2) { units.push(s); continue; }
+      let part = [];
+      s.forEach((p, i) => { part.push(p); if (i < s.length - 1 && wt(part) >= B * 0.6 && (weakEnd(p) || wt(part) >= B)) { units.push(part); part = []; } });
+      if (part.length) units.push(part);
     }
-    if (chunks.length > 1) {
-      const last = chunks[chunks.length - 1], lw = last.reduce((a, p) => a + this.w(p), 0), pw = chunks[chunks.length - 2].reduce((a, p) => a + this.w(p), 0);
-      if (lw < B * 0.25 && lw + pw <= B * 1.15) chunks.splice(-2, 2, chunks[chunks.length - 2].concat(last));
-    }
-    return chunks;
+    const greedy = L => {
+      const out = []; let c = [], cw = 0;
+      for (const u of units) { const uw = wt(u); if (c.length && cw + uw > L) { out.push(c); c = []; cw = 0; } c = c.concat(u); cw += uw; }
+      if (c.length) out.push(c);
+      return out;
+    };
+    let best = greedy(B * 1.1);
+    const n0 = best.length;
+    for (let L = Math.ceil(W / n0); L < B * 1.1; L += Math.max(1, B * 0.02)) { const g = greedy(L); if (g.length === n0) { best = g; break; } }
+    return best;
   }
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
@@ -730,12 +742,12 @@ class Component extends DCLogic {
       while (ei < exs.length && Math.min(exs[ei].at, slides.length) <= i) merged.push(this.extraSlide(exs[ei++]));
       if (i < slides.length) merged.push(slides[i]);
     }
-    merged.forEach((s, i) => { const n = String(i + 1).padStart(2, '0'); s.slideLabel = 'Slide ' + (i + 1); s.num = n; s.file = n + '-' + (s.isExtra ? 'Additional-screen' : s.fname) + '.png'; });
+    merged.forEach((s, i) => { const n = String(i + 1).padStart(2, '0'); s.slideLabel = 'Slide ' + (i + 1); s.num = n; s.file = n + '-' + (s.isExtra ? 'Illustration-screen' : s.fname) + '.png'; });
     return merged;
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
-  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); };
+  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); };
   exportPng = () => this.exportAs('png');
   exportPptx = () => this.exportAs('pptx');
   exportAll = () => this.exportAs('png');
@@ -812,6 +824,7 @@ class Component extends DCLogic {
   clearHl = () => { if (this.hl) this.hl.innerHTML = ''; };
   selectSource(pi) {
     const ta = this.ta, hl = this.hl, lines = (this._plines || [])[pi];
+    if (this.state.open && this.state.open[3] === false) { this.setState(s => ({ open: { ...s.open, 3: true } })); setTimeout(() => this.selectSource(pi), 80); return; }
     if (!ta || !hl || !lines || !lines.length) return;
     const text = this.state.text, re = /[^\n]+/g, off = []; let m, li = -1;
     while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
@@ -844,10 +857,10 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, showExample: !!this.state.showExample, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
-      summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} additional` : '') : '',
-      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axOpenFile: this.axOpenFile, axFileRef: this.axFileRef, axOnFile: this.axOnFile, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
+      summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
+      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
       undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
