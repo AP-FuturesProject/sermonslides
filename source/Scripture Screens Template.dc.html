@@ -97,7 +97,7 @@
         <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
         <sc-if value="{{ axErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:10px 14px; border:1px solid #000; border-radius:10px; background:#ffff5f; font-size:14px; line-height:1.4;">{{ axErr }}</div></sc-if>
         <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}">
-          <div ref="{{ axBoxRef }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; border:1px solid rgba(0,0,0,0.2); background:#000;"><div ref="{{ axRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ axScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
+          <div ref="{{ axBoxRef }}" onClick="{{ openZoomAx }}" title="Click to enlarge" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; border:1px solid rgba(0,0,0,0.2); background:#000; cursor:zoom-in;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;"><div ref="{{ axRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ axScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
           <button onClick="{{ axRegen }}" style="align-self:flex-start; padding:10px 20px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Regenerate</button>
           <div style="display:flex; flex-direction:column; gap:8px;">
             <span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase; color:#000;">Add to slides</span>
@@ -183,6 +183,17 @@
       </div>
     </div>
   </sc-if>
+  <sc-if value="{{ showZoom }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeZoom }}" style="position:fixed; inset:0; z-index:55; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center; padding:24px; overflow:auto; box-sizing:border-box;">
+      <div onClick="{{ stop }}" style="width:100%; max-width:min(1500px, calc((100vh - 130px) * {{ aspectNum }})); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 22px; border-bottom:1px solid #000;">
+          <div style="font-family:var(--font-display); font-weight:300; font-size:24px; line-height:1.1;">Illustration <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">screen</span></div>
+          <button onClick="{{ closeZoom }}" aria-label="Close" style="border:none; background:none; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; color:#000; padding:8px;">Close</button>
+        </div>
+        <div ref="{{ zoomBoxRef }}" style="position:relative; width:100%; aspect-ratio:{{ aspect }}; overflow:hidden; background:#000;"><div ref="{{ zoomRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ zoomScale }}); transform-origin:0 0; overflow:hidden;"></div></div>
+      </div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
@@ -231,7 +242,7 @@ class Component extends DCLogic {
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); this.syncAx(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
+  componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -469,6 +480,26 @@ class Component extends DCLogic {
     clearTimeout(this._undoT); this.clearHl();
     this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], fit: {}, undo: null });
   };
+  openZoomAx = () => this.setState({ zoom: { src: 'ax' } });
+  closeZoom = () => this.setState({ zoom: null });
+  zoomBoxRef = el => {
+    this.zoRo && this.zoRo.disconnect();
+    if (!el) return;
+    const m = () => { const w = el.clientWidth; if (w !== this.state.zoomW) this.setState({ zoomW: w }); };
+    this.zoRo = new ResizeObserver(m); this.zoRo.observe(el); m();
+  };
+  zoomRef = el => { this.zoEl = el; this.syncZoom(); };
+  syncZoom() {
+    const el = this.zoEl, z = this.state.zoom; if (!el || !z) return;
+    const D = this.dims(), a = this.state.ax || {};
+    let notes = '', attempt = 0, pair = '';
+    if (z.src === 'ax') { notes = (a.notes || '').trim(); attempt = a.attempt || 0; pair = this.pairFor(attempt); }
+    else { const e = (this.state.extras || []).find(x => x.id === z.id); if (e) { notes = e.notes; attempt = e.attempt; pair = e.pair; } }
+    const key = notes + '|' + attempt + '|' + pair + '|' + D.id;
+    if (el.dataset.key === key) return;
+    el.innerHTML = notes ? this.renderExtra(this.parseNotes(notes), attempt, D, pair) : '';
+    el.dataset.key = key; this.fitScreen(el);
+  }
   openIllus = () => this.setState({ illus: true });
   closeIllus = () => this.setState({ illus: false });
   illBoxRef = el => {
@@ -580,7 +611,7 @@ class Component extends DCLogic {
     this.exFns = this.exFns || {}; this.exDel = this.exDel || {}; this._exEls = this._exEls || {};
     this.exFns[e.id] = this.exFns[e.id] || (el => { if (!el) return; this.nodes[k] = el; this._exEls[e.id] = el; this.paintExtra(e.id); });
     this.exDel[e.id] = this.exDel[e.id] || (ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteExtra(e.id); });
-    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => {}, onDelete: this.exDel[e.id], name: 'Illustration screen', cardTitle: 'Illustration screen', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
+    return { key: k, vk: k, isExtra: true, isText: false, exRef: this.exFns[e.id], onSelect: () => this.setState({ zoom: { src: 'extra', id: e.id } }), onDelete: this.exDel[e.id], name: 'Illustration screen', cardTitle: 'Click to enlarge', bg: '#000', ref: '', tokens: [{ text: e.label || '' }], size: 0, emph: false };
   }
   deleteExtra(id) {
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
@@ -747,7 +778,7 @@ class Component extends DCLogic {
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
-  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); };
+  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); if (e.key === 'Escape' && this.state.zoom) this.setState({ zoom: null }); };
   exportPng = () => this.exportAs('png');
   exportPptx = () => this.exportAs('pptx');
   exportAll = () => this.exportAs('png');
@@ -857,7 +888,7 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
