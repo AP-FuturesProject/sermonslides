@@ -11,6 +11,6 @@ Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
 Note: `index.html` embeds licensed Futures Church brand fonts. Keep this repository private.
 
-## Additional screens (Step 4)
+## Illustration Screens (Step 4)
 
-Step 4 turns one set of pasted notes (or an uploaded file) into a one-off screen, with no AI service or API key. The tool reads the notes (first line is the title, `Label: value` lines and lines starting with a time such as `7pm` become labelled rows) and lays them out in one of five layouts using the Futures fonts and colour pairings. Regenerate cycles to the next layout and colour pairing. The screen can be added before or after any slide, and is exported with the other screens as a PNG or in the PowerPoint file.
+Step 4 turns one set of pasted notes into a basic information screen to insert into a sermon, with no AI service or API key. The tool reads the notes (first line is the title, `Label: value` lines and lines starting with a time such as `7pm` become labelled rows) and lays them out in one of five layouts using the Futures fonts and colour pairings. Regenerate cycles to the next layout and colour pairing. The screen can be added before or after any slide, and is exported with the other screens as a PNG or in the PowerPoint file.
