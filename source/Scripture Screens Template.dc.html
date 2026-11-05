@@ -767,7 +767,7 @@ class Component extends DCLogic {
   paintExtra(id) {
     const e = (this.state.extras || []).find(x => x.id === id), el = this._exEls && this._exEls[id];
     if (!e || !el || !el.isConnected) return;
-    const D = this.dims(), key = D.id;
+    const D = this.dims(), key = e.id + '|' + e.notes + '|' + e.attempt + '|' + e.pair + '|' + D.id;
     if (el.dataset.key !== key) { el.innerHTML = this.renderExtra(this.parseNotes(e.notes), e.attempt, D, e.pair); el.dataset.key = key; this.fitScreen(el); }
   }
   extraSlide(e) {
