@@ -179,7 +179,7 @@
           <button onClick="{{ closeIllus }}" aria-label="Close" style="border:none; background:none; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; color:#000; padding:8px;">Close</button>
         </div>
         <div style="padding:24px 28px; background:#f2f0ea;">
-          <div ref="{{ illBoxRef }}" style="position:relative; aspect-ratio:16 / 9; overflow:hidden; border-radius:6px;"><div ref="{{ illRef }}" style="position:absolute; left:0; top:0; width:1920px; height:1080px; transform:scale({{ illScale }}); transform-origin:0 0;"></div></div>
+          <img src="assets/illustration-example.jpg" alt="Example illustration screen" draggable="false" style="display:block; width:100%; aspect-ratio:16 / 9; border-radius:6px; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; pointer-events:none;">
         </div>
         <div style="padding:20px 28px 26px; font-size:14px; line-height:1.5; color:#333;">An illustration screen is a basic information screen you insert into your sermon, such as a list, an agenda or a set of details.</div>
       </div>
@@ -664,20 +664,6 @@ class Component extends DCLogic {
   }
   openIllus = () => this.setState({ illus: true });
   closeIllus = () => this.setState({ illus: false });
-  illBoxRef = el => {
-    this.illRo && this.illRo.disconnect();
-    if (!el) return;
-    const m = () => { const w = el.clientWidth; if (w !== this.state.illW) this.setState({ illW: w }); };
-    this.illRo = new ResizeObserver(m); this.illRo.observe(el); m();
-  };
-  illRef = el => { if (el && !el.dataset.done) { el.innerHTML = this.illusHtml(); el.dataset.done = '1'; } };
-  illusHtml() {
-    const rows = [['Level 6', 'Friend Friend'], ['Level 5', 'Moving house friend'], ['Level 4', 'BBQ friend'], ['Level 3', 'The church foyer friend'], ['Level 2', 'School drop off friend'], ['Level 1', 'Facebook Friend']];
-    const list = rows.map((r, i) => '<div style="display:grid;grid-template-columns:232px 1fr;align-items:center;gap:0;flex:1 1 0;' + (i ? 'border-top:1px solid rgba(255,255,255,0.16);' : '') + '"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:36px;letter-spacing:0.2em;text-transform:uppercase;color:' + (i ? '#6b6b6b' : '#ffff5f') + ';">' + r[0] + '</div><div style="font-size:' + (i ? 84 : 92) + 'px;line-height:1.02;color:' + (i ? '#767676' : '#ffff5f') + ';">' + r[1] + '</div></div>').join('');
-    return '<div style="position:relative;width:1920px;height:1080px;display:flex;overflow:hidden;font-family:var(--font-display);font-weight:300;">' +
-      '<div style="flex:none;width:640px;background:#ffff5f;color:#000;display:flex;flex-direction:column;justify-content:center;padding:0 80px 0 90px;box-sizing:border-box;"><div style="font-style:italic;font-size:104px;line-height:1;">Josh’s</div><div style="font-family:var(--font-grotesque);font-weight:300;font-size:104px;line-height:0.95;text-transform:uppercase;">Friend Ladder.</div></div>' +
-      '<div style="flex:1 1 0;background:#000;padding:120px 140px 120px 110px;display:flex;flex-direction:column;box-sizing:border-box;">' + list + '</div></div>';
-  }
   stepFns = { 1: () => this.toggleStep(1), 2: () => this.toggleStep(2), 3: () => this.toggleStep(3), 4: () => this.toggleStep(4) };
   toggleStep(n) { this.setState(s => ({ open: { ...(s.open || {}), [n]: (s.open || {})[n] === false } })); }
   stepVals() {
@@ -1068,7 +1054,7 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,

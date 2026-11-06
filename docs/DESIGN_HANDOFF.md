@@ -97,10 +97,11 @@ Type: Rhymes Display (UltraLight 200, Light 300, + italics), Gal Gothic Light 30
 
 ## Assets
 - `assets/ray-mark-000000.png`, `assets/ray-mark-ffffff.png` — the Futures ray-burst mark (trimmed from the official brand icon), black and white.
+- `assets/illustration-example.jpg` — 1920 × 1080 flat render of the Step 4 example illustration screen, shown in the **See example** modal.
 - Brand fonts — from the Futures Church design system (`assets/fonts/Rhymes-*.otf`, `GalGothic-Light.otf/woff`).
 - Libraries (CDN): html-to-image 1.11.11, JSZip 3.10.1, pdf.js 3.11.174 (lazy-loaded for PDFs).
 
 ## Files
 - `Scripture Screens Tool (standalone).html` — fully working single-file prototype (fonts and assets inlined). Open in a browser.
 - `source/Scripture Screens Template.dc.html` — readable source; logic class at the bottom (`passages()`, `chunk()`, `build()`, `checkFit()`, file readers, `exportAll()`).
-- `assets/` — ray mark PNGs.
+- `assets/` — ray mark PNGs and `illustration-example.jpg` (the Step 4 example screen, exported flat so its text cannot be selected).

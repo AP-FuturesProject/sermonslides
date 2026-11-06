@@ -5,7 +5,7 @@ Self-serve web tool: upload a sermon doc (.docx, .pdf, .odt, .rtf, .html, .txt/.
 - `index.html` – the working single-file app (fonts and assets inlined). Open it in a browser or host it as a static site.
 - `source/Scripture Screens Template.dc.html` – readable source (parsing, splitting, sizing, export logic in the `Component` class at the bottom).
 - `docs/DESIGN_HANDOFF.md` – full design spec and behaviour notes.
-- `assets/` – ray mark PNGs.
+- `assets/` – ray mark PNGs and `illustration-example.jpg` (the Step 4 "See example" screen, a flattened JPG so its text cannot be selected).
 
 Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
