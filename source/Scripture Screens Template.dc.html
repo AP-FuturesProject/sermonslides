@@ -91,9 +91,10 @@
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Illustration Screens</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Use this tool if you would like to make a basic information screen to insert into your sermon.</span>
         <button onClick="{{ openIllus }}" style="align-self:flex-start; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
-        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">To note</span><br>Only give one set of information per slide you want.</div>
+        <div role="note" style="padding:12px 14px; border:1px solid #000; border-radius:12px; background:#ffff5f; font-size:14px; line-height:1.4; color:#000;"><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase;">To note</span><br>Only give one set of information per slide you want. Paste from anywhere and press <strong>Tidy notes</strong> to put it into shape.</div>
         <textarea value="{{ axNotes }}" onChange="{{ axOnNotes }}" placeholder="Paste one set of notes here" spellcheck="true" lang="en-AU" style="width:100%; box-sizing:border-box; min-height:160px; resize:vertical; padding:16px; border:1px solid rgba(0,0,0,0.2); border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:#f2f0ea; outline:none;"></textarea>
         <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button onClick="{{ axTidy }}" title="Reshape the paste into a title and rows without changing the words" style="{{ axTidyStyle }}" style-hover="background:#000; color:#fff; border-color:#000;">{{ axTidyLabel }}</button>
           <sc-if value="{{ axReady }}" hint-placeholder-val="{{ false }}"><button onClick="{{ axClear }}" style="padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Clear</button></sc-if>
         </div>
         <sc-if value="{{ axMsg }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:14px; color:#5d1fec;">{{ axMsg }}</div></sc-if>
@@ -240,7 +241,7 @@ class Component extends DCLogic {
     const r = (textW / (92 * k * 0.5)) / 36;
     return { ...sz, wide, k, pad, side, textW, r, ref: Math.round(56 * k), markW: Math.round(62 * k), markH: Math.round(64 * k), refGap: Math.round(30 * k), availH: wide ? sz.H - pad - (56 * k + 70 * k) - (pad * 0.8 + 28 * k + 50 * k) : sz.H - 2 * pad - 120 * k };
   }
-  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', attempt: 0, where: 'after', target: '' } };
+  state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', undo: null, attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
@@ -686,11 +687,11 @@ class Component extends DCLogic {
     return r;
   }
   axSet = o => this.setState(s => ({ ax: { ...s.ax, ...o } }));
-  axOnNotes = e => this.axSet({ notes: e.target.value, msg: '', err: '' });
+  axOnNotes = e => this.axSet({ notes: e.target.value, msg: '', err: '', undo: null });
   axOnWhere = e => this.axSet({ where: e.target.value });
   axOnTarget = e => this.axSet({ target: e.target.value });
   axRegen = () => this.axSet({ attempt: (this.state.ax.attempt || 0) + 1 });
-  axClear = () => this.axSet({ notes: '', attempt: 0, err: '', msg: '' });
+  axClear = () => this.axSet({ notes: '', attempt: 0, err: '', msg: '', undo: null });
   axAdd = () => {
     const ax = this.state.ax, slides = this.slides || [], ex = this.state.extras || [], notes = (ax.notes || '').trim();
     if (!notes) return;
@@ -707,15 +708,218 @@ class Component extends DCLogic {
     const item = { id: 'x' + Date.now().toString(36) + Math.floor(Math.random() * 46656).toString(36), at, ord, notes, attempt: ax.attempt || 0, pair: this.pairFor(ax.attempt || 0), label: notes.slice(0, 200) };
     let order = this.state.order || null;
     if (order && tgt) { const keys = slides.map(x => x.key).filter(k => k !== 'x:' + item.id); let ti = keys.indexOf(tgt.key); if (ti >= 0) { if (!before) ti++; keys.splice(ti, 0, 'x:' + item.id); order = keys; } }
-    this.setState(s => ({ order, extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', msg: 'Added to your slides.' } }));
+    this.setState(s => ({ order, extras: [...(s.extras || []), item], ax: { ...s.ax, notes: '', attempt: 0, err: '', undo: null, msg: 'Added to your slides.' } }));
   };
   rayUrl(white) { const el = document.querySelector('img[data-ray="' + (white ? 'white' : 'black') + '"]'); return el ? el.src : ''; }
   pairFor(attempt) { return Component.CYCLE[(((this.state.extras || []).length * 7) + attempt * 5) % Component.CYCLE.length]; }
+
+  // ---- Tidy notes ----------------------------------------------------
+  // An illustration screen reads shape: line one is the title, every line
+  // after it is a row, and a row splits on a leading time or a "Word: value".
+  // So the same set of notes pasted two ways builds two different screens, and
+  // a paste out of an email builds a poor one — the greeting becomes the title
+  // and the signature becomes three rows. Step 4 asked for notes already in
+  // its shape and gave no way to get them there except by retyping.
+  //
+  // Tidy notes only moves, joins, splits and restyles what was pasted. It
+  // never writes a word that was not already there and never guesses at a
+  // missing one, so the result is always the author's own copy and the same
+  // paste always tidies the same way. That is why this is a plain pass over
+  // the text and not a model call: predictable, instant, free, offline, and
+  // readable in the textarea before it goes on a screen.
+  //
+  // Ported from the Futures Graphic Builder, whose wild card reads notes the
+  // same way. Keep the two in step.
+  static TIDY_ACRO = new Set(['rsvp', 'byo', 'bbq', 'qr', 'dj', 'vip', 'tbc', 'tba', 'nye', 'av', 'pa', 'id', 'uk', 'usa', 'nz', 'sa', 'nsw', 'vic', 'qld', 'wa', 'nt', 'act', 'tas', 'cbd']);
+  static TIDY_SMALL = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'over', 'the', 'to', 'up', 'with']);
+  // Only these turn a dash into a label. A closed list rather than a shape,
+  // because "Cost - $5" and "Come early - we save seats" are the same shape
+  // and only one of them is a label; everything else keeps the dash it was
+  // pasted with, and an author who wants their own label types the colon.
+  static TIDY_LABELS = new Set(['where', 'when', 'what', 'who', 'why', 'how', 'time', 'times', 'date', 'dates', 'day', 'cost', 'price', 'tickets', 'ticket', 'entry', 'venue', 'location', 'address', 'parking', 'doors', 'age', 'ages', 'dress', 'dress code', 'bring', 'food', 'contact', 'rsvp', 'register', 'registration', 'info', 'details', 'notes', 'theme', 'host', 'hosts', 'speaker', 'speakers', 'guest', 'deadline', 'kids', 'childcare', 'start', 'starts', 'finish', 'ends', 'meet', 'drop off', 'pick up', 'wear', 'note']);
+  // Lines that belong to the document a paste came out of, not to the event.
+  static TIDY_DROP = /^(?:sent from my\b|get outlook for\b|page \d+(?: of \d+)?$|-{2,}$|_{2,}$|={2,}$)/i;
+  static TIDY_HELLO = /^(?:hi|hey|hello|hiya|team|good (?:morning|afternoon|evening))\b[^.!?]{0,40}[,!]?$/i;
+  // "See you there" is left off: it is as likely to be the closing row of a
+  // set of notes as the end of the email they were pasted out of.
+  static TIDY_BYE = /^(?:thanks(?: again)?|thank you|cheers|regards|kind regards|warm regards|best|best wishes|blessings|many thanks)\b[,!.]?$/i;
+  static TIDY_TAGS = /^#[^\s#]+(?:\s+#[^\s#]+)*$/;
+  // Emoji come through a paste from socials and fall back to the system's own
+  // colour font, which is the one thing on a screen that is nobody's brand.
+  static TIDY_EMOJI = /[←-⇿⌀-➿⬀-⯿️⃣]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]/g;
+  static TIDY_LEAD = /^\d{1,2}(?::\d{2})?(?:am|pm)\b/i;
+  static TIDY_KV = /^[A-Za-z][A-Za-z0-9 &\/'’-]{0,22}:\s+\S/;
+  // A line ending on a possessive or a joining word is not finished, whatever
+  // its length, so it takes the line under it. Only the words that essentially
+  // cannot end a line: "at", "in", "on", "to", "by" and "for" all close a line
+  // of notes perfectly well — "Arrive and settle in", "RSVP by" — and putting
+  // them here had such a line eat the label under it.
+  static TIDY_DANGLE = /(?:['’]s|\b(?:of|the|and|a|an|&|\+))$/i;
+  // Any one unambiguous 24-hour time makes the whole paste a 24-hour one.
+  static TIDY_H24 = /(?:^|[^\d:])(?:0\d|1[3-9]|2[0-3]):[0-5]\d\b/m;
+  // A label standing alone above its value. Two shapes only: a word with a
+  // number or a single letter after it, and a known label word on its own.
+  static TIDY_ORPHAN = l => {
+    if (/[.!?:]$/.test(l) || Component.TIDY_LEAD.test(l)) return false;
+    const w = l.split(' ');
+    if (w.length === 2 && /^[A-Za-z][A-Za-z'’-]*$/.test(w[0]) && /^(?:\d{1,3}|[A-Za-z])$/.test(w[1])) return true;
+    return w.length <= 2 && Component.TIDY_LABELS.has(l.toLowerCase());
+  };
+
+  // ALL CAPS is how a flyer or a subject line shouts, not how a row should
+  // set, and the layouts already uppercase what they want uppercase.
+  tidyCaps(l) {
+    if (!/[A-Z]{2}/.test(l) || l !== l.toUpperCase() || !/[A-Z]{3}/.test(l)) return l;
+    let n = 0;
+    return l.toLowerCase().replace(/[a-z][a-z'’]*/g, w => {
+      n++;
+      const bare = w.replace(/[^a-z]/g, '');
+      if (Component.TIDY_ACRO.has(bare)) return w.toUpperCase();
+      if (n > 1 && Component.TIDY_SMALL.has(bare)) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    });
+  }
+  // Every way a time gets typed, brought to the one shape the row parser
+  // reads. A bare "1:30" is not one of them: whether it means half past one in
+  // the afternoon or in the morning is not in the paste, and this pass does
+  // not guess. "09:00" and "19:00" are, because the leading zero and the hour
+  // past twelve are 24-hour notation and can mean only one thing. A paste
+  // holding one of those is a 24-hour paste throughout, which is what h24
+  // carries: a run sheet reading 09:45, 10:00, 11:15 converts as the one list
+  // it is rather than coming out half in one notation and half in the other.
+  tidyTime(l, h24) {
+    return l
+      .replace(/\b(\d{1,2})[.](\d{2})\s*([ap])\.?\s?m\.?/gi, (m, h, mm, ap) => h + ':' + mm + ap.toLowerCase() + 'm')
+      .replace(/\b(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s?m\.?\b/gi, (m, h, mm, ap) => h + (mm && mm !== '00' ? ':' + mm : '') + ap.toLowerCase() + 'm')
+      .replace(h24 ? /\b([01]?\d|2[0-3]):([0-5]\d)\b/g : /\b(0\d|1[3-9]|2[0-3]):([0-5]\d)\b/g, (m, h, mm) => ((+h) % 12 || 12) + (mm !== '00' ? ':' + mm : '') + (+h >= 12 ? 'pm' : 'am'))
+      .replace(/\b(\d{1,2}(?::\d{2})?)\s*[-–—]\s*(\d{1,2}(?::\d{2})?)(am|pm)\b/gi, (m, a, b, ap) => a + ap.toLowerCase() + '-' + b + ap.toLowerCase())
+      .replace(/\b(\d{1,2}(?::\d{2})?(?:am|pm))\s*[-–—]\s*(\d{1,2}(?::\d{2})?(?:am|pm))\b/gi, '$1-$2')
+      // "7pm - Doors open" and "7pm Doors open" are the same row; only one of
+      // them reads as one. The dash between the two halves of a range is not
+      // that separator, so a time on the far side of it holds the row together.
+      .replace(/^(\d{1,2}(?::\d{2})?(?:am|pm)(?:-\d{1,2}(?::\d{2})?(?:am|pm)?)?)\s*[-–—:|]\s+(?!\d{1,2}(?::\d{2})?\s?(?:am|pm)\b)/i, '$1 ');
+  }
+  // "Doors open at 7pm" carries its time where the parser cannot see it.
+  // Turning it round costs the row nothing and gains it a label.
+  tidyLead(l) {
+    if (Component.TIDY_LEAD.test(l)) return l;
+    const m = l.match(/^(.*?\S)\s*(?:[-–—,|:]\s*)?(?:from\s+|at\s+|@\s*|starts(?:\s+at)?\s+|kicks off(?:\s+at)?\s+)?(\d{1,2}(?::\d{2})?(?:am|pm)(?:\s*-\s*\d{1,2}(?::\d{2})?(?:am|pm)?)?)\.?$/i);
+    return m && m[1].length <= 48 && /[a-z]/i.test(m[1]) ? m[2] + ' ' + m[1] : l;
+  }
+  // "Where - Lake Hall" is the same row as "Where: Lake Hall"; only the colon
+  // is read.
+  tidyLabel(l) {
+    if (Component.TIDY_LEAD.test(l) || Component.TIDY_KV.test(l)) return l;
+    const m = l.match(/^([A-Za-z][A-Za-z &\/'’]{0,21})\s*[-–—]\s+(\S.*)$/);
+    return m && Component.TIDY_LABELS.has(m[1].trim().toLowerCase()) ? m[1].trim() + ': ' + m[2] : l;
+  }
+  // A paste with no line breaks at all is one of the two shapes this button
+  // exists for: everything the layouts read is in there, with nothing to read
+  // it by. Tabs and runs of spaces first, since a paste out of a table or a
+  // slide arrives with its columns still in it, then separators, then sentence
+  // ends, then a time that opens a new thought. That last one only fires on a
+  // time with text after it, so "Doors open at 7pm" is not torn in half.
+  tidyBurst(t) {
+    let x = String(t)
+      .replace(/\t+/g, '\n')
+      .replace(/ {2,}/g, '\n')
+      .replace(/\s*[|·•●▪‣]+\s*/g, '\n')
+      .replace(/\s+[-–—]\s+(?=[A-Z0-9])/g, '\n')
+      .replace(/([.!?])\s+(?=[A-Z0-9])/g, '$1\n');
+    for (let i = 0; i < 2; i++) x = x.replace(/([^\s\n])[ ]+(\d{1,2}(?::\d{2})?\s?(?:am|pm)\b[ ]+\S)/gi,
+      (m, a, b) => /\b(?:at|from|until|till|to|@|by)$/i.test(m.slice(0, m.indexOf(b)).trim()) ? m : a + '\n' + b);
+    return x;
+  }
+  tidyNotes(text) {
+    let t = this.clean(String(text || '').replace(/\r\n?/g, '\n')).replace(Component.TIDY_EMOJI, ' ');
+    const h24 = Component.TIDY_H24.test(t);
+    const clean = x => {
+      const ls = x.split(/\n+/).map(l => this.axStrip(l))
+        .map(l => l.replace(/(?:\s+#[^\s#]+)+\s*$/, '').replace(/\bhttps?:\/\/\S+/gi, '').replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .filter(l => !Component.TIDY_DROP.test(l) && !Component.TIDY_HELLO.test(l) && !Component.TIDY_TAGS.test(l) && /[A-Za-z0-9]/.test(l));
+      // A sign-off and the name under it belong to the email a paste came out
+      // of, not to the event, so the sign-off takes the short lines trailing
+      // it with it. Only those: a line carrying a digit, a colon or more than
+      // three words is a row that happens to sit at the end, and it stays.
+      const i = ls.findIndex(l => Component.TIDY_BYE.test(l));
+      if (i < 0) return ls;
+      const tail = ls.slice(i + 1);
+      return tail.every(l => l.split(' ').length <= 3 && !/[:\d]/.test(l)) ? ls.slice(0, i) : ls.slice(0, i).concat(tail);
+    };
+    // Tabs and column runs are gone once a line has been stripped, so a paste
+    // that arrived as one line is burst before anything else touches it.
+    if (!/\n/.test(t.trim()) && t.trim().length > 60) t = this.tidyBurst(t);
+    let lines = clean(t);
+    if (lines.length === 1 && lines[0].length > 60) lines = clean(this.tidyBurst(lines[0]));
+
+    // Two ways a line arrives half-finished, both joined to the line under it.
+    // One is a row an email or a PDF wrapped mid-thought: a long line with no
+    // stop at the end of it, carried on by a line that opens lower case. The
+    // other is a line that cannot stand up on its own whatever its length,
+    // because it ends on a possessive or a joining word — a title set over two
+    // lines in the document it was copied from arrives this way, and "Josh's"
+    // over "Friend Ladder." is one title. Length cannot tell them apart:
+    // "Open Night" over "Tuesday 10 November" is the same shape and two
+    // different things, and only the dangling word says which is which.
+    const joined = [];
+    lines.forEach(l => {
+      const prev = joined[joined.length - 1];
+      const wrapped = prev && prev.length >= 45 && !/[.!?:]$/.test(prev) && /^[a-z]/.test(l);
+      const dangling = prev && Component.TIDY_DANGLE.test(prev);
+      if (prev && (wrapped || dangling) && !Component.TIDY_LEAD.test(l) && !Component.TIDY_KV.test(l) && !Component.TIDY_ORPHAN(l)) joined[joined.length - 1] = prev + ' ' + l;
+      else joined.push(l);
+    });
+
+    // A label with its value on the next line, which is how a list copied out
+    // of a slide, a table or a vertical layout arrives: "Level 6" over "Friend
+    // Friend", "Where" over "Lake Hall". The two are one row, and the layouts
+    // can only set them as one if they are on one line. Only two shapes
+    // qualify, because being wrong here is expensive: "Friday 21 November"
+    // over "7pm Doors" is three words over a time and is left where it is.
+    const paired = [];
+    for (let i = 0; i < joined.length; i++) {
+      const l = joined[i], next = joined[i + 1];
+      if (i > 0 && next && Component.TIDY_ORPHAN(l) && !Component.TIDY_ORPHAN(next) && !Component.TIDY_LEAD.test(next)) { paired.push(l + ': ' + next); i++; }
+      else paired.push(l);
+    }
+
+    const seen = new Set(), out = [];
+    paired.forEach((l, i) => {
+      l = this.tidyCaps(this.tidyTime(l, h24));
+      if (i > 0) l = this.tidyLabel(this.tidyLead(l));
+      // A single closing full stop reads as a typo on a line set on its own; a
+      // row that is really a sentence or two keeps its punctuation.
+      if (/^[^.]*\.$/.test(l)) l = l.slice(0, -1);
+      l = l.trim();
+      const key = l.toLowerCase();
+      if (!l || seen.has(key)) return;
+      seen.add(key);
+      out.push(l);
+    });
+    return out.join('\n');
+  }
+  // Every press says what it did. A tidy that finds nothing to move is the
+  // common case once a paste has been through it once, and without a word back
+  // the press reads as a dead button rather than as an answer.
+  axTidy = () => {
+    const a = this.state.ax, had = (a.notes || '').trim();
+    if (!had) return this.axSet({ msg: 'Nothing pasted yet — paste your notes above.', err: '' });
+    if (a.undo != null) return this.axSet({ notes: a.undo, undo: null, msg: 'Put back as pasted.', err: '' });
+    const t = this.tidyNotes(a.notes);
+    if (t === a.notes) return this.axSet({ msg: 'Already in shape — nothing to change.', err: '' });
+    const n = x => x.split('\n').filter(l => l.trim()).length;
+    const before = n(a.notes), after = n(t), m = this.parseNotes(t);
+    const lab = m ? m.rows.filter(r => r.label).length : 0;
+    return this.axSet({ notes: t, undo: a.notes, err: '', msg: 'Tidied: ' + before + (before === 1 ? ' line' : ' lines') + ' in, ' + after + ' out' + (lab ? ', ' + lab + (lab === 1 ? ' label' : ' labels') + ' found' : '') + '.' });
+  };
+  // One line, stripped of the bullet, number or markdown it was pasted with.
+  // Shared with tidyNotes so the two cannot drift apart.
+  axStrip(s) { return this.clean(s).replace(/\*\*/g, '').replace(/^\s*(?:#{1,6}\s+|[•●▪◦‣·○■□➢➤►]\s*|[-–—*]\s+|\d{1,2}[.)]\s+)/, '').replace(/\s+/g, ' ').trim(); }
   parseNotes(text) {
-    const strip = s => this.clean(s).replace(/\*\*/g, '').replace(/^\s*(?:#{1,6}\s+|[•●▪◦‣·○■□➢➤►]\s*|[-–—*]\s+|\d{1,2}[.)]\s+)/, '').replace(/\s+/g, ' ').trim();
-    const lines = String(text || '').split(/\n+/).map(strip).filter(Boolean);
+    const lines = String(text || '').split(/\n+/).map(l => this.axStrip(l)).filter(Boolean);
     if (!lines.length) return null;
-    const TIME = /^(\d{1,2}(?::\d{2})?\s?(?:am|pm)(?:\s*[-–]\s*\d{1,2}(?::\d{2})?\s?(?:am|pm)?)?)\s*[-–:|]?\s+(\S.*)$/i, KV = /^([A-Za-z][A-Za-z &\/'’-]{0,22}):\s+(\S.*)$/;
+    const TIME = /^(\d{1,2}(?::\d{2})?\s?(?:am|pm)(?:\s*[-–]\s*\d{1,2}(?::\d{2})?\s?(?:am|pm)?)?)\s*[-–:|]?\s+(\S.*)$/i, KV = /^([A-Za-z][A-Za-z0-9 &\/'’-]{0,22}):\s+(\S.*)$/;
     const rows = lines.slice(1).map(l => { let m = l.match(TIME); if (m) return { label: m[1], text: m[2] }; m = l.match(KV); if (m) return { label: m[1], text: m[2] }; return { label: '', text: l }; });
     return { title: lines[0], rows };
   }
@@ -1071,7 +1275,7 @@ class Component extends DCLogic {
       slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
-      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
+      axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axTidy: this.axTidy, axTidyLabel: ax.undo == null ? 'Tidy notes' : 'Undo tidy', axTidyStyle: { padding: '8px 16px', border: '1px solid ' + ((ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.25)'), borderRadius: 999, background: '#fff', color: (ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.45)', fontFamily: 'var(--font-sans)', fontSize: 14, cursor: 'pointer' }, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
       undoOn: !!this.state.undo, undoLabel: this.state.undo ? this.state.undo.label : '', undoDelete: this.undoDelete, menuOpen: !!this.state.menu, toggleMenu: this.toggleMenu, closeMenu: this.closeMenu, exportPng: this.exportPng, exportPptx: this.exportPptx, exportAnim: this.state.pulse && ex == null && slides.length ? 'fcPulse 2s ease-out infinite' : 'none', exportOpacity: ex != null || !slides.length ? 0.5 : 1, exportLabel: ex == null ? 'Download screens' : `Exporting ${ex}/${slides.length}…`, exportDisabled: ex != null || !slides.length,
       dropBorder: this.state.drag ? '#5d1fec' : 'rgba(0,0,0,0.2)',
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
