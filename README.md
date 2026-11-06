@@ -6,6 +6,7 @@ Self-serve web tool: upload a sermon doc (.docx, .pdf, .odt, .rtf, .html, .txt/.
 - `source/Scripture Screens Template.dc.html` – readable source (parsing, splitting, sizing, export logic in the `Component` class at the bottom).
 - `docs/DESIGN_HANDOFF.md` – full design spec and behaviour notes.
 - `assets/` – ray mark PNGs and `illustration-example.jpg` (the Step 4 "See example" screen, a flattened JPG so its text cannot be selected).
+- `tools/render-illustration-example.mjs` – regenerates that JPG (and the copy bundled in `index.html`) when the example screen, fonts or colours change: `node tools/render-illustration-example.mjs`, with Playwright available.
 
 Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
