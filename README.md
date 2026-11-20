@@ -12,6 +12,10 @@ Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
 Note: `index.html` embeds licensed Futures Church brand fonts. Keep this repository private.
 
+## Restyling a `*SCREEN` slide
+
+A line marked `*SCREEN` becomes a screen with no reference. Those slides carry a **Restyle** button: pressing it lays the screen out with the same engine Step 4 uses for Illustration Screens, and pressing it again moves to the next style. There are three styles for a single statement, each with its own colour pairing; after the last one the slide goes back to plain. Choosing a colour pairing by hand on that slide keeps it through a restyle.
+
 ## Illustration Screens (Step 4)
 
 Step 4 turns one set of pasted notes into a basic information screen to insert into a sermon, with no AI service or API key. The tool reads the notes (first line is the title, `Label: value` lines and lines starting with a time such as `7pm` become labelled rows) and lays them out in one of five layouts using the Futures fonts and colour pairings. Regenerate cycles to the next layout and colour pairing. The screen can be added before or after any slide, and is exported with the other screens as a PNG or in the PowerPoint file.
