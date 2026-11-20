@@ -23,7 +23,7 @@ Background `#f2f0ea`. Font: Gal Gothic (UI/sans) + Rhymes Display (display serif
 
 **Left panel (aside)** — `flex: 1 1 300px; max-width: 440px`, white card, `padding 28px`, `border: 1px solid #000`, `border-radius 14px`, `box-shadow: 0 2px 0 #000`, column gap 20px. In order:
 1. **Before you START** — heading Rhymes Display 300 28px with "START" in Gal Gothic uppercase `#5d1fec`. Tips (14px/1.5, #333):
-   - "Each verse needs its reference, like John 15:5, at the start or end of the line."
+   - "Each verse needs its reference, like John 15:5 — at the start or end of the verse, or on its own line just above or just below it."
    - "Long verses are split across screens for you."
    - "If you have something you would like as a screen that isn't a scripture, add the word *SCREEN to it."
    - **See example** button (secondary, small) → opens example modal.
@@ -39,7 +39,7 @@ Background `#f2f0ea`. Font: Gal Gothic (UI/sans) + Rhymes Display (display serif
 - Empty state: dashed box "No verses found yet. Upload a doc or paste text with references."
 
 ### 2. Example modal
-Fixed overlay rgba(0,0,0,.6); white 760px card, radius 14px. Header "Example DOCUMENT" + Close. Body shows a mock Word page (Georgia 16px) of the sample doc with bold rendered, each line followed by a tag pill: violet "Becomes a screen…" or grey "Left out…". Footer: "Put the reference at the start of each verse, and make the words you want highlighted bold." Click backdrop or Close to dismiss.
+Fixed overlay rgba(0,0,0,.6); white 760px card, radius 14px. Header "Example DOCUMENT" + Close. Body shows a mock Word page (Georgia 16px) of the sample doc with bold rendered, each line followed by a tag pill: violet "Becomes a screen…" or grey "Left out…". Footer: "Give each verse its reference — above it, below it, or on the same line — and make the words you want highlighted bold." Click backdrop or Close to dismiss.
 
 ### 3. Rendered slide (the export artwork)
 Let `k = H / 1080`.
@@ -65,7 +65,9 @@ Let `k = H / 1080`.
 ## Interactions & Behavior
 - **Upload**: click panel or drop file anywhere on page. Supported: .docx (bold from `w:b` runs), .pdf (pdf.js 3.11; bold if font name contains bold/black/heavy/semibold/demi), .odt (bold from automatic styles), .rtf (`\b` control word), .html/.htm (`b`, `strong`, font-weight ≥600), .txt/.md (use `**word**`). `.pages` and `.doc` show an instruction error ("export to Word"). Text is normalised to one blank line between paragraphs and placed in the textarea. First non-reference line ≤60 chars becomes the message title. Upload resets colour overrides and emphasis.
 - **Parsing** (per paragraph):
-  - Reference at start (`Book 1:2`, `1 John 3:16-18`, `Ps 23:1, 4`, optional translation tag) → verse = rest of line. Reference alone on a line → applies to the next line. Reference at end (optionally in parentheses/after a dash) → verse = preceding text. Book name validated against a list of Bible book names/abbreviations.
+  - Reference at start (`Book 1:2`, `1 John 3:16-18`, `Ps 23:1, 4`, optional translation tag) → verse = rest of line. Reference at end (optionally in parentheses/after a dash) → verse = preceding text. Book name validated against a list of Bible book names/abbreviations.
+  - Reference alone on a line → attaches **backwards** to the paragraph immediately above it if that paragraph has no reference of its own (the common `verse text` / `1 Peter 2:11-12 NLT` layout); otherwise it leads in and applies to the next paragraph. Blank lines between the two do not break the pairing. Only the immediately adjacent paragraph is claimed.
+  - A pending lead-in reference is cleared as soon as a paragraph takes a reference of its own, or at a `*SCREEN`/image line, so it can never leak forward onto a later passage.
   - `*SCREEN` or `[screen]` anywhere → becomes a screen with no reference (marker removed).
   - Anything else is skipped.
   - Zero-width/bidi characters stripped; reference normalised (en dash for ranges).

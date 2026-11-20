@@ -57,7 +57,7 @@
   <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:24px max(40px, calc((100vw - 1400px) / 2)) 0;">
     <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; font-size:14px; line-height:1.4; color:#333;">
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
-        <div>Each verse needs its reference, like John 15:5, at the start or end of the line.</div>
+        <div>Each verse needs its reference, like John 15:5 — at the start or end of the verse, or on its own line just above or just below it.</div>
         <div>Long verses are split across screens for you.</div>
         <div><span style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">Bolded</span> or <span style="text-decoration:underline; text-underline-offset:3px;">underlined</span> words are emphasized.</div>
         <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like made that isn't a scripture, head to Step 4 to create an Illustration screen OR in your notes, add *SCREEN to it.</div>
@@ -167,7 +167,7 @@
           </div>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px; padding:20px 28px 26px; font-size:14px; line-height:1.5; color:#333;">
-          <div>Put the reference at the start of each verse, and make the words you want highlighted bold.</div>
+          <div>Give each verse its reference — above it, below it, or on the same line — and make the words you want highlighted bold.</div>
         </div>
       </div>
     </div>
@@ -1011,7 +1011,7 @@ class Component extends DCLogic {
     return chars.slice(a, b);
   }
   passages(text) {
-    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null;
+    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null, orphan = null;
     const lre = /[^\n]+/g; let lm;
     while ((lm = lre.exec(text))) {
       const raw = lm[0], base = lm.index;
@@ -1020,11 +1020,12 @@ class Component extends DCLogic {
       let chars = this.toChars(raw); let plain = chars.map(x => x.c).join('');
       if (!plain.trim()) continue;
       const imk = plain.match(/^\s*\[\[\s*Image\s+(\d+)\s*\]\]\s*$/i);
-      if (imk) { out.push({ ref: '', chars: [], image: +imk[1] - 1, lines: [li], base, len: raw.length, vs: 0, ve: 0 }); continue; }
+      if (imk) { out.push({ ref: '', chars: [], image: +imk[1] - 1, lines: [li], base, len: raw.length, vs: 0, ve: 0 }); pending = null; orphan = null; continue; }
       const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
       if (sm) {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
         chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li], base, len: raw.length, ...this.span(chars) });
+        pending = null; orphan = null;
         continue;
       }
       let m = plain.match(this.refRegex(false)), ref = null;
@@ -1036,11 +1037,14 @@ class Component extends DCLogic {
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
         const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
-        if (rest.length) out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) });
-        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; }
+        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) }); pending = null; orphan = null; }
+        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...this.span(orphan.chars) }); pending = null; orphan = null; }
+        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; orphan = null; }
         continue;
       }
-      if (pending) { const pc = this.trimChars(this.stripMarks(chars)); if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; } }
+      const pc = this.trimChars(this.stripMarks(chars));
+      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; orphan = null; } }
+      else orphan = pc.length ? { chars: pc, li, base, len: raw.length } : null;
     }
     return out;
   }
