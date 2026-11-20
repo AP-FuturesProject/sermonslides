@@ -34,7 +34,7 @@ Background `#f2f0ea`. Font: Gal Gothic (UI/sans) + Rhymes Display (display serif
 5. **STEP 2** eyebrow + "Check your words" (Rhymes 300 28px) + helper "Your document's text appears here. Fix any typos and the screens update as you type." + **textarea** (min-height 420px, bg `#f2f0ea`, radius 12px, 15px/1.5, `spellcheck=true lang="en-AU"`).
 
 **Preview grid** — `flex: 999 1 480px`, CSS grid `repeat(auto-fill, minmax(min(100%, 460px), 1fr))` (720px min for wide sizes), gap 32px 24px. Each card:
-- Row: "Slide N" (Rhymes 300 22px) + reference/name (Gal Gothic 15px uppercase violet, ellipsis); right: **Emphasise** pill toggle (black when on, label "Emphasised") + colour-pairing `<select>`.
+- Row: "Slide N" (Rhymes 300 22px) + reference/name (Gal Gothic 15px uppercase violet, ellipsis); right: **Condense** pill toggle (only on passages long enough to condense; black when on, label "Condensed") + **Emphasise** pill toggle (black when on, label "Emphasised") + colour-pairing `<select>`.
 - Preview: aspect-ratio = screen W/H, radius 6px; contains the full-size slide node scaled with `transform: scale(colWidth / W)`.
 - Empty state: dashed box "No verses found yet. Upload a doc or paste text with references."
 
@@ -72,6 +72,7 @@ Let `k = H / 1080`.
   - Anything else is skipped.
   - Zero-width/bidi characters stripped; reference normalised (en dash for ranges).
 - **Splitting**: budget = maxLines (default 4) × 36 weighted chars × (text width ratio vs standard). Cut points scored: sentence end (. ! ? ;) preferred, then clause (, : — –), nearest the even-split target, between 0.45×–1.2× budget. A last chunk < 25% budget is merged back if it fits. Parts named "John 15:12–17 (1/3)".
+- **Condensing**: a passage whose total weighted length exceeds 8 × 36 × ratio is condensed **by default** — chunk budget becomes 8 × 36 × ratio × (92/72) and the type drops to 72 — so a long reading lands on as few screens as possible. The per-passage **Condense** pill starts on for those passages; clicking it expands the passage back onto the normal `maxLines` budget at full type size. State is per passage and tri-state: absent = auto (condensed), `true` = condensed, `false` = explicitly expanded. Shorter passages never condense and get no pill.
 - **Never a single line**: if a non-emphasised verse would fit on one line, insert a `<br>` at the space nearest the middle.
 - **Colours**: 12 brand pairings (below). Default cycles per passage; parts of a passage share a pairing. Per-slide `<select>` override. **Shuffle colours** assigns a random pairing per passage, never the same as the previous passage.
 - **Export**: html-to-image `toBlob` on each full-size slide node (`transform: none`, width/height = screen size, embedded font CSS), zipped with JSZip → `scripture-screens.zip`. Filenames: `NN-<Name-slug>.png`, e.g. `01-John-15-12-17-1-3.png`.

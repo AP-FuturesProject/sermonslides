@@ -139,7 +139,7 @@
             </div></sc-if>
           </div>
         <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-            <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Fit up to 8 lines per slide" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
+            <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Long passages are condensed onto fewer slides, up to 8 lines each. Click to expand." style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
             <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
             <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="margin-left:auto; flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
               <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
@@ -1086,8 +1086,8 @@ class Component extends DCLogic {
   }
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
-    const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).filter(x => this.state.cond[x]).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), condensed = !!(this.state.cond || {})[pi] && tot > 8 * 36 * D.r; this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, image: p.image })); }); }
+    const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).map(x => x + (this.state.cond[x] ? '+' : '-')).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
+    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), co = (this.state.cond || {})[pi], condensed = tot > 8 * 36 * D.r && (co === undefined || !!co); this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, image: p.image })); }); }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
@@ -1144,8 +1144,8 @@ class Component extends DCLogic {
       this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
       this.delFns = this.delFns || {}; this.delFns[k] = this.delFns[k] || (e => { if (e && e.stopPropagation) e.stopPropagation(); this.deleteSlide(pi, ci); });
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
-      this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !(s.cond || {})[pi] } })));
-      const condOn = !!(this.state.cond || {})[pi];
+      this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !((s.cond || {})[pi] ?? true) } })));
+      const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
       slides.push({ fitKey, key: k, isText: true, isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
