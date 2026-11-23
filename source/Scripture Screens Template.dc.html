@@ -20,7 +20,7 @@
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
 <style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);color:transparent;animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
-<div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
+<div style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
   <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
     <div style="display:flex; flex-direction:column; gap:8px;">
       <div style="display:flex; align-items:center; gap:12px; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.22em; text-transform:uppercase;"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:18px; height:18px;"><span>Futures Church</span></div>
@@ -79,7 +79,7 @@
         </sc-if><button onClick="{{ toggleStep2 }}" aria-expanded="{{ open2 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 2</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev2 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed2 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Upload your sermon doc</span></sc-if></button><sc-if value="{{ open2 }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ openFile }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box; padding:18px 22px; border:2px dashed {{ uploadBorder }}; border-radius:14px; background:{{ uploadBg }}; color:#fff; text-align:left; cursor:pointer; animation:{{ uploadAnim }}; transition:transform 150ms ease-out, opacity 150ms ease-out;" style-hover="opacity:0.92;" style-active="transform:scale(0.98);">
           <span style="font-family:var(--font-display); font-weight:200; font-size:30px; line-height:1.05;">Upload your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> here</span>
-          <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it here in this box.</span>
+          <span style="font-family:var(--font-sans); font-size:15px; line-height:1.4; color:#fff;">Click to choose a file, or drop it anywhere on this page.</span>
           <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fff;">Word, PDF or text files</span>
         </button>
         <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
@@ -197,6 +197,15 @@
       </div>
     </div>
   </sc-if>
+  <sc-if value="{{ dragging }}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-live="polite" style="position:fixed; inset:0; z-index:70; pointer-events:none; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; background:rgba(93,31,236,0.93);">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px; width:100%; max-width:760px; padding:clamp(32px, 6vw, 56px); border:3px dashed #ffff5f; border-radius:24px; text-align:center;">
+        <span style="font-family:var(--font-display); font-weight:200; font-size:clamp(32px, 5vw, 56px); line-height:1.05; color:#fff;">Drop your <span style="font-family:var(--font-grotesque); font-weight:300; text-transform:uppercase; color:#ffff5f;">sermon doc</span> anywhere</span>
+        <span style="font-family:var(--font-sans); font-size:17px; line-height:1.4; color:#fff;">Let go and we will read it. You do not need to aim for the upload box.</span>
+        <span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#ffff5f;">Word, PDF or text files</span>
+      </div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;maxLines&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;label&quot;:&quot;Max lines per screen&quot;},&quot;colourMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Cycle brand pairings&quot;,&quot;One pairing for all&quot;],&quot;default&quot;:&quot;Cycle brand pairings&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Colours&quot;},&quot;basePairing&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Violet / Lemon&quot;,&quot;Orange / Violet&quot;,&quot;Lemon / Violet&quot;,&quot;Sky Blue / Violet&quot;,&quot;Pink / Lemon&quot;,&quot;Ginger / Lemon&quot;,&quot;Brown / Lemon&quot;,&quot;Judge Gray / Lemon&quot;,&quot;Ink / Lemon&quot;,&quot;Ink / Orange&quot;,&quot;Ink / Pink&quot;,&quot;Ink / Sky Blue&quot;],&quot;default&quot;:&quot;Violet / Lemon&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Pairing (when one for all)&quot;}}">
@@ -244,7 +253,7 @@ class Component extends DCLogic {
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', undo: null, attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
   componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
   checkFit() {
     clearTimeout(this._fitT);
@@ -270,7 +279,7 @@ class Component extends DCLogic {
       if (Object.keys(upd).length) this.setState(st => ({ fit: { ...(st.fit || {}), ...upd } }));
     }, 60);
   }
-  componentWillUnmount() { this.dragCleanup(); document.removeEventListener('pointerdown', this.dragDown, true); document.removeEventListener('click', this.clickGuard, true); clearTimeout(this._undoT); window.removeEventListener('keydown', this.onKey); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
+  componentWillUnmount() { this.dragCleanup(); document.removeEventListener('pointerdown', this.dragDown, true); document.removeEventListener('click', this.clickGuard, true); clearTimeout(this._undoT); window.removeEventListener('keydown', this.onKey); window.removeEventListener('dragenter', this.onWinDragEnter, true); window.removeEventListener('dragover', this.onWinDragOver, true); window.removeEventListener('drop', this.onWinDrop, true); window.removeEventListener('dragend', this.dragOff, true); clearTimeout(this._dragT); clearTimeout(this._fitT); clearTimeout(this._pulseT); this.ro && this.ro.disconnect(); }
   remapOrder(order, pi, ci) {
     if (!order) return null;
     const out = [];
@@ -369,9 +378,28 @@ class Component extends DCLogic {
   fileRef = el => { this.fileEl = el; };
   openFile = () => this.fileEl && this.fileEl.click();
   onFile = e => { const f = e.target.files && e.target.files[0]; if (f) this.loadFile(f); e.target.value = ''; };
-  onDragOver = e => { e.preventDefault(); if (!this.state.drag) this.setState({ drag: true }); };
-  onDragLeave = e => { if (e.currentTarget === e.target) this.setState({ drag: false }); };
-  onDrop = e => { e.preventDefault(); this.setState({ drag: false }); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) this.loadFile(f); };
+  hasFiles = e => {
+    const t = e.dataTransfer && e.dataTransfer.types;
+    if (!t) return e.type === 'drop';
+    return t.includes ? t.includes('Files') : Array.prototype.indexOf.call(t, 'Files') >= 0;
+  };
+  dragHold = () => { clearTimeout(this._dragT); this._dragT = setTimeout(this.dragOff, 250); };
+  dragOff = () => { clearTimeout(this._dragT); if (this.state.drag) this.setState({ drag: false }); };
+  onWinDragEnter = e => { if (!this.hasFiles(e)) return; e.preventDefault(); if (!this.state.drag) this.setState({ drag: true }); this.dragHold(); };
+  onWinDragOver = e => {
+    if (!this.hasFiles(e)) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'copy'; } catch (err) {}
+    if (!this.state.drag) this.setState({ drag: true });
+    this.dragHold();
+  };
+  onWinDrop = e => {
+    if (!this.hasFiles(e)) return;
+    e.preventDefault();
+    this.dragOff();
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) this.loadFile(f);
+  };
   onText = e => { this.clearHl(); this.setState({ text: e.target.value }); };
 
   imgMime(b) {
@@ -1285,7 +1313,7 @@ class Component extends DCLogic {
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
       uploadAnim: this.state.uploaded || this.state.drag ? 'none' : 'fcPulse 2s ease-out infinite',
       onText: this.onText, openFile: this.openFile, onFile: this.onFile, fileRef: this.fileRef, gridRef: this.gridRef,
-      exportAll: this.exportAll, onDragOver: this.onDragOver, onDragLeave: this.onDragLeave, onDrop: this.onDrop
+      exportAll: this.exportAll, dragging: !!this.state.drag
     };
   }
 }
