@@ -61,6 +61,7 @@
         <div>Long verses are split across screens for you.</div>
         <div><span style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">Bolded</span> or <span style="text-decoration:underline; text-underline-offset:3px;">underlined</span> words are emphasized.</div>
         <div style="font-weight:700; -webkit-text-stroke:0.6px #000; color:#000;">If you have something you would like made that isn't a scripture, head to Step 4 to create an Illustration screen OR in your notes, add *SCREEN to it.</div>
+        <div>A *SCREEN slide has a <b>Restyle</b> button: press it to lay that screen out like an Illustration Screen, and again for the next style.</div>
         <div>Click and hold a slide, then drag it to move it. Use Reset order to put the slides back.</div>
         <div>Please use this tool on a computer or tablet for best viewing experience.</div>
       </div>
@@ -127,7 +128,7 @@
           <button onClick="{{ s.onDelete }}" aria-label="Delete this slide" title="Delete this slide and its text" style="flex:none; width:32px; height:32px; padding:0; border:1px solid #000; border-radius:999px; background:rgba(255,255,255,0.92); color:#000; font-family:var(--font-sans); font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#ffff5f;">×</button>
           </div>
           <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
-            <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
+            <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isStyled }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.stRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
               <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
@@ -138,9 +139,9 @@
               </sc-if>
             </div></sc-if>
           </div>
-        <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+        <sc-if value="{{ s.hasControls }}" hint-placeholder-val="{{ false }}"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
             <sc-if value="{{ s.canCond }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onCond }}" aria-pressed="{{ s.condOn }}" title="Long passages are condensed onto fewer slides, up to 8 lines each. Click to expand." style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.condBg }}; color:{{ s.condFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.condLabel }}</button></sc-if>
-            <button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button>
+            <sc-if value="{{ s.canEmph }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onEmph }}" aria-pressed="{{ s.emph }}" style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.emphBg }}; color:{{ s.emphFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.emphLabel }}</button></sc-if><sc-if value="{{ s.canRestyle }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onGen }}" aria-pressed="{{ s.genOn }}" title="Lay this screen out like an Illustration Screen. Click again for the next layout; after the last one it goes back to plain." style="font-family:var(--font-sans); font-size:13px; padding:6px 12px; border:1px solid #000; border-radius:999px; background:{{ s.genBg }}; color:{{ s.genFg }}; cursor:pointer; transition:background 150ms ease-out, color 150ms ease-out;">{{ s.genLabel }}</button></sc-if>
             <select value="{{ s.pair }}" onChange="{{ s.onPair }}" style="margin-left:auto; flex:none; font-family:var(--font-sans); font-size:13px; padding:6px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:8px; background:#fff; color:#000;">
               <sc-for list="{{ s.pairOptions }}" as="pn"><option value="{{ pn }}">{{ pn }}</option></sc-for>
             </select>
@@ -180,7 +181,7 @@
           <button onClick="{{ closeIllus }}" aria-label="Close" style="border:none; background:none; font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; color:#000; padding:8px;">Close</button>
         </div>
         <div style="padding:24px 28px; background:#f2f0ea;">
-          <div ref="{{ illBoxRef }}" style="position:relative; aspect-ratio:16 / 9; overflow:hidden; border-radius:6px;"><div ref="{{ illRef }}" style="position:absolute; left:0; top:0; width:1920px; height:1080px; transform:scale({{ illScale }}); transform-origin:0 0;"></div></div>
+          <img src="assets/illustration-example.jpg" alt="Example illustration screen" draggable="false" style="display:block; width:100%; aspect-ratio:16 / 9; border-radius:6px; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; pointer-events:none;">
         </div>
         <div style="padding:20px 28px 26px; font-size:14px; line-height:1.5; color:#333;">An illustration screen is a basic information screen you insert into your sermon, such as a list, an agenda or a set of details.</div>
       </div>
@@ -243,6 +244,7 @@ class Component extends DCLogic {
     '*SCREEN Jesus calls you **friend**.'
   ].join('\n\n');
 
+  static SCREEN_STYLES = 3;
   static SIZES = [{ id: 'std', label: '1920 × 1080', note: 'Standard', W: 1920, H: 1080 }, { id: 'south', label: '3264 × 960', note: 'South', W: 3264, H: 960 }, { id: 'city', label: '3072 × 960', note: 'City', W: 3072, H: 960 }];
   dims() {
     const sz = Component.SIZES.find(s => s.id === this.state.size) || Component.SIZES[0], k = sz.H / 1080;
@@ -254,7 +256,7 @@ class Component extends DCLogic {
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); }
+  componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -465,7 +467,7 @@ class Component extends DCLogic {
       const first = text.split(/\n+/).map(l => this.clean(l).replace(/\*\*/g, '').trim()).find(Boolean) || '';
       const title = first && !this.validRef(first.match(this.refRegex(false))) && !this.validRef(first.match(this.chapRegex(false))) && !this.verseRegex().test(first) && !/^\[\[Image/i.test(first) && first.length <= 60 ? first : this.state.title;
       (this.state.images || []).forEach(u => URL.revokeObjectURL(u));
-      this.setState({ text, title, images: fin.urls, overrides: {}, emph: {}, cond: {}, extras: [], order: null, error: '', uploaded: true });
+      this.setState({ text, title, images: fin.urls, overrides: {}, emph: {}, cond: {}, gen: {}, extras: [], order: null, error: '', uploaded: true });
     } catch (err) { this.setState({ error: /›|Re-save|supported|too big|plain text/.test(err.message) ? err.message : 'Could not read that file: ' + err.message }); }
   }
   async unzip(file, want, bin) {
@@ -664,12 +666,12 @@ class Component extends DCLogic {
     const label = 'Slide ' + (((this.slides || []).findIndex(s => s.key === pi + ':' + ci)) + 1), dts = (this.slides || []).find(s => s.key === pi + ':' + ci), dti = dts ? dts.tIndex : 0;
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
     this.clearHl();
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], order: s.order || null, label }, text: nt, order: this.remapOrder(s.order, pi, whole ? null : ci), extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), fit: {} }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, gen: s.gen, extras: s.extras || [], order: s.order || null, label }, text: nt, order: this.remapOrder(s.order, pi, whole ? null : ci), extras: whole ? (s.extras || []).map(e => e.at > dti ? { ...e, at: e.at - 1 } : e) : (s.extras || []), overrides: this.remapKeys(s.overrides, pi, whole ? null : ci), emph: this.remapKeys(s.emph, pi, whole ? null : ci), cond: this.remapCond(s.cond, pi, whole), gen: this.remapKeys(s.gen, pi, whole ? null : ci), fit: {} }));
   }
   undoDelete = () => {
     const u = this.state.undo; if (!u) return;
     clearTimeout(this._undoT); this.clearHl();
-    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, extras: u.extras || [], order: u.order || null, fit: {}, undo: null });
+    this.setState({ text: u.text, overrides: u.overrides, emph: u.emph, cond: u.cond, gen: u.gen || {}, extras: u.extras || [], order: u.order || null, fit: {}, undo: null });
   };
   openZoomAx = () => this.setState({ zoom: { src: 'ax' } });
   closeZoom = () => this.setState({ zoom: null });
@@ -693,20 +695,6 @@ class Component extends DCLogic {
   }
   openIllus = () => this.setState({ illus: true });
   closeIllus = () => this.setState({ illus: false });
-  illBoxRef = el => {
-    this.illRo && this.illRo.disconnect();
-    if (!el) return;
-    const m = () => { const w = el.clientWidth; if (w !== this.state.illW) this.setState({ illW: w }); };
-    this.illRo = new ResizeObserver(m); this.illRo.observe(el); m();
-  };
-  illRef = el => { if (el && !el.dataset.done) { el.innerHTML = this.illusHtml(); el.dataset.done = '1'; } };
-  illusHtml() {
-    const rows = [['Level 6', 'Friend Friend'], ['Level 5', 'Moving house friend'], ['Level 4', 'BBQ friend'], ['Level 3', 'The church foyer friend'], ['Level 2', 'School drop off friend'], ['Level 1', 'Facebook Friend']];
-    const list = rows.map((r, i) => '<div style="display:grid;grid-template-columns:232px 1fr;align-items:center;gap:0;flex:1 1 0;' + (i ? 'border-top:1px solid rgba(255,255,255,0.16);' : '') + '"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:36px;letter-spacing:0.2em;text-transform:uppercase;color:' + (i ? '#6b6b6b' : '#ffff5f') + ';">' + r[0] + '</div><div style="font-size:' + (i ? 84 : 92) + 'px;line-height:1.02;color:' + (i ? '#767676' : '#ffff5f') + ';">' + r[1] + '</div></div>').join('');
-    return '<div style="position:relative;width:1920px;height:1080px;display:flex;overflow:hidden;font-family:var(--font-display);font-weight:300;">' +
-      '<div style="flex:none;width:640px;background:#ffff5f;color:#000;display:flex;flex-direction:column;justify-content:center;padding:0 80px 0 90px;box-sizing:border-box;"><div style="font-style:italic;font-size:104px;line-height:1;">Josh’s</div><div style="font-family:var(--font-grotesque);font-weight:300;font-size:104px;line-height:0.95;text-transform:uppercase;">Friend Ladder.</div></div>' +
-      '<div style="flex:1 1 0;background:#000;padding:120px 140px 120px 110px;display:flex;flex-direction:column;box-sizing:border-box;">' + list + '</div></div>';
-  }
   stepFns = { 1: () => this.toggleStep(1), 2: () => this.toggleStep(2), 3: () => this.toggleStep(3), 4: () => this.toggleStep(4) };
   toggleStep(n) { this.setState(s => ({ open: { ...(s.open || {}), [n]: (s.open || {})[n] === false } })); }
   stepVals() {
@@ -979,7 +967,11 @@ class Component extends DCLogic {
       () => root('<div style="margin:auto 0;text-align:center;">' + h1(tsz, titleColor) + '<div style="width:' + px(140) + ';height:' + px(8) + ';background:' + lc + ';margin:' + px(44) + ' auto;"></div>' + rows.map(r => '<div style="font-size:' + fs(60) + ';line-height:1.2;margin-bottom:' + px(14) + ';">' + (r.label ? '<span style="font-family:var(--font-grotesque);font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</span> ' : '') + esc(r.text) + '</div>').join('') + '</div>' + logo(white, 'calc(50% - ' + px(31) + ')', pad + 'px')),
       () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(36) + ';') + '<div>' + rows.map(r => '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + px(22) + ' ' + px(36) + ';margin-bottom:' + px(14) + ';">' + (r.label ? lab(r.label, ink(accent)) : '') + '<div style="font-size:' + fs(60) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px'))
     ];
-    const lblRows = rows.filter(r => r.label).length, base = !rows.length ? 3 : (rows.length >= 3 && lblRows >= 2) ? 2 : rows.length >= 3 ? 4 : 0;
+    // Layouts 1 and 4 are built around label/value rows. With no rows, 1 leaves
+    // half the screen empty and 4 renders the same as 2, so a statement screen
+    // (a *SCREEN line, or a one-line note in Step 4) cycles only these three.
+    if (!rows.length) { const ORDER = [3, 0, 2]; return L[ORDER[attempt % ORDER.length]](); }
+    const lblRows = rows.filter(r => r.label).length, base = (rows.length >= 3 && lblRows >= 2) ? 2 : rows.length >= 3 ? 4 : 0;
     return L[(base + attempt) % L.length]();
   }
   syncAx() {
@@ -999,8 +991,17 @@ class Component extends DCLogic {
   paintExtra(id) {
     const e = (this.state.extras || []).find(x => x.id === id), el = this._exEls && this._exEls[id];
     if (!e || !el || !el.isConnected) return;
-    const D = this.dims(), key = D.id;
+    const D = this.dims(), key = e.id + '|' + e.notes + '|' + e.attempt + '|' + e.pair + '|' + D.id;
     if (el.dataset.key !== key) { el.innerHTML = this.renderExtra(this.parseNotes(e.notes), e.attempt, D, e.pair); el.dataset.key = key; this.fitScreen(el); }
+  }
+  // A *SCREEN slide the user has restyled is drawn by the same engine the
+  // Illustration Screens in Step 4 use: its own text becomes the notes, and
+  // the attempt picks the layout, exactly as Regenerate does there.
+  paintStyled(k) {
+    const info = this._styled && this._styled[k], el = this._stEls && this._stEls[k];
+    if (!info || !el || !el.isConnected) return;
+    const D = this.dims(), key = k + '|' + info.text + '|' + info.attempt + '|' + info.pair + '|' + D.id;
+    if (el.dataset.key !== key) { el.innerHTML = this.renderExtra(this.parseNotes(info.text), info.attempt, D, info.pair); el.dataset.key = key; this.fitScreen(el); }
   }
   extraSlide(e) {
     const k = 'x:' + e.id;
@@ -1011,7 +1012,7 @@ class Component extends DCLogic {
   }
   deleteExtra(id) {
     clearTimeout(this._undoT); this._undoT = setTimeout(() => this.setState({ undo: null }), 10000);
-    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, extras: s.extras || [], order: s.order || null, label: 'Illustration screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
+    this.setState(s => ({ undo: { text: s.text, overrides: s.overrides, emph: s.emph, cond: s.cond, gen: s.gen, extras: s.extras || [], order: s.order || null, label: 'Illustration screen' }, extras: (s.extras || []).filter(e => e.id !== id) }));
   }
   stripMarks(chars) {
     const plain = chars.map(x => x.c).join(''), map = [], drop = new Set();
@@ -1127,7 +1128,15 @@ class Component extends DCLogic {
         slides.push({ key: k, vk: k, fitKey: k, isImage: true, isText: false, isExtra: false, tIndex: slides.length, fname: 'Image-' + (c.image + 1), name: 'Image ' + (c.image + 1), cardTitle: 'Click to find this text in Step 3', imgUrl: url, imgRef: this.imgFns[k], onSelect: this.selFns[k], onDelete: this.delFns[k], bg: '#000', ref: '', tokens: [{ text: '' }], size: 0, emph: false });
         return;
       }
-      const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
+      // A passage with no reference came from a *SCREEN marker, so it can be
+      // laid out as an Illustration Screen instead of as plain verse text.
+      const isScreen = !c.ref, gen = (this.state.gen || {})[k], styled = isScreen && gen !== undefined;
+      this.genFns = this.genFns || {};
+      this.genFns[k] = this.genFns[k] || (() => this.setState(s => { const g = { ...(s.gen || {}) }, cur = g[k]; if (cur === undefined) g[k] = 0; else if (cur >= Component.SCREEN_STYLES - 1) delete g[k]; else g[k] = cur + 1; return { gen: g, fit: {} }; }));
+      // Restyling steps the pairing as well as the layout, the way Regenerate
+      // does in Step 4, so each style reads as a different screen. A pairing
+      // picked by hand on this slide still wins.
+      const pair = this.state.overrides[k] || this.state.overrides[pi + ':0'] || (styled ? Component.CYCLE[(pi * 7 + gen * 5) % Component.CYCLE.length] : this.state.trad ? 'Ink / Lemon' : mode === 'One pairing for all' ? base : Component.CYCLE[pi % Component.CYCLE.length]);
       const [bg, text, accent] = P[pair] || P[base];
       const W = c.ps.reduce((a, p) => a + this.w(p), 0);
       const auto = chunks.length === 1 && !c.cond && W <= 55 * D.r; this._auto = this._auto || {}; this._auto[k] = auto;
@@ -1173,10 +1182,15 @@ class Component extends DCLogic {
       this.delFns = this.delFns || {}; this.delFns[k] = this.delFns[k] || (e => { if (e && e.stopPropagation) e.stopPropagation(); this.deleteSlide(pi, ci); });
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
       this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !((s.cond || {})[pi] ?? true) } })));
+      if (styled) {
+        this._styled = this._styled || {}; this._stEls = this._stEls || {}; this.stFns = this.stFns || {};
+        this._styled[k] = { text: c.ps.map(p => p.t).join(' '), attempt: gen, pair };
+        this.stFns[k] = this.stFns[k] || (el => { if (!el) { delete this._stEls[k]; return; } this.nodes[k] = el; this._stEls[k] = el; this.paintStyled(k); });
+      } else if (this._styled) { delete this._styled[k]; }
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: true, isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
@@ -1300,11 +1314,11 @@ class Component extends DCLogic {
   }
   renderVals() {
     const slides = this.build(); this.slides = slides;
-    const passages = new Set(slides.filter(s => s.isText).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
+    const passages = new Set(slides.filter(s => s.isText || s.isStyled).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, illBoxRef: this.illBoxRef, illRef: this.illRef, illScale: (this.state.illW || 880) / 1920, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axTidy: this.axTidy, axTidyLabel: ax.undo == null ? 'Tidy notes' : 'Undo tidy', axTidyStyle: { padding: '8px 16px', border: '1px solid ' + ((ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.25)'), borderRadius: 999, background: '#fff', color: (ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.45)', fontFamily: 'var(--font-sans)', fontSize: 14, cursor: 'pointer' }, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
