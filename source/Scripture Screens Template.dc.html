@@ -54,6 +54,12 @@
   <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
     <div style="padding:14px max(40px, calc((100vw - 1400px) / 2)); background:#ffff5f; font-size:15px;">{{ error }}</div>
   </sc-if>
+  <sc-if value="{{ hasDrops }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; padding:14px max(40px, calc((100vw - 1400px) / 2)); background:#ffff5f; border-bottom:1px solid #000; font-size:15px; line-height:1.4;">
+      <span>{{ dropNote }}</span>
+      <button onClick="{{ onJoinDrops }}" style="flex:none; padding:8px 18px; border:1px solid #000; border-radius:999px; background:#000; color:#fff; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="opacity:0.88;">Add them to the passage</button>
+    </div>
+  </sc-if>
   <section style="display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center; gap:24px; padding:24px max(40px, calc((100vw - 1400px) / 2)) 0;">
     <div style="flex:1 1 360px; max-width:640px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; font-size:14px; line-height:1.4; color:#333;">
         <div style="font-family:var(--font-display); font-weight:300; font-size:28px; line-height:1.1; color:#000;">Before you <span style="font-family:var(--font-grotesque); text-transform:uppercase; color:#5d1fec;">start</span></div>
@@ -1039,8 +1045,11 @@ class Component extends DCLogic {
     while (b > a && /[\s–—-]/.test(chars[b - 1].c)) b--;
     return chars.slice(a, b);
   }
+  vrange(r) { const m = /:(\d{1,3})(?:\s*[–—-]\s*(\d{1,3}))?/.exec(r || ''); return m ? { v0: +m[1], v1: m[2] ? +m[2] : 0 } : { v0: 0, v1: 0 }; }
+  leadVerse(chars) { const m = chars.map(x => x.c).join('').match(/^\s*(\d{1,3})(?=[\s.)–—-]+\S)/); return m ? { n: +m[1], cut: m[0].length } : null; }
+  openOf(P, li, end) { const vr = this.vrange(P.ref), lv = this.leadVerse(P.chars); return { p: P, li, end, v0: vr.v0, vnum: vr.v0, vend: vr.v1, numbered: !!(lv && lv.n === vr.v0), joined: false }; }
   passages(text) {
-    const out = []; let pending = null, pendingLine = -1, li = -1, ctx = null, orphan = null;
+    const out = [], drops = []; let pending = null, pendingLine = -1, li = -1, ctx = null, orphan = null, open = null, lastDrop = null;
     const lre = /[^\n]+/g; let lm;
     while ((lm = lre.exec(text))) {
       const raw = lm[0], base = lm.index;
@@ -1049,12 +1058,12 @@ class Component extends DCLogic {
       let chars = this.toChars(raw); let plain = chars.map(x => x.c).join('');
       if (!plain.trim()) continue;
       const imk = plain.match(/^\s*\[\[\s*Image\s+(\d+)\s*\]\]\s*$/i);
-      if (imk) { out.push({ ref: '', chars: [], image: +imk[1] - 1, lines: [li], base, len: raw.length, vs: 0, ve: 0 }); pending = null; orphan = null; continue; }
+      if (imk) { out.push({ ref: '', chars: [], image: +imk[1] - 1, lines: [li], base, len: raw.length, vs: 0, ve: 0 }); pending = null; orphan = null; open = null; lastDrop = null; continue; }
       const sm = plain.match(/\[screen\]|\*\s?screen\b/i);
       if (sm) {
         const i = sm.index; chars = chars.slice(0, i).concat(chars.slice(i + sm[0].length));
         chars = this.trimChars(this.stripMarks(chars)); if (chars.length) out.push({ ref: '', chars, lines: [li], base, len: raw.length, ...this.span(chars) });
-        pending = null; orphan = null;
+        pending = null; orphan = null; open = null; lastDrop = null;
         continue;
       }
       let m = plain.match(this.refRegex(false)), ref = null;
@@ -1066,17 +1075,65 @@ class Component extends DCLogic {
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
         const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
-        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) }); pending = null; orphan = null; }
-        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...this.span(orphan.chars) }); pending = null; orphan = null; }
-        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; orphan = null; }
+        if (rest.length) { const P = { ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) }; out.push(P); open = this.openOf(P, li, base + raw.length); pending = null; orphan = null; lastDrop = null; }
+        else if (orphan && orphan.li === li - 1) {
+          if (lastDrop && lastDrop.li === orphan.li) { drops.pop(); }
+          const P = { ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...this.span(orphan.chars) };
+          out.push(P); open = this.openOf(P, li, base + raw.length); pending = null; orphan = null; lastDrop = null;
+        }
+        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; orphan = null; open = null; lastDrop = null; }
         continue;
       }
+      if (open && open.numbered && open.vend && open.li === li - 1 && !pending) {
+        const lv = this.leadVerse(chars);
+        if (lv && lv.n === open.vnum + 1 && lv.n <= open.vend) {
+          const add = this.trimChars(this.stripMarks(chars.slice(lv.cut)));
+          if (add.length) {
+            const P = open.p;
+            if (!open.joined) { const l0 = this.leadVerse(P.chars); if (l0) P.chars = this.trimChars(P.chars.slice(l0.cut)); open.joined = true; }
+            P.chars.push({ c: ' ', b: false, o: open.end - P.base });
+            add.forEach(x => P.chars.push({ c: x.c, b: x.b, o: x.o + (base - P.base) }));
+            P.lines.push(li); P.len = base + raw.length - P.base;
+            const sp = this.span(P.chars); P.vs = sp.vs; P.ve = sp.ve;
+            open.li = li; open.end = base + raw.length; open.vnum = lv.n;
+            continue;
+          }
+        }
+      }
       const pc = this.trimChars(this.stripMarks(chars));
-      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; orphan = null; } }
-      else orphan = pc.length ? { chars: pc, li, base, len: raw.length } : null;
+      if (pending) {
+        if (pc.length) {
+          const P = { ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) };
+          out.push(P); open = this.openOf(P, li, base + raw.length);
+          pending = null; orphan = null; lastDrop = null;
+        }
+      }
+      else {
+        const ranged = !!(open && open.vend > open.v0);
+        if (pc.length && ranged && ((open.li === li - 1) || (lastDrop && lastDrop.li === li - 1))) {
+          lastDrop = { li, base, end: base + raw.length, prevEnd: lastDrop ? lastDrop.end : open.end, ref: open ? open.p.ref : '' };
+          drops.push(lastDrop);
+        } else lastDrop = null;
+        orphan = pc.length ? { chars: pc, li, base, len: raw.length } : null;
+      }
     }
+    this._dropped = drops;
     return out;
   }
+  drops() { return this.state.uploaded ? [] : (this._dropped || []); }
+  dropNote() {
+    const d = this.drops(); if (!d.length) return '';
+    const r = d[0].ref ? ' after ' + d[0].ref : '';
+    return d.length > 1
+      ? d.length + ' lines were left off the screens' + r + ', because they carry no reference of their own.'
+      : 'One line was left off the screens' + r + ', because it carries no reference of its own.';
+  }
+  joinDrops = () => {
+    const d = this.drops(); if (!d.length) return;
+    let t = this.state.text;
+    for (let i = d.length - 1; i >= 0; i--) t = t.slice(0, d[i].prevEnd) + ' ' + t.slice(d[i].base);
+    this.clearHl(); this.setState({ text: t, fit: {} });
+  };
   pieces(chars) {
     const ps = []; let cur = null;
     for (const { c, b, o } of chars) {
@@ -1116,7 +1173,18 @@ class Component extends DCLogic {
   build() {
     const maxLines = this.props.maxLines ?? 5, mode = this.props.colourMode ?? 'Cycle brand pairings', base = this.props.basePairing ?? 'Violet / Lemon';
     const D = this.dims(); const cnd = Object.keys(this.state.cond || {}).map(x => x + (this.state.cond[x] ? '+' : '-')).join(','); const key = this.state.text + '|' + maxLines + '|' + D.id + '|' + cnd;
-    if (this._key !== key) { this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines); this._ptot = []; this._parsed = ps.map((p, pi) => { const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), co = (this.state.cond || {})[pi], condensed = tot > 8 * 36 * D.r && (co === undefined || !!co); this._ptot[pi] = tot; return this.chunk(pcs, condensed ? 8 * 36 * D.r * (92 / 72) : maxLines * 36 * D.r).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, image: p.image })); }); }
+    if (this._key !== key) {
+      this._key = key; const ps = this.passages(this.state.text); this._passages = ps; this._plines = ps.map(p => p.lines);
+      this._ptot = []; this._pauto = []; this._pcan = [];
+      const CB = 8 * 36 * D.r;
+      this._parsed = ps.map((p, pi) => {
+        const pcs = this.pieces(p.chars), tot = pcs.reduce((a, q) => a + this.w(q), 0), co = (this.state.cond || {})[pi];
+        const auto = tot > CB, wide = this.chunk(pcs, maxLines * 36 * D.r), tight = this.chunk(pcs, CB * (92 / 72));
+        const can = auto || tight.length < wide.length, condensed = can && (co === undefined ? auto : !!co);
+        this._ptot[pi] = tot; this._pauto[pi] = auto; this._pcan[pi] = can;
+        return (condensed ? tight : wide).map(c => ({ ref: p.ref, trans: p.trans, ps: c, cond: condensed, image: p.image }));
+      });
+    }
     const slides = []; const P = Component.PAIRS, names = Object.keys(P);
     this._parsed.forEach((chunks, pi) => chunks.forEach((c, ci) => {
       const k = pi + ':' + ci;
@@ -1181,16 +1249,16 @@ class Component extends DCLogic {
       this.selFns[k] = this.selFns[k] || (() => this.selectSource(pi));
       this.delFns = this.delFns || {}; this.delFns[k] = this.delFns[k] || (e => { if (e && e.stopPropagation) e.stopPropagation(); this.deleteSlide(pi, ci); });
       this.pairFns[k] = this.pairFns[k] || (e => { const v = e.target.value; this.setState(s => ({ overrides: { ...s.overrides, [k]: v } })); });
-      this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !((s.cond || {})[pi] ?? true) } })));
+      this.condFns = this.condFns || {}; this.condFns[pi] = this.condFns[pi] || (() => this.setState(s => ({ cond: { ...(s.cond || {}), [pi]: !((s.cond || {})[pi] ?? !!(this._pauto || [])[pi]) } })));
       if (styled) {
         this._styled = this._styled || {}; this._stEls = this._stEls || {}; this.stFns = this.stFns || {};
         this._styled[k] = { text: c.ps.map(p => p.t).join(' '), attempt: gen, pair };
         this.stFns[k] = this.stFns[k] || (el => { if (!el) { delete this._stEls[k]; return; } this.nodes[k] = el; this._stEls[k] = el; this.paintStyled(k); });
       } else if (this._styled) { delete this._styled[k]; }
-      const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
+      const condOn = !!(this._pcan || [])[pi] && ((this.state.cond || {})[pi] ?? !!(this._pauto || [])[pi]);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && !!(this._pcan || [])[pi], condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
@@ -1327,7 +1395,7 @@ class Component extends DCLogic {
       uploadBorder: this.state.drag ? '#ffff5f' : 'rgba(255,255,255,0.5)', uploadBg: this.state.drag ? '#5d1fec' : '#000',
       uploadAnim: this.state.uploaded || this.state.drag ? 'none' : 'fcPulse 2s ease-out infinite',
       onText: this.onText, openFile: this.openFile, onFile: this.onFile, fileRef: this.fileRef, gridRef: this.gridRef,
-      exportAll: this.exportAll, dragging: !!this.state.drag
+      exportAll: this.exportAll, dragging: !!this.state.drag, hasDrops: !!this.drops().length, dropNote: this.dropNote(), onJoinDrops: this.joinDrops
     };
   }
 }
