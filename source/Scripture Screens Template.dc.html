@@ -39,7 +39,7 @@
         <div onClick="{{ closeMenu }}" style="position:fixed; inset:0; z-index:39;"></div>
         <div role="menu" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:104px; z-index:41; width:280px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.25); overflow:hidden; display:flex; flex-direction:column;">
           <button role="menuitem" onClick="{{ exportPng }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px; border-bottom:1px solid rgba(0,0,0,0.15);" style-hover="background:#f2f0ea;"><span>PNG images</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.zip, one picture per slide</span></button>
-          <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, one slide per screen</span></button>
+          <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, editable text for ProPresenter</span></button>
         </div>
       </sc-if>
       <sc-if value="{{ undoOn }}" hint-placeholder-val="{{ false }}">
@@ -952,20 +952,20 @@ class Component extends DCLogic {
     const ink = hex => lum(hex) > 0.6 ? '#000' : '#fff', rgba = (hex, a) => { const h = hex.replace('#', ''), f = h.length === 3 ? h.split('').map(c => c + c).join('') : h, v = [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16)); return 'rgba(' + v.join(',') + ',' + a + ')'; };
     const lc = Math.abs(lum(accent) - lum(bg)) < 0.35 ? text : accent, titleColor = bg === '#000' ? accent : text, pad = Math.round(110 * k), side = D.wide ? Math.round(D.W * 0.12) : Math.round(150 * k);
     const title = m.title, rows = m.rows, tsz = title.length <= 18 ? 210 : title.length <= 32 ? 170 : title.length <= 55 ? 135 : title.length <= 90 ? 108 : 88;
-    const lab = (t, c) => '<div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + c + ';margin-bottom:' + px(6) + ';">' + esc(t) + '</div>';
-    const rowStack = (c, size) => rows.map(r => '<div style="margin-bottom:' + px(26) + ';">' + (r.label ? lab(r.label, c) : '') + '<div style="font-size:' + fs(size) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('');
+    const lab = (t, c) => '<div data-pt="1" style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + c + ';margin-bottom:' + px(6) + ';">' + esc(t) + '</div>';
+    const rowStack = (c, size) => rows.map(r => '<div style="margin-bottom:' + px(26) + ';">' + (r.label ? lab(r.label, c) : '') + '<div data-pt="1" style="font-size:' + fs(size) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('');
     const logo = (white, left, bottom) => '<img src="' + this.rayUrl(white) + '" alt="" style="position:absolute;left:' + left + ';bottom:' + bottom + ';width:' + px(62) + ';height:' + px(64) + ';">';
     const root = (inner, pads) => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:flex;flex-direction:column;padding:' + (pads || (pad + 'px ' + side + 'px ' + (pad + Math.round(110 * k)) + 'px')) + ';">' + inner + '</div>';
-    const h1 = (size, c, extra) => '<h1 style="margin:0;font-weight:300;font-size:' + fs(size) + ';line-height:1.04;color:' + c + ';' + (extra || '') + '">' + esc(title) + '</h1>';
+    const h1 = (size, c, extra) => '<h1 data-pt="1" style="margin:0;font-weight:300;font-size:' + fs(size) + ';line-height:1.04;color:' + c + ';' + (extra || '') + '">' + esc(title) + '</h1>';
     const white = text === '#fff';
     const L = [
       () => root('<div style="margin:auto 0;">' + h1(tsz, titleColor, 'margin-bottom:' + px(48) + ';') + rowStack(lc, 64) + '</div>' + logo(white, side + 'px', pad + 'px')),
       () => '<div class="screen" style="--s:1;position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:' + bg + ';color:' + text + ';font-family:var(--font-display);font-weight:300;overflow-wrap:break-word;display:grid;grid-template-columns:46% 54%;">' +
-        '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px ' + (pad + Math.round(110 * k)) + 'px;display:flex;flex-direction:column;position:relative;"><div style="margin:auto 0;">' + h1(Math.round(tsz * 0.72), ink(accent)) + '</div>' + logo(ink(accent) === '#fff', Math.round(side * 0.6) + 'px', pad + 'px') + '</div>' +
+        '<div data-ps="1" style="background:' + accent + ';color:' + ink(accent) + ';padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px ' + (pad + Math.round(110 * k)) + 'px;display:flex;flex-direction:column;position:relative;"><div style="margin:auto 0;">' + h1(Math.round(tsz * 0.72), ink(accent)) + '</div>' + logo(ink(accent) === '#fff', Math.round(side * 0.6) + 'px', pad + 'px') + '</div>' +
         '<div style="padding:' + pad + 'px ' + Math.round(side * 0.6) + 'px;display:flex;flex-direction:column;"><div style="margin:auto 0;">' + rowStack(lc, 64) + '</div></div></div>',
-      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(40) + ';') + '<div>' + rows.map(r => '<div style="display:grid;grid-template-columns:30% 1fr;gap:' + px(40) + ';padding:' + px(22) + ' 0;border-top:2px solid ' + rgba(text, 0.35) + ';"><div style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(36) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</div><div style="font-size:' + fs(64) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px')),
-      () => root('<div style="margin:auto 0;text-align:center;">' + h1(tsz, titleColor) + '<div style="width:' + px(140) + ';height:' + px(8) + ';background:' + lc + ';margin:' + px(44) + ' auto;"></div>' + rows.map(r => '<div style="font-size:' + fs(60) + ';line-height:1.2;margin-bottom:' + px(14) + ';">' + (r.label ? '<span style="font-family:var(--font-grotesque);font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</span> ' : '') + esc(r.text) + '</div>').join('') + '</div>' + logo(white, 'calc(50% - ' + px(31) + ')', pad + 'px')),
-      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(36) + ';') + '<div>' + rows.map(r => '<div style="background:' + accent + ';color:' + ink(accent) + ';padding:' + px(22) + ' ' + px(36) + ';margin-bottom:' + px(14) + ';">' + (r.label ? lab(r.label, ink(accent)) : '') + '<div style="font-size:' + fs(60) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px'))
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(40) + ';') + '<div>' + rows.map(r => '<div data-pb="1" style="display:grid;grid-template-columns:30% 1fr;gap:' + px(40) + ';padding:' + px(22) + ' 0;border-top:2px solid ' + rgba(text, 0.35) + ';"><div data-pt="1" style="font-family:var(--font-grotesque);font-weight:300;font-size:' + fs(36) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</div><div data-pt="1" style="font-size:' + fs(64) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px')),
+      () => root('<div style="margin:auto 0;text-align:center;">' + h1(tsz, titleColor) + '<div data-ps="1" style="width:' + px(140) + ';height:' + px(8) + ';background:' + lc + ';margin:' + px(44) + ' auto;"></div>' + rows.map(r => '<div data-pt="1" style="font-size:' + fs(60) + ';line-height:1.2;margin-bottom:' + px(14) + ';">' + (r.label ? '<span style="font-family:var(--font-grotesque);font-size:' + fs(34) + ';letter-spacing:0.2em;text-transform:uppercase;color:' + lc + ';">' + esc(r.label) + '</span> ' : '') + esc(r.text) + '</div>').join('') + '</div>' + logo(white, 'calc(50% - ' + px(31) + ')', pad + 'px')),
+      () => root(h1(Math.min(tsz, 120), titleColor, 'margin-bottom:' + px(36) + ';') + '<div>' + rows.map(r => '<div data-ps="1" style="background:' + accent + ';color:' + ink(accent) + ';padding:' + px(22) + ' ' + px(36) + ';margin-bottom:' + px(14) + ';">' + (r.label ? lab(r.label, ink(accent)) : '') + '<div data-pt="1" style="font-size:' + fs(60) + ';line-height:1.15;">' + esc(r.text) + '</div></div>').join('') + '</div>' + logo(white, side + 'px', pad + 'px'))
     ];
     // Layouts 1 and 4 are built around label/value rows. With no rows, 1 leaves
     // half the screen empty and 4 renders the same as 2, so a statement screen
@@ -1215,6 +1215,119 @@ class Component extends DCLogic {
   loadScript(src) {
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src.split('/')[2])); document.head.appendChild(s); });
   }
+  static PPTX_FONTS = { display: 'Rhymes Display', sans: 'Gal Gothic' };
+  pxHex(c) { let h = String(c == null ? '#000000' : c).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return (h.length === 6 ? h : '000000').toUpperCase(); }
+  geom(root, el) {
+    if (!root || !el) return null;
+    const R = root.getBoundingClientRect(), r = el.getBoundingClientRect(), sc = (R.width / (root.offsetWidth || R.width)) || 1;
+    if (!r.width && !r.height) return null;
+    return { x: (r.left - R.left) / sc, y: (r.top - R.top) / sc, w: r.width / sc, h: r.height / sc };
+  }
+  imgData(img) {
+    if (!img) return '';
+    this._imgCache = this._imgCache || {};
+    const src = img.getAttribute('src') || img.src || '';
+    if (this._imgCache[src]) return this._imgCache[src];
+    try {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || img.width || 128; c.height = img.naturalHeight || img.height || 128;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      return (this._imgCache[src] = c.toDataURL('image/png'));
+    } catch (e) { return ''; }
+  }
+  cssRGB(v) {
+    const m = /rgba?\(([^)]+)\)/.exec(String(v || ''));
+    if (!m) return null;
+    const p = m[1].split(',').map(x => parseFloat(x));
+    if (p.length < 3 || p.slice(0, 3).some(isNaN)) return null;
+    return { hex: p.slice(0, 3).map(n => ('0' + Math.max(0, Math.min(255, Math.round(n))).toString(16)).slice(-2)).join('').toUpperCase(), alpha: p.length > 3 && !isNaN(p[3]) ? p[3] : 1 };
+  }
+  ppFont(fam) {
+    const f = String(fam || '').split(',')[0].replace(/["']/g, '').trim(), F = Component.PPTX_FONTS;
+    return /rhymes/i.test(f) ? F.display : /gal gothic|lausanne/i.test(f) ? F.sans : (f || F.sans);
+  }
+  ppRuns(el, cs) {
+    const PT = v => Math.round(v * 0.75 * 100) / 100, out = [];
+    const push = (txt, st) => {
+      if (!String(txt).trim()) return;
+      const col = this.cssRGB(st.color), ls = parseFloat(st.letterSpacing) || 0;
+      out.push({ text: /upper/i.test(st.textTransform) ? String(txt).toUpperCase() : String(txt), options: { fontFace: this.ppFont(st.fontFamily), fontSize: PT(parseFloat(st.fontSize) || 16), color: col ? col.hex : '000000', charSpacing: ls ? PT(ls) : 0, breakLine: false } });
+    };
+    Array.prototype.forEach.call(el.childNodes, n => { if (n.nodeType === 3) push(n.nodeValue, cs); else if (n.nodeType === 1) push(n.textContent, window.getComputedStyle(n)); });
+    if (!out.length) push(el.textContent, cs);
+    return out;
+  }
+  ppRoom(g, blockers, floor) {
+    let b = floor;
+    (blockers || []).forEach(o => { if (o && o.y > g.y + 2 && o.x < g.x + g.w - 2 && o.x + o.w > g.x + 2) b = Math.min(b, o.y); });
+    return Math.max(g.h, b - g.y);
+  }
+  pptxExtraSlide(pptx, s, D) {
+    const root = this.nodes[s.key], scr = root && root.querySelector('.screen');
+    if (!scr) return null;
+    const IN = v => v / 96, PT = v => Math.round(v * 0.75 * 100) / 100;
+    const list = sel => Array.prototype.map.call(scr.querySelectorAll(sel), el => ({ el, g: this.geom(root, el) })).filter(o => o.g);
+    const sl = pptx.addSlide(), bg = this.cssRGB(window.getComputedStyle(scr).backgroundColor);
+    sl.background = { color: bg ? bg.hex : '000000' };
+    const shapes = list('[data-ps]'), rules = list('[data-pb]'), imgs = list('img'), texts = list('[data-pt]');
+    const blockers = shapes.concat(imgs, texts).map(o => o.g);
+    const rect = (g, c) => {
+      if (!g || g.w < 0.5 || g.h < 0.5 || !c || !c.alpha) return;
+      const fill = { color: c.hex };
+      if (c.alpha < 1) fill.transparency = Math.round((1 - c.alpha) * 100);
+      sl.addShape(pptx.ShapeType.rect, { x: IN(g.x), y: IN(g.y), w: IN(g.w), h: IN(g.h), fill, line: { type: 'none' } });
+    };
+    shapes.forEach(o => rect(o.g, this.cssRGB(window.getComputedStyle(o.el).backgroundColor)));
+    rules.forEach(o => {
+      const st = window.getComputedStyle(o.el), bw = parseFloat(st.borderTopWidth) || 0;
+      if (bw) rect({ x: o.g.x, y: o.g.y, w: o.g.w, h: Math.max(bw, 1) }, this.cssRGB(st.borderTopColor));
+    });
+    imgs.forEach(o => { const data = this.imgData(o.el); if (data) sl.addImage({ data, x: IN(o.g.x), y: IN(o.g.y), w: IN(o.g.w), h: IN(o.g.h) }); });
+    texts.forEach(o => {
+      const cs = window.getComputedStyle(o.el), runs = this.ppRuns(o.el, cs);
+      if (!runs.length) return;
+      const lh = parseFloat(cs.lineHeight), al = cs.textAlign;
+      const opt = { x: IN(o.g.x), y: IN(o.g.y), w: IN(o.g.w), h: IN(this.ppRoom(o.g, blockers, D.H - Math.round(20 * D.k))), align: al === 'center' ? 'center' : al === 'right' ? 'right' : 'left', valign: 'top', margin: 0, wrap: true, fit: 'shrink' };
+      if (lh) opt.lineSpacing = PT(lh);
+      sl.addText(runs, opt);
+    });
+    return sl;
+  }
+  pptxTextSlide(pptx, s, D) {
+    const IN = v => v / 96, PT = v => Math.round(v * 0.75 * 100) / 100, F = Component.PPTX_FONTS, hex = c => this.pxHex(c);
+    const root = this.nodes[s.key], sl = pptx.addSlide();
+    sl.background = { color: hex(s.bg) };
+    const rEl = root && root.querySelector('[data-ref]'), rImg = rEl && rEl.querySelector('img'), rSpan = rEl && rEl.querySelector('span');
+    const gri = this.geom(root, rImg), grs = this.geom(root, rSpan), gt = this.geom(root, root && root.querySelector('[data-title]'));
+    const gv = this.geom(root, root && root.querySelector('p[data-verse]')) || { y: D.pad, h: D.availH };
+    const runs = [];
+    (s.tokens || []).forEach(t => {
+      const kw = !!t.kw, m = kw && /^(\d+(?:\.\d+)?)px$/.exec(String(t.fs || '')), fs = m ? parseFloat(m[1]) : s.size;
+      const txt = kw ? String(t.text).toUpperCase() : String(t.text);
+      if (txt) runs.push({ text: txt, options: { fontFace: kw ? F.sans : F.display, fontSize: PT(fs), color: hex(kw ? t.color : s.vColor), breakLine: false } });
+      if (t.br && runs.length) runs[runs.length - 1].options.breakLine = true;
+    });
+    if (runs.length) {
+      const lhPx = typeof s.lh === 'string' ? parseFloat(s.lh) : s.size * (parseFloat(s.lh) || 1.14);
+      const box = { x: D.side, y: gv.y, w: D.textW, h: gv.h };
+      sl.addText(runs, { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(this.ppRoom(box, [gri, grs, gt], D.H - Math.round(20 * D.k))), align: D.wide ? 'center' : 'left', valign: 'top', margin: 0, lineSpacing: PT(lhPx), wrap: true, fit: 'shrink' });
+    }
+    if (s.hasRef) {
+      const data = gri ? this.imgData(rImg) : '';
+      if (gri && data) sl.addImage({ data, x: IN(gri.x), y: IN(gri.y), w: IN(gri.w), h: IN(gri.h) });
+      if (grs) {
+        const rr = [{ text: String(s.ref || '').toUpperCase(), options: { fontFace: F.sans, fontSize: PT(D.ref), color: hex(s.text), charSpacing: PT(D.ref) * 0.22 } }];
+        if (s.trans) rr.push({ text: '   ' + String(s.trans).toUpperCase(), options: { fontFace: F.sans, fontSize: PT(D.ref * 0.5), color: hex(s.text), charSpacing: PT(D.ref * 0.5) * 0.22 } });
+        sl.addText(rr, { x: IN(grs.x), y: IN(grs.y), w: IN(Math.max(grs.w * 1.5, D.ref * 10)), h: IN(grs.h), align: 'left', valign: 'middle', margin: 0, wrap: false, fit: 'none' });
+      }
+    }
+    if (gt) {
+      const ts = Math.round(28 * D.k);
+      sl.addText([{ text: String(this.state.title || '').trim().toUpperCase(), options: { fontFace: F.sans, fontSize: PT(ts), color: hex(s.text), charSpacing: PT(ts) * 0.22 } }],
+        { x: IN(gt.x), y: IN(gt.y), w: IN(gt.w), h: IN(gt.h), align: D.wide ? 'center' : 'right', valign: 'middle', margin: 0, wrap: false, fit: 'none' });
+    }
+    return sl;
+  }
   exportAs = async fmt => {
     this.setState({ pulse: false, menu: false });
     if (this.state.exporting != null) return;
@@ -1225,17 +1338,31 @@ class Component extends DCLogic {
     try {
       if (fmt === 'pptx' && !window.PptxGenJS) await this.loadScript('https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
       await document.fonts.ready;
-      const D = this.dims(), fontEmbedCSS = await H.getFontEmbedCSS(this.nodes[slides[0].key]);
+      const D = this.dims(), IN = v => v / 96;
       const zip = fmt === 'png' ? new Z() : null, pptx = fmt === 'pptx' ? new window.PptxGenJS() : null;
+      let fontEmbedCSS = null;
+      const shot = async node => {
+        if (fontEmbedCSS == null) fontEmbedCSS = await H.getFontEmbedCSS(node);
+        return H.toBlob(node, { width: D.W, height: D.H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
+      };
+      const toData = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
       if (pptx) { pptx.defineLayout({ name: 'SCREEN', width: D.W / 96, height: D.H / 96 }); pptx.layout = 'SCREEN'; }
       for (let i = 0; i < slides.length; i++) {
-        const blob = await H.toBlob(this.nodes[slides[i].key], { width: D.W, height: D.H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
-        if (zip) zip.file(slides[i].file, blob);
+        const s = slides[i];
+        if (zip) zip.file(s.file, await shot(this.nodes[s.key]));
         else {
-          const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
-          const sl = pptx.addSlide();
-          sl.addImage({ data, x: 0, y: 0, w: D.W / 96, h: D.H / 96 });
-          sl.addNotes(((slides[i].ref ? slides[i].ref + ': ' : '') + slides[i].tokens.map(t => t.text).join('')).trim());
+          let sl;
+          if (s.isText) sl = this.pptxTextSlide(pptx, s, D);
+          else if (s.isImage) {
+            sl = pptx.addSlide(); sl.background = { color: '000000' };
+            const src = s.imgUrl || '', key = /^data:/.test(src) ? 'data' : 'path';
+            sl.addImage({ [key]: src, x: 0, y: 0, w: IN(D.W), h: IN(D.H), sizing: { type: 'contain', w: IN(D.W), h: IN(D.H) } });
+          } else {
+            sl = this.pptxExtraSlide(pptx, s, D);
+            if (!sl) { sl = pptx.addSlide(); sl.addImage({ data: await toData(await shot(this.nodes[s.key])), x: 0, y: 0, w: IN(D.W), h: IN(D.H) }); }
+          }
+          const node = this.nodes[s.key];
+          sl.addNotes((s.isExtra && node ? String(node.textContent || '').replace(/\s+/g, ' ') : (s.ref ? s.ref + ': ' : '') + (s.tokens || []).map(t => t.text).join('')).trim() || s.name || '');
         }
         this.setState({ exporting: i + 1 });
       }
