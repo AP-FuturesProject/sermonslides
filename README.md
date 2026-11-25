@@ -22,6 +22,14 @@ Nothing commits until blur, so no state changes and nothing re-renders while som
 
 ## Checking your words (Step 3)
 
+### Not added
+
+Under the box, a **Not added** list shows every line of the document that did not become a screen — the pastor's points, headings, illustration cues and prose. Clicking a line finds and selects it in the box above; **Make a screen** turns it into one.
+
+`leftOut` derives the list rather than tracking it: every passage records the line indexes it came from, so whatever is left over is the remainder. **Make a screen** writes `*SCREEN ` onto the front of the line, which is already how a non-scripture line becomes a screen, so the slide appears in document order — where the point sits in the notes, not at the end. The `*SCREEN` marker fades in the box the same way `**` does.
+
+To take a screen back out, delete the `*SCREEN ` marker in the box; deleting the slide with its × removes the line from the document altogether.
+
 The importers write `**` around any words the uploaded document had in bold, so a volunteer opens Step 3 and finds markup they never typed. The box now shows formatting instead of markup: highlighted words appear in violet and the `**` fade back to near-invisible grey.
 
 It works by letting the existing highlight overlay carry the visible text and making the textarea's own text transparent. The textarea keeps the caret, selection, spellcheck and native undo underneath, so **every character has to occupy exactly the width it does in the textarea**. That is why the markers are faded rather than hidden or shrunk, and why the violet words get their weight from `-webkit-text-stroke` rather than a bolder face — either would change advance widths and the two layers would drift apart. If you touch `hlHtml`, keep that rule.
