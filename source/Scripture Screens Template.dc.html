@@ -18,7 +18,7 @@
 <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
-<style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);color:transparent;animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
+<style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
 <div style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
   <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
@@ -86,8 +86,8 @@
         <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
         </sc-if><button onClick="{{ toggleStep3 }}" aria-expanded="{{ open3 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 3</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev3 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed3 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Check your words</span></sc-if></button><sc-if value="{{ open3 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
-        <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
-        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type. Words in violet come out big and highlighted on the screen.</span>
+        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:#000; pointer-events:none; border-radius:12px; z-index:1;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:transparent; caret-color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div><div style="display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-top:10px;"><button onClick="{{ toggleBold }}" style="flex:none; padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Highlight words</button><span style="flex:1 1 180px; font-size:13px; line-height:1.4; color:#555;">Click a word, or select a few, then press Highlight to make them stand out on the screen. Press it again to undo.</span></div>
         </sc-if><button onClick="{{ toggleStep4 }}" aria-expanded="{{ open4 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 4</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev4 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed4 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Illustration Screens</span></sc-if></button><sc-if value="{{ open4 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Illustration Screens</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Use this tool if you would like to make a basic information screen to insert into your sermon.</span>
@@ -129,7 +129,7 @@
           </div>
           <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
             <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isStyled }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.stRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
-              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
+              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span data-kw="1" style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
                 <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
@@ -255,11 +255,12 @@ class Component extends DCLogic {
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', undo: null, attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
+  componentDidMount() { this.paintHl(); document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidUpdate() { this.paintHl(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
+      if (this._editKey) return;
       const D = this.dims(), upd = {};
       for (const s of this.slides || []) {
         const node = this.nodes[s.key]; if (!node) continue;
@@ -299,7 +300,7 @@ class Component extends DCLogic {
   dragDown = e => {
     if (this._drag || (e.button !== undefined && e.button !== 0)) return;
     const s = this.state; if (s.illus || s.zoom || s.showExample || s.menu) return;
-    const t = e.target; if (!t || !t.closest || t.closest('button, select, input, textarea, a, label')) return;
+    const t = e.target; if (!t || !t.closest || t.closest('button, select, input, textarea, a, label, [contenteditable="true"]')) return;
     const card = t.closest('[data-vk]'); if (!card) return;
     const r = card.getBoundingClientRect();
     const d = this._drag = { vk: card.getAttribute('data-vk'), card, x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, id: e.pointerId, type: e.pointerType, on: false, target: null, side: 'after' };
@@ -402,7 +403,7 @@ class Component extends DCLogic {
     const f = e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) this.loadFile(f);
   };
-  onText = e => { this.clearHl(); this.setState({ text: e.target.value }); };
+  onText = e => { this._hlMark = null; this.setState({ text: e.target.value }); };
 
   imgMime(b) {
     if (b[0] === 0x89 && b[1] === 0x50) return 'image/png';
@@ -645,6 +646,108 @@ class Component extends DCLogic {
     const out = {};
     for (const k of Object.keys(c || {})) { const a = +k; if (!whole || a < pi) out[a] = c[k]; else if (a > pi) out[a - 1] = c[k]; }
     return out;
+  }
+  // Slides are derived from the document text and nothing else is stored, so
+  // editing on a slide has to write back to that text. A passage's words live
+  // at [base+vs, base+ve) in the source; rebuilding every chunk's pieces with
+  // this chunk's replaced regenerates them, markers and all. Same splice as
+  // deleteSlide, substituting instead of removing.
+  domPieces(root) {
+    const chars = [];
+    const walk = (n, b) => {
+      Array.prototype.forEach.call(n.childNodes, c => {
+        if (c.nodeType === 3) { const s = this.clean(c.nodeValue || ''); for (let i = 0; i < s.length; i++) chars.push({ c: s[i], b, o: 0 }); }
+        else if (c.nodeName === 'BR') chars.push({ c: ' ', b, o: 0 });
+        else if (c.nodeType === 1) walk(c, b || c.getAttribute('data-kw') === '1');
+      });
+    };
+    walk(root, false);
+    return this.pieces(chars);
+  }
+  // While a slide is being edited nothing re-renders, by design, so the usual
+  // fit never runs and the words would simply spill off the screen as they are
+  // typed. This shrinks them in the DOM alone - no state, no re-render, so the
+  // caret survives - mirroring checkFit's limits in rendered pixels. The commit
+  // clears it and the real fit and re-chunk take over.
+  fitLive(k, el) {
+    const root = this.nodes[k]; if (!root || !el) return;
+    const D = this.dims(), ref = root.querySelector('[data-ref]'), title = root.querySelector('[data-title]');
+    const over = () => {
+      const rr = root.getBoundingClientRect(), sc = rr.width / (root.offsetWidth || rr.width || 1);
+      const bottom = (D.wide && ref ? ref : el).getBoundingClientRect().bottom;
+      const limit = D.wide
+        ? (title ? title.getBoundingClientRect().top - 24 * D.k * sc : rr.bottom - D.pad * 0.6 * sc)
+        : (ref ? ref.getBoundingClientRect().top - 40 * D.k * sc : rr.bottom - D.pad * sc);
+      return bottom > limit;
+    };
+    let f = parseFloat(el.style.zoom) || 1;
+    for (let i = 0; i < 40 && f > 0.25 && over(); i++) { f *= 0.94; el.style.zoom = String(f); }
+    // Grow back when words are deleted, so the slide does not stay shrunken.
+    for (let i = 0; i < 40 && f < 1; i++) {
+      const n = Math.min(1, f / 0.94); el.style.zoom = n === 1 ? '' : String(n);
+      if (over()) { el.style.zoom = String(f); break; }
+      f = n;
+    }
+  }
+  restoreVerse(el) {
+    const kids = this._editKids;
+    if (!el || !kids) return;
+    kids.forEach(o => {
+      if (o.n.nodeType === 3) { if (o.n.nodeValue !== o.v) o.n.nodeValue = o.v; }
+      else if (o.n.innerHTML !== o.v) o.n.innerHTML = o.v;
+    });
+    el.replaceChildren.apply(el, kids.map(o => o.n));
+    this._editKids = null;
+  }
+  commitVerse(pi, ci, el) {
+    if (!el) return;
+    const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi];
+    const ps = this.domPieces(el);
+    // Hand the element back exactly as it was rendered, before anything else.
+    // Re-setting innerHTML is not enough: that builds fresh nodes, and the
+    // renderer is holding the originals by identity, so its next diff still
+    // throws removeChild and unmounts the whole page. The original node
+    // objects go back, contents and all; the new words arrive through the
+    // state change below.
+    this.restoreVerse(el);
+    // Emptying a slide is a delete, and that has its own button and its own undo.
+    if (!P || !chunks || !chunks[ci] || !ps.length) return;
+    const body = this.buildPieces(chunks.flatMap((c, j) => (j === ci ? ps : c.ps)));
+    const pre = text.slice(P.base, P.base + P.vs), suf = text.slice(P.base + P.ve, P.base + P.len);
+    const nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
+    if (nt === text) return;
+    this._hlMark = null;
+    this.setState({ text: nt, fit: {} });
+  }
+  verseRef(k, pi, ci) {
+    this.vFns = this.vFns || {};
+    this.vFns[k] = this.vFns[k] || (el => {
+      if (!el || el._vWired) return;
+      el._vWired = true;
+      const stop = e => e.stopPropagation();
+      el.addEventListener('mousedown', stop);
+      el.addEventListener('click', stop);
+      el.addEventListener('focus', () => {
+        this._editKey = k; this._editSnap = el.innerHTML;
+        // The renderer tracks these child nodes by identity. contenteditable will
+        // delete and rebuild them behind its back, so keep the node objects
+        // themselves, not their markup, to give back afterwards.
+        this._editKids = Array.prototype.map.call(el.childNodes, n => ({ n, v: n.nodeType === 3 ? n.nodeValue : n.innerHTML }));
+      });
+      el.addEventListener('input', () => this.fitLive(k, el));
+      el.addEventListener('blur', () => { if (this._editKey !== k) return; this._editKey = null; el.style.zoom = ''; this.commitVerse(pi, ci, el); });
+      // Keep pasted text plain; the slide's own markup carries the highlighting.
+      el.addEventListener('paste', e => {
+        e.preventDefault();
+        const d = e.clipboardData || window.clipboardData;
+        document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; this.restoreVerse(el); el.blur(); }
+      });
+    });
+    return this.vFns[k];
   }
   deleteSlide(pi, ci) {
     const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi], lines = (this._plines || [])[pi];
@@ -1190,7 +1293,7 @@ class Component extends DCLogic {
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), cardTitle: 'Click the words to fix a typo', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
@@ -1208,7 +1311,7 @@ class Component extends DCLogic {
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
-  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); if (e.key === 'Escape' && this.state.zoom) this.setState({ zoom: null }); };
+  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); if (e.key === 'Escape' && this.state.zoom) this.setState({ zoom: null }); if ((e.key === 'b' || e.key === 'B') && (e.metaKey || e.ctrlKey) && !e.altKey && this.ta && document.activeElement === this.ta) { e.preventDefault(); this.toggleBold(); } };
   exportPng = () => this.exportAs('png');
   exportPptx = () => this.exportAs('pptx');
   exportAll = () => this.exportAs('png');
@@ -1410,16 +1513,80 @@ class Component extends DCLogic {
   traditional = () => this.setState({ overrides: {}, trad: true });
   taRef = el => {
     if (this.ta && this.ta !== el) { this.ta.removeEventListener('scroll', this.syncHl); this.ta.removeEventListener('paste', this.onPaste); }
-    this.ta = el; if (el) { el.addEventListener('scroll', this.syncHl); el.addEventListener('paste', this.onPaste); }
+    this.taRo && this.taRo.disconnect();
+    // The box can be dragged taller, and the overlay clips to its own height,
+    // so it has to follow the textarea rather than be sized once.
+    this.ta = el; if (el) { el.addEventListener('scroll', this.syncHl); el.addEventListener('paste', this.onPaste); this.paintHl(); this.taRo = new ResizeObserver(this.syncHl); this.taRo.observe(el); }
   };
-  hlRef = el => { this.hl = el; };
+  hlRef = el => { this.hl = el; if (el) this.paintHl(); };
+  // The overlay sits above the textarea and supplies the visible text, so the
+  // words a document had in bold can be shown coloured instead of wrapped in
+  // asterisks nobody typed. The textarea keeps its own caret, selection and
+  // spellcheck underneath, so every character must occupy exactly the width it
+  // does in the textarea: the markers are faded, never hidden or resized, and
+  // weight comes from a stroke rather than a bolder face.
+  hlHtml(text, mark) {
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let on = false;
+    const run = s => {
+      let out = '', i = 0, m; const re = /\*\*/g;
+      while ((m = re.exec(s))) {
+        const seg = s.slice(i, m.index);
+        out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(seg) + '</span>' : esc(seg);
+        out += '<span style="color:rgba(0,0,0,0.15)">**</span>';
+        on = !on; i = m.index + 2;
+      }
+      const t = s.slice(i);
+      out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(t) + '</span>' : esc(t);
+      return out;
+    };
+    if (!mark) return run(text) + '&#8203;';
+    return run(text.slice(0, mark[0])) + '<mark class="fc-hl">' + run(text.slice(mark[0], mark[1])) + '</mark>' + run(text.slice(mark[1])) + '&#8203;';
+  }
+  paintHl = () => {
+    const ta = this.ta, hl = this.hl; if (!ta || !hl) return;
+    const cs = getComputedStyle(ta);
+    for (const k of ['font', 'letterSpacing', 'wordSpacing', 'textRendering', 'fontKerning', 'fontFeatureSettings', 'fontVariantLigatures', 'textIndent', 'tabSize', 'wordBreak']) hl.style[k] = cs[k];
+    hl.style.padding = cs.padding; hl.style.border = cs.borderTopWidth + ' solid transparent';
+    hl.innerHTML = this.hlHtml(this.state.text, this._hlMark);
+    this.syncHl();
+  };
+  // Highlighting works on the selection, or on the word under the caret when
+  // there is none, so nobody has to type or count asterisks.
+  toggleBold = () => {
+    const ta = this.ta; if (!ta) return;
+    const text = this.state.text;
+    let a = ta.selectionStart, b = ta.selectionEnd;
+    if (a == null || b == null) return;
+    if (a === b) {
+      while (a > 0 && /\S/.test(text[a - 1])) a--;
+      while (b < text.length && /\S/.test(text[b])) b++;
+    }
+    const spans = []; const re = /\*\*([\s\S]*?)\*\*/g; let m;
+    while ((m = re.exec(text))) spans.push([m.index, m.index + m[0].length]);
+    const hit = spans.find(s => a >= s[0] && b <= s[1]);
+    let nt, na, nb;
+    if (hit) {
+      nt = text.slice(0, hit[0]) + text.slice(hit[0] + 2, hit[1] - 2) + text.slice(hit[1]);
+      na = Math.max(hit[0], a - 2); nb = Math.max(na, Math.min(b, hit[1] - 4) - 2);
+    } else {
+      while (a < b && /\s/.test(text[a])) a++;
+      while (b > a && /\s/.test(text[b - 1])) b--;
+      if (a === b) return;
+      nt = text.slice(0, a) + '**' + text.slice(a, b) + '**' + text.slice(b);
+      na = a + 2; nb = b + 2;
+    }
+    this._hlMark = null;
+    this.setState({ text: nt });
+    setTimeout(() => { const t = this.ta; if (!t) return; t.focus(); t.setSelectionRange(na, nb); this.paintHl(); }, 0);
+  };
   syncHl = () => {
     const ta = this.ta, hl = this.hl; if (!ta || !hl) return;
     const cs = getComputedStyle(ta), bw = (parseFloat(cs.borderLeftWidth) || 0) * 2, sb = Math.max(0, ta.offsetWidth - ta.clientWidth - bw);
     hl.style.width = (ta.getBoundingClientRect().width - sb) + 'px'; hl.style.height = ta.offsetHeight + 'px';
     hl.scrollTop = ta.scrollTop;
   };
-  clearHl = () => { if (this.hl) this.hl.innerHTML = ''; };
+  clearHl = () => { this._hlMark = null; this.paintHl(); };
   selectSource(pi) {
     const ta = this.ta, hl = this.hl, lines = (this._plines || [])[pi];
     if (this.state.open && this.state.open[3] === false) { this.setState(s => ({ open: { ...s.open, 3: true } })); setTimeout(() => this.selectSource(pi), 80); return; }
@@ -1428,10 +1595,8 @@ class Component extends DCLogic {
     while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
     const a = off[lines[0]], b = off[lines[lines.length - 1]];
     if (!a || !b) return;
-    const cs = getComputedStyle(ta), esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    for (const k of ['font', 'letterSpacing', 'wordSpacing', 'textRendering', 'fontKerning', 'fontFeatureSettings', 'fontVariantLigatures', 'textIndent', 'tabSize', 'wordBreak']) hl.style[k] = cs[k]; hl.style.padding = cs.padding; hl.style.border = cs.borderTopWidth + ' solid transparent';
-    hl.innerHTML = esc(text.slice(0, a[0])) + '<mark class="fc-hl">' + esc(text.slice(a[0], b[1])) + '</mark>' + esc(text.slice(b[1])) + '&#8203;';
-    this.syncHl();
+    this._hlMark = [a[0], b[1]];
+    this.paintHl();
     const mk = hl.querySelector('mark');
     ta.scrollTop = Math.max(0, mk.offsetTop - ta.clientHeight / 3);
     this.syncHl();
@@ -1455,7 +1620,7 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, toggleBold: this.toggleBold, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axTidy: this.axTidy, axTidyLabel: ax.undo == null ? 'Tidy notes' : 'Undo tidy', axTidyStyle: { padding: '8px 16px', border: '1px solid ' + ((ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.25)'), borderRadius: 999, background: '#fff', color: (ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.45)', fontFamily: 'var(--font-sans)', fontSize: 14, cursor: 'pointer' }, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,
