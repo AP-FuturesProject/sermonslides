@@ -1318,6 +1318,16 @@ class Component extends DCLogic {
   loadScript(src) {
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src.split('/')[2])); document.head.appendChild(s); });
   }
+  exportName() {
+    const t = String(this.state.title || '').trim();
+    if (!t) return 'scripture-screens';
+    const shout = t === t.toUpperCase();
+    const w = t.replace(/['\u2019]/g, '').split(/[^A-Za-z0-9]+/).filter(Boolean)
+      .map(x => !shout && /^[A-Z0-9]{1,4}$/.test(x) ? x : x.charAt(0).toUpperCase() + x.slice(1).toLowerCase());
+    let slug = '';
+    w.forEach(x => { if (!slug || slug.length + x.length <= 60) slug += x; });
+    return slug ? slug + '-sermonslides' : 'scripture-screens';
+  }
   static PPTX_FONTS = { display: 'Rhymes Display', sans: 'Gal Gothic' };
   pxHex(c) { let h = String(c == null ? '#000000' : c).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return (h.length === 6 ? h : '000000').toUpperCase(); }
   geom(root, el) {
@@ -1470,7 +1480,7 @@ class Component extends DCLogic {
         this.setState({ exporting: i + 1 });
       }
       const out = zip ? await zip.generateAsync({ type: 'blob' }) : await pptx.write({ outputType: 'blob' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = zip ? 'scripture-screens.zip' : 'scripture-screens.pptx';
+      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = this.exportName() + (zip ? '.zip' : '.pptx');
       document.body.appendChild(a); a.click(); a.remove();
     } catch (err) { this.setState({ error: 'Export failed: ' + (err && err.message || err) }); }
     this.setState({ exporting: null });
