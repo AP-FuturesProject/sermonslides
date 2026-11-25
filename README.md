@@ -10,6 +10,10 @@ Self-serve web tool: upload a sermon doc (.docx, .pdf, .odt, .rtf, .html, .txt/.
 
 Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
+## Download file names
+
+If a message title has been entered, the downloaded file is named after it: `Don't Hold Back` gives `DontHoldBack-sermonslides.zip` / `.pptx`. The title is run together in title case, punctuation dropped, long titles trimmed at a word boundary. A title typed in caps is normalised (`DON'T HOLD BACK` also gives `DontHoldBack`), but an acronym inside an otherwise mixed-case title is kept (`NYE Service` gives `NYEService`). Any title text is used, whether or not the toggle puts it on the screens. With no title the name stays `scripture-screens`. The numbered names inside the zip are unchanged — they carry each screen's reference.
+
 ## PowerPoint export (editable, for ProPresenter)
 
 **Download screens → PowerPoint** builds real PowerPoint objects, not pictures: each scripture screen is a solid-colour slide with a live text box (body in Rhymes Display, bold keywords in Gal Gothic uppercase at the accent colour), the ray mark as a placed image, and separate text boxes for the reference and the message title. Geometry is measured off the live preview node, so position, size, line spacing and letter-spacing match the PNG. ProPresenter imports the .pptx and the operator can fix a typo in place during a service.
