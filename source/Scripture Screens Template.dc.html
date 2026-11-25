@@ -664,12 +664,54 @@ class Component extends DCLogic {
     walk(root, false);
     return this.pieces(chars);
   }
+  // While a slide is being edited nothing re-renders, by design, so the usual
+  // fit never runs and the words would simply spill off the screen as they are
+  // typed. This shrinks them in the DOM alone - no state, no re-render, so the
+  // caret survives - mirroring checkFit's limits in rendered pixels. The commit
+  // clears it and the real fit and re-chunk take over.
+  fitLive(k, el) {
+    const root = this.nodes[k]; if (!root || !el) return;
+    const D = this.dims(), ref = root.querySelector('[data-ref]'), title = root.querySelector('[data-title]');
+    const over = () => {
+      const rr = root.getBoundingClientRect(), sc = rr.width / (root.offsetWidth || rr.width || 1);
+      const bottom = (D.wide && ref ? ref : el).getBoundingClientRect().bottom;
+      const limit = D.wide
+        ? (title ? title.getBoundingClientRect().top - 24 * D.k * sc : rr.bottom - D.pad * 0.6 * sc)
+        : (ref ? ref.getBoundingClientRect().top - 40 * D.k * sc : rr.bottom - D.pad * sc);
+      return bottom > limit;
+    };
+    let f = parseFloat(el.style.zoom) || 1;
+    for (let i = 0; i < 40 && f > 0.25 && over(); i++) { f *= 0.94; el.style.zoom = String(f); }
+    // Grow back when words are deleted, so the slide does not stay shrunken.
+    for (let i = 0; i < 40 && f < 1; i++) {
+      const n = Math.min(1, f / 0.94); el.style.zoom = n === 1 ? '' : String(n);
+      if (over()) { el.style.zoom = String(f); break; }
+      f = n;
+    }
+  }
+  restoreVerse(el) {
+    const kids = this._editKids;
+    if (!el || !kids) return;
+    kids.forEach(o => {
+      if (o.n.nodeType === 3) { if (o.n.nodeValue !== o.v) o.n.nodeValue = o.v; }
+      else if (o.n.innerHTML !== o.v) o.n.innerHTML = o.v;
+    });
+    el.replaceChildren.apply(el, kids.map(o => o.n));
+    this._editKids = null;
+  }
   commitVerse(pi, ci, el) {
+    if (!el) return;
     const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi];
-    if (!P || !chunks || !chunks[ci] || !el) return;
     const ps = this.domPieces(el);
+    // Hand the element back exactly as it was rendered, before anything else.
+    // Re-setting innerHTML is not enough: that builds fresh nodes, and the
+    // renderer is holding the originals by identity, so its next diff still
+    // throws removeChild and unmounts the whole page. The original node
+    // objects go back, contents and all; the new words arrive through the
+    // state change below.
+    this.restoreVerse(el);
     // Emptying a slide is a delete, and that has its own button and its own undo.
-    if (!ps.length) { if (this._editSnap != null) el.innerHTML = this._editSnap; return; }
+    if (!P || !chunks || !chunks[ci] || !ps.length) return;
     const body = this.buildPieces(chunks.flatMap((c, j) => (j === ci ? ps : c.ps)));
     const pre = text.slice(P.base, P.base + P.vs), suf = text.slice(P.base + P.ve, P.base + P.len);
     const nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
@@ -685,8 +727,15 @@ class Component extends DCLogic {
       const stop = e => e.stopPropagation();
       el.addEventListener('mousedown', stop);
       el.addEventListener('click', stop);
-      el.addEventListener('focus', () => { this._editKey = k; this._editSnap = el.innerHTML; });
-      el.addEventListener('blur', () => { if (this._editKey !== k) return; this._editKey = null; this.commitVerse(pi, ci, el); });
+      el.addEventListener('focus', () => {
+        this._editKey = k; this._editSnap = el.innerHTML;
+        // The renderer tracks these child nodes by identity. contenteditable will
+        // delete and rebuild them behind its back, so keep the node objects
+        // themselves, not their markup, to give back afterwards.
+        this._editKids = Array.prototype.map.call(el.childNodes, n => ({ n, v: n.nodeType === 3 ? n.nodeValue : n.innerHTML }));
+      });
+      el.addEventListener('input', () => this.fitLive(k, el));
+      el.addEventListener('blur', () => { if (this._editKey !== k) return; this._editKey = null; el.style.zoom = ''; this.commitVerse(pi, ci, el); });
       // Keep pasted text plain; the slide's own markup carries the highlighting.
       el.addEventListener('paste', e => {
         e.preventDefault();
@@ -695,7 +744,7 @@ class Component extends DCLogic {
       });
       el.addEventListener('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; if (this._editSnap != null) el.innerHTML = this._editSnap; el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; this.restoreVerse(el); el.blur(); }
       });
     });
     return this.vFns[k];

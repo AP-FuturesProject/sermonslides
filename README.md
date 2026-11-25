@@ -18,6 +18,10 @@ Slides are derived from the document text and nothing else is stored, so an edit
 
 Two things keep the caret alive. Nothing is committed until blur, so no state changes and nothing re-renders while someone is typing; and `checkFit` bails out mid-edit, because re-fitting would re-render the very words under the cursor. Highlighted words carry `data-kw="1"` so the edit can be read back out of the DOM, and `dragDown` ignores `[contenteditable="true"]` so pressing on the words places a caret instead of picking the card up.
 
+Because the usual fit is held off while someone types, `fitLive` shrinks the words in the DOM alone — no state, no re-render — mirroring `checkFit`'s limits in rendered pixels, and grows them back as words are deleted. The commit clears it and the real fit and re-chunk take over.
+
+**`restoreVerse` is load-bearing, not tidying.** The renderer holds this element's children by identity; `contenteditable` deletes and rebuilds them behind its back, so the next render diff calls `removeChild` on nodes that are gone, throws, and unmounts the whole page — the tool goes blank. Every edit therefore hands the original node objects back before any state change. Re-setting `innerHTML` does **not** work: that builds fresh nodes and the renderer is still holding the originals.
+
 ## Checking your words (Step 3)
 
 The importers write `**` around any words the uploaded document had in bold, so a volunteer opens Step 3 and finds markup they never typed. The box now shows formatting instead of markup: highlighted words appear in violet and the `**` fade back to near-invisible grey.
