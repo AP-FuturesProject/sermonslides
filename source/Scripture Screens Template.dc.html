@@ -129,7 +129,7 @@
           </div>
           <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
             <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isStyled }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.stRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
-              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }};"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
+              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span data-kw="1" style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
                 <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
@@ -260,6 +260,7 @@ class Component extends DCLogic {
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
+      if (this._editKey) return;
       const D = this.dims(), upd = {};
       for (const s of this.slides || []) {
         const node = this.nodes[s.key]; if (!node) continue;
@@ -299,7 +300,7 @@ class Component extends DCLogic {
   dragDown = e => {
     if (this._drag || (e.button !== undefined && e.button !== 0)) return;
     const s = this.state; if (s.illus || s.zoom || s.showExample || s.menu) return;
-    const t = e.target; if (!t || !t.closest || t.closest('button, select, input, textarea, a, label')) return;
+    const t = e.target; if (!t || !t.closest || t.closest('button, select, input, textarea, a, label, [contenteditable="true"]')) return;
     const card = t.closest('[data-vk]'); if (!card) return;
     const r = card.getBoundingClientRect();
     const d = this._drag = { vk: card.getAttribute('data-vk'), card, x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, id: e.pointerId, type: e.pointerType, on: false, target: null, side: 'after' };
@@ -645,6 +646,59 @@ class Component extends DCLogic {
     const out = {};
     for (const k of Object.keys(c || {})) { const a = +k; if (!whole || a < pi) out[a] = c[k]; else if (a > pi) out[a - 1] = c[k]; }
     return out;
+  }
+  // Slides are derived from the document text and nothing else is stored, so
+  // editing on a slide has to write back to that text. A passage's words live
+  // at [base+vs, base+ve) in the source; rebuilding every chunk's pieces with
+  // this chunk's replaced regenerates them, markers and all. Same splice as
+  // deleteSlide, substituting instead of removing.
+  domPieces(root) {
+    const chars = [];
+    const walk = (n, b) => {
+      Array.prototype.forEach.call(n.childNodes, c => {
+        if (c.nodeType === 3) { const s = this.clean(c.nodeValue || ''); for (let i = 0; i < s.length; i++) chars.push({ c: s[i], b, o: 0 }); }
+        else if (c.nodeName === 'BR') chars.push({ c: ' ', b, o: 0 });
+        else if (c.nodeType === 1) walk(c, b || c.getAttribute('data-kw') === '1');
+      });
+    };
+    walk(root, false);
+    return this.pieces(chars);
+  }
+  commitVerse(pi, ci, el) {
+    const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi];
+    if (!P || !chunks || !chunks[ci] || !el) return;
+    const ps = this.domPieces(el);
+    // Emptying a slide is a delete, and that has its own button and its own undo.
+    if (!ps.length) { if (this._editSnap != null) el.innerHTML = this._editSnap; return; }
+    const body = this.buildPieces(chunks.flatMap((c, j) => (j === ci ? ps : c.ps)));
+    const pre = text.slice(P.base, P.base + P.vs), suf = text.slice(P.base + P.ve, P.base + P.len);
+    const nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
+    if (nt === text) return;
+    this._hlMark = null;
+    this.setState({ text: nt, fit: {} });
+  }
+  verseRef(k, pi, ci) {
+    this.vFns = this.vFns || {};
+    this.vFns[k] = this.vFns[k] || (el => {
+      if (!el || el._vWired) return;
+      el._vWired = true;
+      const stop = e => e.stopPropagation();
+      el.addEventListener('mousedown', stop);
+      el.addEventListener('click', stop);
+      el.addEventListener('focus', () => { this._editKey = k; this._editSnap = el.innerHTML; });
+      el.addEventListener('blur', () => { if (this._editKey !== k) return; this._editKey = null; this.commitVerse(pi, ci, el); });
+      // Keep pasted text plain; the slide's own markup carries the highlighting.
+      el.addEventListener('paste', e => {
+        e.preventDefault();
+        const d = e.clipboardData || window.clipboardData;
+        document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; if (this._editSnap != null) el.innerHTML = this._editSnap; el.blur(); }
+      });
+    });
+    return this.vFns[k];
   }
   deleteSlide(pi, ci) {
     const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi], lines = (this._plines || [])[pi];
@@ -1190,7 +1244,7 @@ class Component extends DCLogic {
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, cardTitle: 'Click to find this text in Step 3', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), cardTitle: 'Click the words to fix a typo', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
