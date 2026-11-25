@@ -129,7 +129,7 @@
           </div>
           <div onClick="{{ s.onSelect }}" title="{{ s.cardTitle }}" style="position:relative; aspect-ratio:{{ aspect }}; overflow:hidden; border-radius:6px; background:{{ s.bg }}; cursor:pointer;" style-hover="outline:3px solid #5d1fec; outline-offset:2px;">
             <sc-if value="{{ s.isImage }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.imgRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; background-color:#000; background-image:url('{{ s.imgUrl }}'); background-position:center; background-size:contain; background-repeat:no-repeat;"></div></sc-if><sc-if value="{{ s.isExtra }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.exRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isStyled }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.stRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden;"></div></sc-if><sc-if value="{{ s.isText }}" hint-placeholder-val="{{ false }}"><div ref="{{ s.nodeRef }}" style="position:absolute; left:0; top:0; width:{{ dW }}px; height:{{ dH }}px; transform:scale({{ scale }}); transform-origin:0 0; overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; justify-content:{{ dJustify }}; align-items:{{ dAlign }}; text-align:{{ dTextAlign }}; padding:{{ dPad }}px {{ dSide }}px {{ dPadB }}px; background:{{ s.bg }}; color:{{ s.text }};">
-              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"><sc-for list="{{ s.tokens }}" as="t"><sc-if value="{{ t.kw }}"><span data-kw="1" style="font-family:var(--font-grotesque); text-transform:uppercase; color:{{ t.color }}; font-size:{{ t.fs }}; line-height:{{ t.klh }}; position:relative; top:{{ t.top }};">{{ t.text }}</span></sc-if><sc-if value="{{ t.plain }}"><span>{{ t.text }}</span></sc-if><sc-if value="{{ t.br }}"><br></sc-if></sc-for></p>
+              <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
                 <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
@@ -256,7 +256,7 @@ class Component extends DCLogic {
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { this.paintHl(); document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.paintHl(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
+  componentDidUpdate() { this.paintHl(); (this.slides || []).forEach(s => { if (s.isText) this.paintVerse(s.key); }); this.reselectVerse(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -689,51 +689,106 @@ class Component extends DCLogic {
       f = n;
     }
   }
-  restoreVerse(el) {
-    const kids = this._editKids;
-    if (!el || !kids) return;
-    kids.forEach(o => {
-      if (o.n.nodeType === 3) { if (o.n.nodeValue !== o.v) o.n.nodeValue = o.v; }
-      else if (o.n.innerHTML !== o.v) o.n.innerHTML = o.v;
-    });
-    el.replaceChildren.apply(el, kids.map(o => o.n));
-    this._editKids = null;
+  // The words are painted here rather than rendered as template children, the
+  // way the Illustration Screens are. contenteditable rebuilds these nodes as
+  // someone types, and anything the renderer owns it also diffs - so given
+  // these children its next diff works from nodes the browser already replaced,
+  // and the slide drifts away from the document or throws and unmounts the
+  // page. Owning them here means an edit and a re-render cannot disagree.
+  verseHtml(s) {
+    const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return (s.tokens || []).map(t => (t.kw
+      ? '<span data-kw="1" style="font-family:var(--font-grotesque); text-transform:uppercase; color:' + t.color + '; font-size:' + t.fs + '; line-height:' + t.klh + '; position:relative; top:' + t.top + ';">' + esc(t.text) + '</span>'
+      : '<span>' + esc(t.text) + '</span>') + (t.br ? '<br>' : '')).join('');
   }
-  commitVerse(pi, ci, el) {
-    if (!el) return;
+  paintVerse(k) {
+    const el = this._vEls && this._vEls[k];
+    if (!el || !el.isConnected || this._editKey === k) return;
+    const s = (this.slides || []).find(x => x.key === k && x.isText);
+    if (!s || el.dataset.vkey === s.vkey) return;
+    el.innerHTML = this.verseHtml(s);
+    el.dataset.vkey = s.vkey;
+    el.style.zoom = '';
+  }
+  // Write a slide's words back into the document text. A passage's words sit at
+  // [base + vs, base + ve) in the source, so rebuilding every chunk with this
+  // one's pieces replaced regenerates them, markers and all - the same splice
+  // deleteSlide performs, substituting instead of removing.
+  spliceVerse(pi, ci, ps) {
     const text = this.state.text, P = (this._passages || [])[pi], chunks = (this._parsed || [])[pi];
-    const ps = this.domPieces(el);
-    // Hand the element back exactly as it was rendered, before anything else.
-    // Re-setting innerHTML is not enough: that builds fresh nodes, and the
-    // renderer is holding the originals by identity, so its next diff still
-    // throws removeChild and unmounts the whole page. The original node
-    // objects go back, contents and all; the new words arrive through the
-    // state change below.
-    this.restoreVerse(el);
     // Emptying a slide is a delete, and that has its own button and its own undo.
-    if (!P || !chunks || !chunks[ci] || !ps.length) return;
+    if (!P || !chunks || !chunks[ci] || !ps.length) return false;
     const body = this.buildPieces(chunks.flatMap((c, j) => (j === ci ? ps : c.ps)));
     const pre = text.slice(P.base, P.base + P.vs), suf = text.slice(P.base + P.ve, P.base + P.len);
     const nt = text.slice(0, P.base) + pre + body + suf + text.slice(P.base + P.len);
-    if (nt === text) return;
+    if (nt === text) return false;
     this._hlMark = null;
     this.setState({ text: nt, fit: {} });
+    return true;
   }
+  commitVerse(pi, ci, el) {
+    if (el) this.spliceVerse(pi, ci, this.domPieces(el));
+  }
+  // Cmd/Ctrl+B on the slide itself: flip the highlight on the selection, or on
+  // the word under the caret, and let the usual commit and repaint restyle it.
+  // The same words are re-selected afterwards so a second press undoes it.
+  toggleBoldVerse(k, pi, ci, el) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !el) return;
+    const r = sel.getRangeAt(0);
+    if (!el.contains(r.commonAncestorContainer)) return;
+    const pre = document.createRange();
+    pre.selectNodeContents(el); pre.setEnd(r.startContainer, r.startOffset);
+    const a = pre.toString().length, b = a + r.toString().length, ps = this.domPieces(el);
+    if (!ps.length) return;
+    let pos = 0; const hit = [];
+    ps.forEach((p, i) => {
+      const s0 = pos, s1 = pos + p.t.length; pos = s1 + (p.sp ? 1 : 0);
+      if (a === b ? (a >= s0 && a <= s1) : (s0 < b && s1 > a)) hit.push(i);
+    });
+    if (!hit.length) return;
+    const on = !hit.every(i => ps[i].b);
+    hit.forEach(i => { ps[i].b = on; });
+    let s0 = 0;
+    for (let i = 0; i < hit[0]; i++) s0 += ps[i].t.length + (ps[i].sp ? 1 : 0);
+    let s1 = s0;
+    hit.forEach((i, j) => { s1 += ps[i].t.length + (j < hit.length - 1 && ps[i].sp ? 1 : 0); });
+    this._editKey = null; el.style.zoom = '';
+    if (this.spliceVerse(pi, ci, ps)) this._reselect = { k: k, s0: s0, s1: s1 };
+  }
+  // Put the caret back on the same words once the slide has been repainted.
+  reselectVerse() {
+    const want = this._reselect; if (!want) return;
+    const el = this._vEls && this._vEls[want.k];
+    if (!el || !el.isConnected) return;
+    this._reselect = null;
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), r = document.createRange();
+    let pos = 0, set0 = false;
+    while (w.nextNode()) {
+      const n = w.currentNode, len = n.nodeValue.length;
+      if (!set0 && pos + len >= want.s0) { r.setStart(n, Math.max(0, want.s0 - pos)); set0 = true; }
+      if (set0 && pos + len >= want.s1) {
+        r.setEnd(n, Math.max(0, Math.min(len, want.s1 - pos)));
+        this._editKey = want.k; el.focus();
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        return;
+      }
+      pos += len;
+    }
+  }
+
   verseRef(k, pi, ci) {
-    this.vFns = this.vFns || {};
+    this.vFns = this.vFns || {}; this._vEls = this._vEls || {};
     this.vFns[k] = this.vFns[k] || (el => {
-      if (!el || el._vWired) return;
+      this._vEls[k] = el;
+      if (!el) return;
+      this.paintVerse(k);
+      if (el._vWired) return;
       el._vWired = true;
       const stop = e => e.stopPropagation();
       el.addEventListener('mousedown', stop);
       el.addEventListener('click', stop);
-      el.addEventListener('focus', () => {
-        this._editKey = k; this._editSnap = el.innerHTML;
-        // The renderer tracks these child nodes by identity. contenteditable will
-        // delete and rebuild them behind its back, so keep the node objects
-        // themselves, not their markup, to give back afterwards.
-        this._editKids = Array.prototype.map.call(el.childNodes, n => ({ n, v: n.nodeType === 3 ? n.nodeValue : n.innerHTML }));
-      });
+      el.addEventListener('focus', () => { this._editKey = k; });
       el.addEventListener('input', () => this.fitLive(k, el));
       el.addEventListener('blur', () => { if (this._editKey !== k) return; this._editKey = null; el.style.zoom = ''; this.commitVerse(pi, ci, el); });
       // Keep pasted text plain; the slide's own markup carries the highlighting.
@@ -743,8 +798,9 @@ class Component extends DCLogic {
         document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
       });
       el.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; this.restoreVerse(el); el.blur(); }
+        if ((e.key === 'b' || e.key === 'B') && (e.metaKey || e.ctrlKey) && !e.altKey) { e.preventDefault(); this.toggleBoldVerse(k, pi, ci, el); }
+        else if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; delete el.dataset.vkey; this.paintVerse(k); el.blur(); }
       });
     });
     return this.vFns[k];
@@ -1293,7 +1349,7 @@ class Component extends DCLogic {
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), cardTitle: 'Click the words to fix a typo', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), vkey: tokens.map(t => (t.kw ? '*' : '') + t.fs + ':' + t.color + ':' + t.top + ':' + (t.br ? '/' : '') + t.text).join('\u0001'), cardTitle: 'Click the words to fix them. Select and press Ctrl/Cmd + B to highlight.', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
