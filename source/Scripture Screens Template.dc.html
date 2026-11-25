@@ -39,7 +39,7 @@
         <div onClick="{{ closeMenu }}" style="position:fixed; inset:0; z-index:39;"></div>
         <div role="menu" style="position:fixed; right:max(32px, calc((100vw - 1400px) / 2)); bottom:104px; z-index:41; width:280px; background:#fff; border:1px solid #000; border-radius:14px; box-shadow:0 3px 0 #000, 0 10px 28px rgba(0,0,0,0.25); overflow:hidden; display:flex; flex-direction:column;">
           <button role="menuitem" onClick="{{ exportPng }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px; border-bottom:1px solid rgba(0,0,0,0.15);" style-hover="background:#f2f0ea;"><span>PNG images</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.zip, one picture per slide</span></button>
-          <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, one slide per screen</span></button>
+          <button role="menuitem" onClick="{{ exportPptx }}" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; padding:14px 20px; border:none; background:#fff; color:#000; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:15px;" style-hover="background:#f2f0ea;"><span>PowerPoint</span><span style="font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#5d1fec;">.pptx, editable text for ProPresenter</span></button>
         </div>
       </sc-if>
       <sc-if value="{{ undoOn }}" hint-placeholder-val="{{ false }}">
@@ -1173,6 +1173,62 @@ class Component extends DCLogic {
   loadScript(src) {
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src.split('/')[2])); document.head.appendChild(s); });
   }
+  static PPTX_FONTS = { display: 'Rhymes Display', sans: 'Gal Gothic' };
+  pxHex(c) { let h = String(c == null ? '#000000' : c).trim().replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return (h.length === 6 ? h : '000000').toUpperCase(); }
+  geom(root, el) {
+    if (!root || !el) return null;
+    const R = root.getBoundingClientRect(), r = el.getBoundingClientRect(), sc = (R.width / (root.offsetWidth || R.width)) || 1;
+    if (!r.width && !r.height) return null;
+    return { x: (r.left - R.left) / sc, y: (r.top - R.top) / sc, w: r.width / sc, h: r.height / sc };
+  }
+  imgData(img) {
+    if (!img) return '';
+    this._imgCache = this._imgCache || {};
+    const src = img.getAttribute('src') || img.src || '';
+    if (this._imgCache[src]) return this._imgCache[src];
+    try {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || img.width || 128; c.height = img.naturalHeight || img.height || 128;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      return (this._imgCache[src] = c.toDataURL('image/png'));
+    } catch (e) { return ''; }
+  }
+  pptxTextSlide(pptx, s, D) {
+    const IN = v => v / 96, PT = v => Math.round(v * 0.75 * 100) / 100, F = Component.PPTX_FONTS, hex = c => this.pxHex(c);
+    const root = this.nodes[s.key], sl = pptx.addSlide();
+    sl.background = { color: hex(s.bg) };
+    const vEl = root && root.querySelector('p[data-verse]'), gv = this.geom(root, vEl);
+    const runs = [];
+    (s.tokens || []).forEach(t => {
+      const kw = !!t.kw, m = kw && /^(\d+(?:\.\d+)?)px$/.exec(String(t.fs || '')), fs = m ? parseFloat(m[1]) : s.size;
+      const txt = kw ? String(t.text).toUpperCase() : String(t.text);
+      if (txt) runs.push({ text: txt, options: { fontFace: kw ? F.sans : F.display, fontSize: PT(fs), color: hex(kw ? t.color : s.vColor), breakLine: false } });
+      if (t.br && runs.length) runs[runs.length - 1].options.breakLine = true;
+    });
+    const lhPx = typeof s.lh === 'string' ? parseFloat(s.lh) : s.size * (parseFloat(s.lh) || 1.14);
+    if (runs.length) sl.addText(runs, {
+      x: IN(D.side), y: IN(gv ? gv.y : D.pad), w: IN(D.textW), h: IN(gv ? gv.h * 1.12 + 8 : D.availH),
+      align: D.wide ? 'center' : 'left', valign: 'top', margin: 0, lineSpacing: PT(lhPx), wrap: true, fit: 'none'
+    });
+    const rEl = root && root.querySelector('[data-ref]');
+    if (rEl && s.hasRef) {
+      const img = rEl.querySelector('img'), sp = rEl.querySelector('span');
+      const gi = this.geom(root, img), gs = this.geom(root, sp), data = this.imgData(img);
+      if (gi && data) sl.addImage({ data, x: IN(gi.x), y: IN(gi.y), w: IN(gi.w), h: IN(gi.h) });
+      if (gs) {
+        const rr = [{ text: String(s.ref || '').toUpperCase(), options: { fontFace: F.sans, fontSize: PT(D.ref), color: hex(s.text), charSpacing: PT(D.ref) * 0.22 } }];
+        if (s.trans) rr.push({ text: '   ' + String(s.trans).toUpperCase(), options: { fontFace: F.sans, fontSize: PT(D.ref * 0.5), color: hex(s.text), charSpacing: PT(D.ref * 0.5) * 0.22 } });
+        sl.addText(rr, { x: IN(gs.x), y: IN(gs.y), w: IN(Math.max(gs.w * 1.5, D.ref * 10)), h: IN(gs.h), align: 'left', valign: 'middle', margin: 0, wrap: false, fit: 'none' });
+      }
+    }
+    const tEl = root && root.querySelector('[data-title]'), gt = this.geom(root, tEl);
+    if (gt) {
+      const ts = Math.round(28 * D.k);
+      sl.addText([{ text: String(this.state.title || '').trim().toUpperCase(), options: { fontFace: F.sans, fontSize: PT(ts), color: hex(s.text), charSpacing: PT(ts) * 0.22 } }],
+        { x: IN(gt.x), y: IN(gt.y), w: IN(gt.w), h: IN(gt.h), align: D.wide ? 'center' : 'right', valign: 'middle', margin: 0, wrap: false, fit: 'none' });
+    }
+    return sl;
+  }
   exportAs = async fmt => {
     this.setState({ pulse: false, menu: false });
     if (this.state.exporting != null) return;
@@ -1183,17 +1239,30 @@ class Component extends DCLogic {
     try {
       if (fmt === 'pptx' && !window.PptxGenJS) await this.loadScript('https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
       await document.fonts.ready;
-      const D = this.dims(), fontEmbedCSS = await H.getFontEmbedCSS(this.nodes[slides[0].key]);
+      const D = this.dims(), IN = v => v / 96;
       const zip = fmt === 'png' ? new Z() : null, pptx = fmt === 'pptx' ? new window.PptxGenJS() : null;
+      let fontEmbedCSS = null;
+      const shot = async node => {
+        if (fontEmbedCSS == null) fontEmbedCSS = await H.getFontEmbedCSS(node);
+        return H.toBlob(node, { width: D.W, height: D.H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
+      };
+      const toData = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
       if (pptx) { pptx.defineLayout({ name: 'SCREEN', width: D.W / 96, height: D.H / 96 }); pptx.layout = 'SCREEN'; }
       for (let i = 0; i < slides.length; i++) {
-        const blob = await H.toBlob(this.nodes[slides[i].key], { width: D.W, height: D.H, pixelRatio: 1, fontEmbedCSS, style: { transform: 'none' } });
-        if (zip) zip.file(slides[i].file, blob);
+        const s = slides[i];
+        if (zip) zip.file(s.file, await shot(this.nodes[s.key]));
         else {
-          const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
-          const sl = pptx.addSlide();
-          sl.addImage({ data, x: 0, y: 0, w: D.W / 96, h: D.H / 96 });
-          sl.addNotes(((slides[i].ref ? slides[i].ref + ': ' : '') + slides[i].tokens.map(t => t.text).join('')).trim());
+          let sl;
+          if (s.isText) sl = this.pptxTextSlide(pptx, s, D);
+          else if (s.isImage) {
+            sl = pptx.addSlide(); sl.background = { color: '000000' };
+            const src = s.imgUrl || '', key = /^data:/.test(src) ? 'data' : 'path';
+            sl.addImage({ [key]: src, x: 0, y: 0, w: IN(D.W), h: IN(D.H), sizing: { type: 'contain', w: IN(D.W), h: IN(D.H) } });
+          } else {
+            sl = pptx.addSlide();
+            sl.addImage({ data: await toData(await shot(this.nodes[s.key])), x: 0, y: 0, w: IN(D.W), h: IN(D.H) });
+          }
+          sl.addNotes(((s.ref ? s.ref + ': ' : '') + (s.tokens || []).map(t => t.text).join('')).trim() || s.name || '');
         }
         this.setState({ exporting: i + 1 });
       }

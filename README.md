@@ -9,6 +9,18 @@ Self-serve web tool: upload a sermon doc (.docx, .pdf, .odt, .rtf, .html, .txt/.
 
 Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
+## PowerPoint export (editable, for ProPresenter)
+
+**Download screens → PowerPoint** builds real PowerPoint objects, not pictures: each scripture screen is a solid-colour slide with a live text box (body in Rhymes Display, bold keywords in Gal Gothic uppercase at the accent colour), the ray mark as a placed image, and separate text boxes for the reference and the message title. Geometry is measured off the live preview node, so position, size, line spacing and letter-spacing match the PNG. ProPresenter imports the .pptx and the operator can fix a typo in place during a service.
+
+Uploaded image slides stay as images. Illustration screens (Step 4) are still rendered to a picture per slide — their five layouts aren't mapped to PowerPoint shapes yet.
+
+Two things to check on the ProPresenter machine before relying on this:
+
+1. **Fonts.** PowerPoint and ProPresenter reference fonts by name; they are not embedded. Rhymes Display and Gal Gothic must be installed there or the text falls back to a system sans. Both are variable fonts, so the installed desktop family may be named differently (e.g. `Rhymes Display Light`) — if so, change `Component.PPTX_FONTS` in the source, which is the single place the names are set.
+2. **Import behaviour.** Confirm that ProPresenter's PowerPoint import gives editable text rather than flattening to images on that build and platform. If it flattens, the text boxes are still correct in PowerPoint itself.
+
+
 Note: `index.html` embeds licensed Futures Church brand fonts. Keep this repository private.
 
 ## Illustration Screens (Step 4)
