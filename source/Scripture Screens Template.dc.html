@@ -18,7 +18,7 @@
 <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#5d1fec"></rect><text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#ffff5f">S</text></svg></template>
-<style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);color:transparent;animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
+<style>@keyframes fcHl{0%,50%{background-color:rgba(255,255,95,1);}100%{background-color:rgba(255,255,95,0);}}.fc-hl{background-color:rgba(255,255,95,0);animation:fcHl 3s ease-out;}@keyframes fcPulse{0%{box-shadow:0 0 0 0 rgba(93,31,236,0.55);transform:scale(1);}50%{transform:scale(1.015);}70%{box-shadow:0 0 0 18px rgba(93,31,236,0);}100%{box-shadow:0 0 0 0 rgba(93,31,236,0);transform:scale(1);}}html,body{margin:0;background:#f2f0ea;} a{color:#5d1fec;} a:hover{color:#000;}</style>
 </helmet>
 <div style="min-height:100vh; background:#f2f0ea; color:#000; font-family:var(--font-sans); box-sizing:border-box;">
   <header style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px; padding:36px max(40px, calc((100vw - 1400px) / 2)) 28px; border-bottom:1px solid #000; background:#fff;">
@@ -86,8 +86,8 @@
         <button onClick="{{ openExample }}" style="align-self:flex-start; margin-top:4px; padding:6px 14px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:12px; cursor:pointer; transition:opacity 150ms ease-out, transform 150ms ease-out;" style-hover="opacity:0.88;" style-active="transform:scale(0.97);">See example</button>
         </sc-if><button onClick="{{ toggleStep3 }}" aria-expanded="{{ open3 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 3</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev3 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed3 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Check your words</span></sc-if></button><sc-if value="{{ open3 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
-        <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type.</span>
-        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:transparent; pointer-events:none; border-radius:12px;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div>
+        <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type. Words in violet come out big and highlighted on the screen.</span>
+        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:#000; pointer-events:none; border-radius:12px; z-index:1;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:transparent; caret-color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div><div style="display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-top:10px;"><button onClick="{{ toggleBold }}" style="flex:none; padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Highlight words</button><span style="flex:1 1 180px; font-size:13px; line-height:1.4; color:#555;">Click a word, or select a few, then press Highlight to make them stand out on the screen. Press it again to undo.</span></div>
         </sc-if><button onClick="{{ toggleStep4 }}" aria-expanded="{{ open4 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 4</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev4 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed4 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Illustration Screens</span></sc-if></button><sc-if value="{{ open4 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Illustration Screens</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Use this tool if you would like to make a basic information screen to insert into your sermon.</span>
@@ -255,8 +255,8 @@ class Component extends DCLogic {
   state = { title: '', showTitle: false, size: 'std', gridW: 0, text: Component.PLACEHOLDER, overrides: {}, images: [], order: null, open: { 2: false, 3: false, 4: false }, scale: 0.24, exporting: null, error: '', drag: false, extras: [], ax: { notes: '', err: '', msg: '', undo: null, attempt: 0, where: 'after', target: '' } };
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
-  componentDidMount() { document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
+  componentDidMount() { this.paintHl(); document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
+  componentDidUpdate() { this.paintHl(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -402,7 +402,7 @@ class Component extends DCLogic {
     const f = e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) this.loadFile(f);
   };
-  onText = e => { this.clearHl(); this.setState({ text: e.target.value }); };
+  onText = e => { this._hlMark = null; this.setState({ text: e.target.value }); };
 
   imgMime(b) {
     if (b[0] === 0x89 && b[1] === 0x50) return 'image/png';
@@ -1208,7 +1208,7 @@ class Component extends DCLogic {
   }
   toggleMenu = () => { if (this.state.exporting != null) return; this.setState(s => ({ menu: !s.menu, pulse: false })); };
   closeMenu = () => this.setState({ menu: false });
-  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); if (e.key === 'Escape' && this.state.zoom) this.setState({ zoom: null }); };
+  onKey = e => { if (e.key === 'Escape' && this.state.menu) this.setState({ menu: false }); if (e.key === 'Escape' && this.state.illus) this.setState({ illus: false }); if (e.key === 'Escape' && this.state.zoom) this.setState({ zoom: null }); if ((e.key === 'b' || e.key === 'B') && (e.metaKey || e.ctrlKey) && !e.altKey && this.ta && document.activeElement === this.ta) { e.preventDefault(); this.toggleBold(); } };
   exportPng = () => this.exportAs('png');
   exportPptx = () => this.exportAs('pptx');
   exportAll = () => this.exportAs('png');
@@ -1400,16 +1400,80 @@ class Component extends DCLogic {
   traditional = () => this.setState({ overrides: {}, trad: true });
   taRef = el => {
     if (this.ta && this.ta !== el) { this.ta.removeEventListener('scroll', this.syncHl); this.ta.removeEventListener('paste', this.onPaste); }
-    this.ta = el; if (el) { el.addEventListener('scroll', this.syncHl); el.addEventListener('paste', this.onPaste); }
+    this.taRo && this.taRo.disconnect();
+    // The box can be dragged taller, and the overlay clips to its own height,
+    // so it has to follow the textarea rather than be sized once.
+    this.ta = el; if (el) { el.addEventListener('scroll', this.syncHl); el.addEventListener('paste', this.onPaste); this.paintHl(); this.taRo = new ResizeObserver(this.syncHl); this.taRo.observe(el); }
   };
-  hlRef = el => { this.hl = el; };
+  hlRef = el => { this.hl = el; if (el) this.paintHl(); };
+  // The overlay sits above the textarea and supplies the visible text, so the
+  // words a document had in bold can be shown coloured instead of wrapped in
+  // asterisks nobody typed. The textarea keeps its own caret, selection and
+  // spellcheck underneath, so every character must occupy exactly the width it
+  // does in the textarea: the markers are faded, never hidden or resized, and
+  // weight comes from a stroke rather than a bolder face.
+  hlHtml(text, mark) {
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let on = false;
+    const run = s => {
+      let out = '', i = 0, m; const re = /\*\*/g;
+      while ((m = re.exec(s))) {
+        const seg = s.slice(i, m.index);
+        out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(seg) + '</span>' : esc(seg);
+        out += '<span style="color:rgba(0,0,0,0.15)">**</span>';
+        on = !on; i = m.index + 2;
+      }
+      const t = s.slice(i);
+      out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(t) + '</span>' : esc(t);
+      return out;
+    };
+    if (!mark) return run(text) + '&#8203;';
+    return run(text.slice(0, mark[0])) + '<mark class="fc-hl">' + run(text.slice(mark[0], mark[1])) + '</mark>' + run(text.slice(mark[1])) + '&#8203;';
+  }
+  paintHl = () => {
+    const ta = this.ta, hl = this.hl; if (!ta || !hl) return;
+    const cs = getComputedStyle(ta);
+    for (const k of ['font', 'letterSpacing', 'wordSpacing', 'textRendering', 'fontKerning', 'fontFeatureSettings', 'fontVariantLigatures', 'textIndent', 'tabSize', 'wordBreak']) hl.style[k] = cs[k];
+    hl.style.padding = cs.padding; hl.style.border = cs.borderTopWidth + ' solid transparent';
+    hl.innerHTML = this.hlHtml(this.state.text, this._hlMark);
+    this.syncHl();
+  };
+  // Highlighting works on the selection, or on the word under the caret when
+  // there is none, so nobody has to type or count asterisks.
+  toggleBold = () => {
+    const ta = this.ta; if (!ta) return;
+    const text = this.state.text;
+    let a = ta.selectionStart, b = ta.selectionEnd;
+    if (a == null || b == null) return;
+    if (a === b) {
+      while (a > 0 && /\S/.test(text[a - 1])) a--;
+      while (b < text.length && /\S/.test(text[b])) b++;
+    }
+    const spans = []; const re = /\*\*([\s\S]*?)\*\*/g; let m;
+    while ((m = re.exec(text))) spans.push([m.index, m.index + m[0].length]);
+    const hit = spans.find(s => a >= s[0] && b <= s[1]);
+    let nt, na, nb;
+    if (hit) {
+      nt = text.slice(0, hit[0]) + text.slice(hit[0] + 2, hit[1] - 2) + text.slice(hit[1]);
+      na = Math.max(hit[0], a - 2); nb = Math.max(na, Math.min(b, hit[1] - 4) - 2);
+    } else {
+      while (a < b && /\s/.test(text[a])) a++;
+      while (b > a && /\s/.test(text[b - 1])) b--;
+      if (a === b) return;
+      nt = text.slice(0, a) + '**' + text.slice(a, b) + '**' + text.slice(b);
+      na = a + 2; nb = b + 2;
+    }
+    this._hlMark = null;
+    this.setState({ text: nt });
+    setTimeout(() => { const t = this.ta; if (!t) return; t.focus(); t.setSelectionRange(na, nb); this.paintHl(); }, 0);
+  };
   syncHl = () => {
     const ta = this.ta, hl = this.hl; if (!ta || !hl) return;
     const cs = getComputedStyle(ta), bw = (parseFloat(cs.borderLeftWidth) || 0) * 2, sb = Math.max(0, ta.offsetWidth - ta.clientWidth - bw);
     hl.style.width = (ta.getBoundingClientRect().width - sb) + 'px'; hl.style.height = ta.offsetHeight + 'px';
     hl.scrollTop = ta.scrollTop;
   };
-  clearHl = () => { if (this.hl) this.hl.innerHTML = ''; };
+  clearHl = () => { this._hlMark = null; this.paintHl(); };
   selectSource(pi) {
     const ta = this.ta, hl = this.hl, lines = (this._plines || [])[pi];
     if (this.state.open && this.state.open[3] === false) { this.setState(s => ({ open: { ...s.open, 3: true } })); setTimeout(() => this.selectSource(pi), 80); return; }
@@ -1418,10 +1482,8 @@ class Component extends DCLogic {
     while ((m = re.exec(text))) { if (!this.clean(m[0]).trim()) continue; li++; off[li] = [m.index, m.index + m[0].length]; }
     const a = off[lines[0]], b = off[lines[lines.length - 1]];
     if (!a || !b) return;
-    const cs = getComputedStyle(ta), esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    for (const k of ['font', 'letterSpacing', 'wordSpacing', 'textRendering', 'fontKerning', 'fontFeatureSettings', 'fontVariantLigatures', 'textIndent', 'tabSize', 'wordBreak']) hl.style[k] = cs[k]; hl.style.padding = cs.padding; hl.style.border = cs.borderTopWidth + ' solid transparent';
-    hl.innerHTML = esc(text.slice(0, a[0])) + '<mark class="fc-hl">' + esc(text.slice(a[0], b[1])) + '</mark>' + esc(text.slice(b[1])) + '&#8203;';
-    this.syncHl();
+    this._hlMark = [a[0], b[1]];
+    this.paintHl();
     const mk = hl.querySelector('mark');
     ta.scrollTop = Math.max(0, mk.offsetTop - ta.clientHeight / 3);
     this.syncHl();
@@ -1445,7 +1507,7 @@ class Component extends DCLogic {
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, toggleBold: this.toggleBold, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axTidy: this.axTidy, axTidyLabel: ax.undo == null ? 'Tidy notes' : 'Undo tidy', axTidyStyle: { padding: '8px 16px', border: '1px solid ' + ((ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.25)'), borderRadius: 999, background: '#fff', color: (ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.45)', fontFamily: 'var(--font-sans)', fontSize: 14, cursor: 'pointer' }, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,

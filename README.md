@@ -10,6 +10,14 @@ Self-serve web tool: upload a sermon doc (.docx, .pdf, .odt, .rtf, .html, .txt/.
 
 Libraries (html-to-image, JSZip, pdf.js) load from a CDN at runtime.
 
+## Checking your words (Step 3)
+
+The importers write `**` around any words the uploaded document had in bold, so a volunteer opens Step 3 and finds markup they never typed. The box now shows formatting instead of markup: highlighted words appear in violet and the `**` fade back to near-invisible grey.
+
+It works by letting the existing highlight overlay carry the visible text and making the textarea's own text transparent. The textarea keeps the caret, selection, spellcheck and native undo underneath, so **every character has to occupy exactly the width it does in the textarea**. That is why the markers are faded rather than hidden or shrunk, and why the violet words get their weight from `-webkit-text-stroke` rather than a bolder face — either would change advance widths and the two layers would drift apart. If you touch `hlHtml`, keep that rule.
+
+A **Highlight words** button (and Ctrl/Cmd+B) wraps or unwraps the selection, or the word under the caret if there is no selection, so nobody has to type or count asterisks.
+
 ## PowerPoint export (editable, for ProPresenter)
 
 **Download screens → PowerPoint** builds real PowerPoint objects, not pictures: each scripture screen is a solid-colour slide with a live text box (body in Rhymes Display, bold keywords in Gal Gothic uppercase at the accent colour), the ray mark as a placed image, and separate text boxes for the reference and the message title. Geometry is measured off the live preview node, so position, size, line spacing and letter-spacing match the PNG. ProPresenter imports the .pptx and the operator can fix a typo in place during a service.
