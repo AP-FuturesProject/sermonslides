@@ -752,7 +752,10 @@ class Component extends DCLogic {
         document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
       });
       el.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        // A reference has a single style in the design, so there is nothing for
+        // bold to mean here. Block it rather than show it and lose it on blur.
+        if ((e.metaKey || e.ctrlKey) && !e.altKey && /^[biu]$/i.test(e.key)) { e.preventDefault(); }
+        else if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
         else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; delete el.dataset.rkey; this.paintRefEl(k); el.blur(); }
       });
     });
@@ -861,7 +864,13 @@ class Component extends DCLogic {
         document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
       });
       el.addEventListener('keydown', e => {
-        if ((e.key === 'b' || e.key === 'B') && (e.metaKey || e.ctrlKey) && !e.altKey) { e.preventDefault(); this.toggleBoldVerse(k, pi, ci, el); }
+        // The browser's own bold, italic and underline inject markup the slide
+        // has no meaning for: it appears, and then vanishes when the words are
+        // read back out on commit. Take over the key rather than let it lie.
+        if ((e.metaKey || e.ctrlKey) && !e.altKey && /^[biu]$/i.test(e.key)) {
+          e.preventDefault();
+          if (e.key === 'b' || e.key === 'B') this.toggleBoldVerse(k, pi, ci, el);
+        }
         else if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
         else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; delete el.dataset.vkey; this.paintVerse(k); el.blur(); }
       });
