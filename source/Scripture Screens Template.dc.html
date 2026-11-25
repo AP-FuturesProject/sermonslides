@@ -132,7 +132,7 @@
               <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
-                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
+                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span ref="{{ s.refRef }}" contenteditable="true" spellcheck="false" title="Click to edit the reference" style="cursor:text; outline:none;"></span></div>
               </sc-if>
               <sc-if value="{{ hasTitle }}">
                 <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
@@ -256,7 +256,7 @@ class Component extends DCLogic {
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { this.paintHl(); document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.paintHl(); (this.slides || []).forEach(s => { if (s.isText) this.paintVerse(s.key); }); this.reselectVerse(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
+  componentDidUpdate() { this.paintHl(); (this.slides || []).forEach(s => { if (s.isText) { this.paintVerse(s.key); this.paintRefEl(s.key); } }); this.reselectVerse(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -695,6 +695,69 @@ class Component extends DCLogic {
   // these children its next diff works from nodes the browser already replaced,
   // and the slide drifts away from the document or throws and unmounts the
   // page. Owning them here means an edit and a re-render cannot disagree.
+  // The reference is painted here for the same reason the verse is: anything
+  // the renderer owns it also diffs, and contenteditable rebuilds these nodes.
+  refHtml(s) {
+    const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc(s.ref) + (s.trans ? '<span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">' + esc(s.trans) + '</span>' : '');
+  }
+  paintRefEl(k) {
+    const el = this._rEls && this._rEls[k];
+    if (!el || !el.isConnected || this._editKey === 'r:' + k) return;
+    const s = (this.slides || []).find(x => x.key === k && x.isText);
+    if (!s || el.dataset.rkey === s.rkey) return;
+    el.innerHTML = this.refHtml(s);
+    el.dataset.rkey = s.rkey;
+  }
+  // A reference that no longer reads as one would quietly stop being a passage
+  // and take its screen with it, so an edit that does not parse is refused and
+  // the line is put back as it was.
+  refOk(t) {
+    const s = this.clean(t).trim(); if (!s) return false;
+    let m = s.match(this.refRegex(false));
+    if (this.validRef(m) && m.index === 0) return true;
+    m = s.match(this.chapRegex(false));
+    if (this.validRef(m) && m.index === 0) return true;
+    return this.verseRegex().test(s);
+  }
+  commitRef(k, pi, el) {
+    const P = (this._passages || [])[pi], text = this.state.text;
+    const revert = () => { if (el) { delete el.dataset.rkey; this.paintRefEl(k); } };
+    if (!el || !P || P.rb == null) return revert();
+    const t = this.clean(el.textContent || '').replace(/\s+/g, ' ').trim();
+    // The matched span carries whatever separated the reference from the verse,
+    // so put that back rather than running the two together.
+    const cur = text.slice(P.rb, P.rb + P.rl);
+    const lead = (cur.match(/^\s*/) || [''])[0], tail = (cur.match(/\s*$/) || [''])[0];
+    if (!this.refOk(t) || t === cur.trim()) return revert();
+    this._hlMark = null;
+    this.setState({ text: text.slice(0, P.rb) + lead + t + tail + text.slice(P.rb + P.rl), fit: {} });
+  }
+  refEditRef(k, pi) {
+    this.rFns = this.rFns || {}; this._rEls = this._rEls || {};
+    this.rFns[k] = this.rFns[k] || (el => {
+      this._rEls[k] = el;
+      if (!el) return;
+      this.paintRefEl(k);
+      if (el._rWired) return;
+      el._rWired = true;
+      const stop = e => e.stopPropagation();
+      el.addEventListener('mousedown', stop);
+      el.addEventListener('click', stop);
+      el.addEventListener('focus', () => { this._editKey = 'r:' + k; });
+      el.addEventListener('blur', () => { if (this._editKey !== 'r:' + k) return; this._editKey = null; this.commitRef(k, pi, el); });
+      el.addEventListener('paste', e => {
+        e.preventDefault();
+        const d = e.clipboardData || window.clipboardData;
+        document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; delete el.dataset.rkey; this.paintRefEl(k); el.blur(); }
+      });
+    });
+    return this.rFns[k];
+  }
   verseHtml(s) {
     const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return (s.tokens || []).map(t => (t.kw
@@ -1225,13 +1288,20 @@ class Component extends DCLogic {
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
         const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
-        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) }); pending = null; orphan = null; }
-        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...this.span(orphan.chars) }); pending = null; orphan = null; }
-        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; orphan = null; }
+        // Where the reference actually sits in the document, so it can be
+        // edited on the slide and written back over itself rather than over a
+        // reformatted guess. Absolute, because a reference can sit on a
+        // different line from the words it belongs to.
+        const rA = ref.end ? ref.cut : 0, rB = ref.end ? chars.length : ref.cut;
+        const rc0 = chars[rA], rc1 = chars[rB - 1];
+        const rsp = rc0 && rc1 ? { rb: base + rc0.o, rl: rc1.o + rc1.c.length - rc0.o } : {};
+        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...rsp, ...this.span(rest) }); pending = null; orphan = null; }
+        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...rsp, ...this.span(orphan.chars) }); pending = null; orphan = null; }
+        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans, ...rsp }; pendingLine = li; orphan = null; }
         continue;
       }
       const pc = this.trimChars(this.stripMarks(chars));
-      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; orphan = null; } }
+      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...(pending.rb == null ? {} : { rb: pending.rb, rl: pending.rl }), ...this.span(pc) }); pending = null; orphan = null; } }
       else orphan = pc.length ? { chars: pc, li, base, len: raw.length } : null;
     }
     return out;
@@ -1349,7 +1419,7 @@ class Component extends DCLogic {
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), vkey: tokens.map(t => (t.kw ? '*' : '') + t.fs + ':' + t.color + ':' + t.top + ':' + (t.br ? '/' : '') + t.text).join('\u0001'), cardTitle: 'Click the words to fix them. Select and press Ctrl/Cmd + B to highlight.', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), refRef: this.refEditRef(k, pi), rkey: (c.ref || '') + '|' + (c.trans || ''), vkey: tokens.map(t => (t.kw ? '*' : '') + t.fs + ':' + t.color + ':' + t.top + ':' + (t.br ? '/' : '') + t.text).join('\u0001'), cardTitle: 'Click the words to fix them. Select and press Ctrl/Cmd + B to highlight.', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
