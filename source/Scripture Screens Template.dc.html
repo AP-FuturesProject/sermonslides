@@ -87,7 +87,7 @@
         </sc-if><button onClick="{{ toggleStep3 }}" aria-expanded="{{ open3 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 3</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev3 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed3 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Check your words</span></sc-if></button><sc-if value="{{ open3 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Check your words</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Your document’s text appears here. Fix any typos and the screens update as you type. Words in violet come out big and highlighted on the screen.</span>
-        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:#000; pointer-events:none; border-radius:12px; z-index:1;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:transparent; caret-color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div><div style="display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-top:10px;"><button onClick="{{ toggleBold }}" style="flex:none; padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Highlight words</button><span style="flex:1 1 180px; font-size:13px; line-height:1.4; color:#555;">Click a word, or select a few, then press Highlight to make them stand out on the screen. Press it again to undo.</span></div>
+        <div style="position:relative; width:100%; background:#f2f0ea; border-radius:12px;"><div ref="{{ hlRef }}" aria-hidden="true" style="position:absolute; left:0; top:0; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; overflow-wrap:break-word; color:#000; pointer-events:none; border-radius:12px; z-index:1;"></div><textarea ref="{{ taRef }}" value="{{ text }}" onChange="{{ onText }}" spellcheck="true" lang="en-AU" autocorrect="on" style="width:100%; box-sizing:border-box; min-height:420px; resize:vertical; padding:16px; border:1px solid {{ dropBorder }}; border-radius:12px; font-family:var(--font-sans); font-size:15px; line-height:1.5; color:transparent; caret-color:#000; background:transparent; outline:none; display:block; position:relative;"></textarea></div><div style="display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-top:10px;"><button onClick="{{ toggleBold }}" style="flex:none; padding:8px 16px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-sans); font-size:14px; cursor:pointer;" style-hover="background:#f2f0ea;">Highlight words</button><span style="flex:1 1 180px; font-size:13px; line-height:1.4; color:#555;">Click a word, or select a few, then press Highlight to make them stand out on the screen. Press it again to undo.</span></div><sc-if value="{{ hasNotAdded }}" hint-placeholder-val="{{ false }}"><div style="margin-top:24px; padding-top:20px; border-top:1px solid #000;"><div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;"><span style="font-family:var(--font-grotesque); font-size:13px; letter-spacing:0.2em; text-transform:uppercase; color:#5d1fec;">Not added</span><span style="font-family:var(--font-grotesque); font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#555;">{{ notAddedCount }}</span></div><div style="margin-top:6px; font-size:13px; line-height:1.45; color:#555;">Lines from your document that didn’t become screens — your points, headings and notes. Click one to find it above, or make it a screen and it drops into place in the order it appears.</div><div style="margin-top:12px; max-height:300px; overflow:auto; display:flex; flex-direction:column; gap:8px;"><sc-for list="{{ notAdded }}" as="n"><div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid rgba(0,0,0,0.18); border-radius:10px; background:#fff;"><button onClick="{{ n.onFind }}" title="Find this line above" style="flex:1 1 auto; min-width:0; text-align:left; border:none; background:none; padding:0; cursor:pointer; font-family:var(--font-sans); font-size:13px; line-height:1.35; color:#000; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" style-hover="color:#5d1fec;">{{ n.text }}</button><button onClick="{{ n.onAdd }}" style="flex:none; padding:6px 12px; border:1px solid #000; border-radius:999px; background:#fff; color:#000; font-family:var(--font-grotesque); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; white-space:nowrap;" style-hover="background:#ffff5f;">Make a screen</button></div></sc-for></div></div></sc-if>
         </sc-if><button onClick="{{ toggleStep4 }}" aria-expanded="{{ open4 }}" style="margin-top:20px; align-self:stretch; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0; border:none; background:none; cursor:pointer; text-align:left;" style-hover="opacity:0.9;"><span style="align-self:flex-start; display:inline-flex; align-items:center; padding:8px 20px; border:1px solid #000; border-radius:999px; background:#5d1fec; color:#fff; font-family:var(--font-grotesque); font-size:18px; letter-spacing:0.2em; text-transform:uppercase; box-shadow:0 2px 0 #000; white-space:nowrap; flex:none;">Step 4</span><span style="flex:none; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid #000; border-radius:50%; background:#fff; transform:{{ chev4 }}; transition:transform 160ms ease-out;"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><sc-if value="{{ closed4 }}" hint-placeholder-val="{{ false }}"><span style="flex:1 1 100%; font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.1; color:#000;">Illustration Screens</span></sc-if></button><sc-if value="{{ open4 }}" hint-placeholder-val="{{ false }}">
         <label style="font-family:var(--font-display); font-weight:300; font-size:40px; line-height:1.05;">Illustration Screens</label>
         <span style="font-size:14px; line-height:1.5; color:#333;">Use this tool if you would like to make a basic information screen to insert into your sermon.</span>
@@ -132,7 +132,7 @@
               <div style="max-width:{{ dTextW }}px;"><p data-verse="1" ref="{{ s.vRef }}" contenteditable="true" spellcheck="true" style="margin:0; font-family:var(--font-display); font-weight:300; font-size:{{ s.size }}px; line-height:{{ s.lh }}; text-wrap:pretty; color:{{ s.vColor }}; cursor:text; outline:none;"></p>
               </div>
               <sc-if value="{{ s.hasRef }}">
-                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span>{{ s.ref }}<sc-if value="{{ s.trans }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">{{ s.trans }}</span></sc-if></span></div>
+                <div data-ref="1" style="position:{{ dRefPos }}; margin-top:{{ dRefMt }}px; left:{{ dRefLeft }}px; right:{{ dRefRight }}; bottom:{{ dPad }}px; display:flex; justify-content:{{ dRefJustify }}; align-items:center; gap:{{ dRefGap }}px; font-family:var(--font-grotesque); font-size:{{ dRef }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};"><sc-if value="{{ s.dark }}"><img src="assets/ray-mark-000000.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><sc-if value="{{ s.light }}"><img src="assets/ray-mark-ffffff.png" alt="" style="display:block; width:{{ dMarkW }}px; height:{{ dMarkH }}px;"></sc-if><span ref="{{ s.refRef }}" contenteditable="true" spellcheck="false" title="Click to edit the reference" style="cursor:text; outline:none;"></span></div>
               </sc-if>
               <sc-if value="{{ hasTitle }}">
                 <div data-title="1" style="position:absolute; left:{{ tLeft }}; right:{{ tRight }}; bottom:{{ tBottom }}px; padding-bottom:{{ tLift }}px; display:flex; justify-content:{{ tJustify }}; font-family:var(--font-grotesque); font-size:{{ tSize }}px; letter-spacing:0.22em; text-transform:uppercase; color:{{ s.text }};">{{ title }}</div>
@@ -256,7 +256,7 @@ class Component extends DCLogic {
   nodes = {}; refFns = {}; pairFns = {}; selFns = {};
 
   componentDidMount() { this.paintHl(); document.addEventListener('pointerdown', this.dragDown, true); document.addEventListener('click', this.clickGuard, true); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.axEl) this.fitScreen(this.axEl); Object.values(this._exEls || {}).forEach(el => el.isConnected && this.fitScreen(el)); }); window.addEventListener('keydown', this.onKey); window.addEventListener('dragenter', this.onWinDragEnter, true); window.addEventListener('dragover', this.onWinDragOver, true); window.addEventListener('drop', this.onWinDrop, true); window.addEventListener('dragend', this.dragOff, true); this.checkFit(); this._pulseT = setTimeout(() => this.setState({ pulse: true }), 30000); }
-  componentDidUpdate() { this.paintHl(); (this.slides || []).forEach(s => { if (s.isText) this.paintVerse(s.key); }); this.reselectVerse(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
+  componentDidUpdate() { this.paintHl(); (this.slides || []).forEach(s => { if (s.isText) { this.paintVerse(s.key); this.paintRefEl(s.key); } }); this.reselectVerse(); this.checkFit(); this.syncAx(); this.syncZoom(); Object.keys(this._exEls || {}).forEach(id => this.paintExtra(id)); Object.keys(this._stEls || {}).forEach(k => this.paintStyled(k)); }
   checkFit() {
     clearTimeout(this._fitT);
     this._fitT = setTimeout(() => {
@@ -695,6 +695,72 @@ class Component extends DCLogic {
   // these children its next diff works from nodes the browser already replaced,
   // and the slide drifts away from the document or throws and unmounts the
   // page. Owning them here means an edit and a re-render cannot disagree.
+  // The reference is painted here for the same reason the verse is: anything
+  // the renderer owns it also diffs, and contenteditable rebuilds these nodes.
+  refHtml(s) {
+    const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc(s.ref) + (s.trans ? '<span style="font-size:0.5em; letter-spacing:0.22em; margin-left:0.7em;">' + esc(s.trans) + '</span>' : '');
+  }
+  paintRefEl(k) {
+    const el = this._rEls && this._rEls[k];
+    if (!el || !el.isConnected || this._editKey === 'r:' + k) return;
+    const s = (this.slides || []).find(x => x.key === k && x.isText);
+    if (!s || el.dataset.rkey === s.rkey) return;
+    el.innerHTML = this.refHtml(s);
+    el.dataset.rkey = s.rkey;
+  }
+  // A reference that no longer reads as one would quietly stop being a passage
+  // and take its screen with it, so an edit that does not parse is refused and
+  // the line is put back as it was.
+  refOk(t) {
+    const s = this.clean(t).trim(); if (!s) return false;
+    let m = s.match(this.refRegex(false));
+    if (this.validRef(m) && m.index === 0) return true;
+    m = s.match(this.chapRegex(false));
+    if (this.validRef(m) && m.index === 0) return true;
+    return this.verseRegex().test(s);
+  }
+  commitRef(k, pi, el) {
+    const P = (this._passages || [])[pi], text = this.state.text;
+    const revert = () => { if (el) { delete el.dataset.rkey; this.paintRefEl(k); } };
+    if (!el || !P || P.rb == null) return revert();
+    const t = this.clean(el.textContent || '').replace(/\s+/g, ' ').trim();
+    // The matched span carries whatever separated the reference from the verse,
+    // so put that back rather than running the two together.
+    const cur = text.slice(P.rb, P.rb + P.rl);
+    const lead = (cur.match(/^\s*/) || [''])[0], tail = (cur.match(/\s*$/) || [''])[0];
+    if (!this.refOk(t) || t === cur.trim()) return revert();
+    this._hlMark = null;
+    this.setState({ text: text.slice(0, P.rb) + lead + t + tail + text.slice(P.rb + P.rl), fit: {} });
+  }
+  refEditRef(k, pi) {
+    this.rFns = this.rFns || {}; this._rEls = this._rEls || {};
+    this.rFns[k] = this.rFns[k] || (el => {
+      this._rEls[k] = el;
+      if (!el) return;
+      this.paintRefEl(k);
+      if (el._rWired) return;
+      el._rWired = true;
+      const stop = e => e.stopPropagation();
+      el.addEventListener('mousedown', stop);
+      el.addEventListener('click', stop);
+      el.addEventListener('focus', () => { this._editKey = 'r:' + k; });
+      el.addEventListener('blur', () => { if (this._editKey !== 'r:' + k) return; this._editKey = null; this.commitRef(k, pi, el); });
+      el.addEventListener('paste', e => {
+        e.preventDefault();
+        const d = e.clipboardData || window.clipboardData;
+        document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
+      });
+      el.addEventListener('keydown', e => {
+        // A reference has a single style in the design, so there is nothing for
+        // bold to mean here. Block it rather than show it and lose it on blur.
+        if ((e.metaKey || e.ctrlKey) && !e.altKey && /^[biu]$/i.test(e.key)) { e.preventDefault(); }
+        else if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; delete el.dataset.rkey; this.paintRefEl(k); el.blur(); }
+      });
+    });
+    return this.rFns[k];
+  }
   verseHtml(s) {
     const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return (s.tokens || []).map(t => (t.kw
@@ -798,7 +864,13 @@ class Component extends DCLogic {
         document.execCommand('insertText', false, this.clean(d ? d.getData('text/plain') : '').replace(/\s+/g, ' '));
       });
       el.addEventListener('keydown', e => {
-        if ((e.key === 'b' || e.key === 'B') && (e.metaKey || e.ctrlKey) && !e.altKey) { e.preventDefault(); this.toggleBoldVerse(k, pi, ci, el); }
+        // The browser's own bold, italic and underline inject markup the slide
+        // has no meaning for: it appears, and then vanishes when the words are
+        // read back out on commit. Take over the key rather than let it lie.
+        if ((e.metaKey || e.ctrlKey) && !e.altKey && /^[biu]$/i.test(e.key)) {
+          e.preventDefault();
+          if (e.key === 'b' || e.key === 'B') this.toggleBoldVerse(k, pi, ci, el);
+        }
         else if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
         else if (e.key === 'Escape') { e.preventDefault(); this._editKey = null; el.style.zoom = ''; delete el.dataset.vkey; this.paintVerse(k); el.blur(); }
       });
@@ -1225,13 +1297,20 @@ class Component extends DCLogic {
       else if ((m = plain.match(this.verseRegex()))) { const rng = m[2] ? m[1] + '–' + m[2] : m[1]; ref = { ref: ctx ? ctx.bc + ':' + rng : (m[2] ? 'Verses ' : 'Verse ') + rng, trans: ctx ? ctx.trans : '', cut: m[0].length, end: false }; }
       if (ref) {
         const rest = this.trimChars(this.stripMarks(ref.end ? chars.slice(0, ref.cut) : chars.slice(ref.cut)));
-        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...this.span(rest) }); pending = null; orphan = null; }
-        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...this.span(orphan.chars) }); pending = null; orphan = null; }
-        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans }; pendingLine = li; orphan = null; }
+        // Where the reference actually sits in the document, so it can be
+        // edited on the slide and written back over itself rather than over a
+        // reformatted guess. Absolute, because a reference can sit on a
+        // different line from the words it belongs to.
+        const rA = ref.end ? ref.cut : 0, rB = ref.end ? chars.length : ref.cut;
+        const rc0 = chars[rA], rc1 = chars[rB - 1];
+        const rsp = rc0 && rc1 ? { rb: base + rc0.o, rl: rc1.o + rc1.c.length - rc0.o } : {};
+        if (rest.length) { out.push({ ref: ref.ref, trans: ref.trans, chars: rest, lines: [li], base, len: raw.length, ...rsp, ...this.span(rest) }); pending = null; orphan = null; }
+        else if (orphan && orphan.li === li - 1) { out.push({ ref: ref.ref, trans: ref.trans, chars: orphan.chars, lines: [orphan.li, li], base: orphan.base, len: orphan.len, ...rsp, ...this.span(orphan.chars) }); pending = null; orphan = null; }
+        else if (!ref.end) { pending = { ref: ref.ref, trans: ref.trans, ...rsp }; pendingLine = li; orphan = null; }
         continue;
       }
       const pc = this.trimChars(this.stripMarks(chars));
-      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...this.span(pc) }); pending = null; orphan = null; } }
+      if (pending) { if (pc.length) { out.push({ ref: pending.ref, trans: pending.trans, chars: pc, lines: [pendingLine, li], base, len: raw.length, ...(pending.rb == null ? {} : { rb: pending.rb, rl: pending.rl }), ...this.span(pc) }); pending = null; orphan = null; } }
       else orphan = pc.length ? { chars: pc, li, base, len: raw.length } : null;
     }
     return out;
@@ -1349,7 +1428,7 @@ class Component extends DCLogic {
       const condOn = this._ptot[pi] > 8 * 36 * D.r && ((this.state.cond || {})[pi] ?? true);
       this.emphFns = this.emphFns || {};
       this.emphFns[k] = this.emphFns[k] || (() => this.setState(s => ({ emph: { ...(s.emph || {}), [k]: !((s.emph || {})[k] ?? !!(this._auto && this._auto[k])) } })));
-      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), vkey: tokens.map(t => (t.kw ? '*' : '') + t.fs + ':' + t.color + ':' + t.top + ':' + (t.br ? '/' : '') + t.text).join('\u0001'), cardTitle: 'Click the words to fix them. Select and press Ctrl/Cmd + B to highlight.', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
+      slides.push({ fitKey, key: k, isText: !styled, isStyled: styled, hasControls: true, canEmph: !styled, canRestyle: isScreen, genOn: styled, onGen: this.genFns[k], stRef: this.stFns && this.stFns[k], genLabel: styled ? 'Style ' + (gen + 1) + '/' + Component.SCREEN_STYLES : 'Restyle', genBg: styled ? '#000' : '#fff', genFg: styled ? '#fff' : '#000', isExtra: false, vk: 't:' + slides.length, tIndex: slides.length, vRef: this.verseRef(k, pi, ci), refRef: this.refEditRef(k, pi), rkey: (c.ref || '') + '|' + (c.trans || ''), vkey: tokens.map(t => (t.kw ? '*' : '') + t.fs + ':' + t.color + ':' + t.top + ':' + (t.br ? '/' : '') + t.text).join('\u0001'), cardTitle: 'Click the words to fix them. Select and press Ctrl/Cmd + B to highlight.', fname: name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, ''), vColor: bg === '#000' && !c.ps.some(p => p.b) ? accent : text, canCond: !styled && this._ptot[pi] > 8 * 36 * D.r, condOn, onCond: this.condFns[pi], condLabel: condOn ? 'Condensed' : 'Condense', condBg: condOn ? '#000' : '#fff', condFg: condOn ? '#fff' : '#000', onSelect: this.selFns[k], onDelete: this.delFns[k], num, name, slideLabel: 'Slide ' + (slides.length + 1), ref: c.ref, trans: c.trans || '', hasRef: !!c.ref, tokens, size, lh: emph ? (kwSize ? Math.round(Math.max(size * 1.2, kwSize * 1.02)) + 'px' : 1.06) : size >= 104 ? 1.12 : 1.14, emph, onEmph: this.emphFns[k], emphBg: emph ? '#000' : '#fff', emphFg: emph ? '#fff' : '#000', emphLabel: emph ? 'Emphasised' : 'Emphasise', pair, bg, text, dark: text === '#000', light: text !== '#000', nodeRef: this.refFns[k], onPair: this.pairFns[k], pairOptions: names, file: `${num}-${name.replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')}.png` });
     }));
     const exs = (this.state.extras || []).slice().sort((a, b) => a.at - b.at || a.ord - b.ord), merged = []; let ei = 0;
     for (let i = 0; i <= slides.length; i++) {
@@ -1583,17 +1662,23 @@ class Component extends DCLogic {
   // weight comes from a stroke rather than a bolder face.
   hlHtml(text, mark) {
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // A *SCREEN marker is machinery too, so it fades like the ** do.
+    const scr = seg => {
+      const re = /\[screen\]|\*\s?screen\b/ig; let o = '', i = 0, m;
+      while ((m = re.exec(seg))) { o += esc(seg.slice(i, m.index)) + '<span style="color:rgba(0,0,0,0.15)">' + esc(m[0]) + '</span>'; i = m.index + m[0].length; }
+      return o + esc(seg.slice(i));
+    };
     let on = false;
     const run = s => {
       let out = '', i = 0, m; const re = /\*\*/g;
       while ((m = re.exec(s))) {
         const seg = s.slice(i, m.index);
-        out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(seg) + '</span>' : esc(seg);
+        out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(seg) + '</span>' : scr(seg);
         out += '<span style="color:rgba(0,0,0,0.15)">**</span>';
         on = !on; i = m.index + 2;
       }
       const t = s.slice(i);
-      out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(t) + '</span>' : esc(t);
+      out += on ? '<span style="color:#5d1fec;-webkit-text-stroke:0.32px #5d1fec">' + esc(t) + '</span>' : scr(t);
       return out;
     };
     if (!mark) return run(text) + '&#8203;';
@@ -1658,6 +1743,60 @@ class Component extends DCLogic {
     this.syncHl();
     ta.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
+  // Lines the parser did not claim. Every passage records the line indexes it
+  // came from, so what is left over is simply the rest - which is what a
+  // pastor's points are: real lines of the document that carry no reference.
+  leftOut() {
+    const text = this.state.text, used = new Set();
+    (this._plines || []).forEach(ls => (ls || []).forEach(l => used.add(l)));
+    const out = [], lre = /[^\n]+/g; let lm, li = -1;
+    while ((lm = lre.exec(text))) {
+      if (!this.clean(lm[0]).trim()) continue;
+      li++;
+      if (used.has(li)) continue;
+      const plain = this.clean(lm[0]).replace(/\*\*/g, '').trim();
+      if (plain) out.push({ li, text: plain });
+    }
+    return out;
+  }
+  lineRange(li) {
+    const lre = /[^\n]+/g; let lm, i = -1;
+    while ((lm = lre.exec(this.state.text))) {
+      if (!this.clean(lm[0]).trim()) continue;
+      i++;
+      if (i === li) return [lm.index, lm.index + lm[0].length];
+    }
+    return null;
+  }
+  // Find it in the box above, so a line that is hard to spot in a wall of
+  // notes can be seen and edited where it actually lives.
+  showLine = li => {
+    if (this.state.open && this.state.open[3] === false) { this.setState(s => ({ open: { ...s.open, 3: true } })); setTimeout(() => this.showLine(li), 80); return; }
+    const r = this.lineRange(li), ta = this.ta;
+    if (!r || !ta) return;
+    this._hlMark = r; this.paintHl();
+    const mk = this.hl && this.hl.querySelector('mark');
+    if (mk) { ta.scrollTop = Math.max(0, mk.offsetTop - ta.clientHeight / 3); this.syncHl(); }
+    ta.focus(); ta.setSelectionRange(r[0], r[1]);
+    ta.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  // Marking the line is all it takes: *SCREEN is how a non-scripture line
+  // becomes a screen already, and screens are built in document order, so it
+  // lands where it sits in the notes rather than at the end.
+  addScreen = li => {
+    const r = this.lineRange(li); if (!r) return;
+    const text = this.state.text;
+    this._hlMark = null;
+    this.setState({ text: text.slice(0, r[0]) + '*SCREEN ' + text.slice(r[0]), fit: {} });
+  };
+  notAddedRows() {
+    this.naFind = this.naFind || {}; this.naAdd = this.naAdd || {};
+    return this.leftOut().map(o => {
+      this.naFind[o.li] = this.naFind[o.li] || (() => this.showLine(o.li));
+      this.naAdd[o.li] = this.naAdd[o.li] || (() => this.addScreen(o.li));
+      return { text: o.text.length > 110 ? o.text.slice(0, 110) + '…' : o.text, onFind: this.naFind[o.li], onAdd: this.naAdd[o.li] };
+    });
+  }
   onTitle = e => this.setState({ title: e.target.value });
   toggleTitle = () => this.setState(s => ({ showTitle: !s.showTitle }));
   openExample = () => this.setState({ showExample: true });
@@ -1672,11 +1811,12 @@ class Component extends DCLogic {
   }
   renderVals() {
     const slides = this.build(); this.slides = slides;
+    const notAdded = this.notAddedRows();
     const passages = new Set(slides.filter(s => s.isText || s.isStyled).map(s => s.key.split(':')[0])).size, nExtra = slides.filter(s => s.isExtra).length;
     const ax = this.state.ax || {}, axTg = slides.map(s => ({ v: s.vk, label: s.slideLabel + ' · ' + (s.name.length > 26 ? s.name.slice(0, 26) + '…' : s.name) }));
     const ex = this.state.exporting;
     return {
-      slides, empty: !slides.length, title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, toggleBold: this.toggleBold, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
+      slides, empty: !slides.length, notAdded, hasNotAdded: !!notAdded.length, notAddedCount: notAdded.length + (notAdded.length === 1 ? ' line' : ' lines'), title: this.state.title, onTitle: this.onTitle, toggleTitle: this.toggleTitle, hasTitle: !!(this.state.showTitle && this.state.title.trim()), titleOn: !!this.state.showTitle, tglBg: this.state.showTitle ? '#5d1fec' : '#d9d6cc', tglX: this.state.showTitle ? '20px' : '2px', shuffle: this.shuffle, traditional: this.traditional, taRef: this.taRef, hlRef: this.hlRef, toggleBold: this.toggleBold, ...this.dimVals(), sizeOptions: this.sizeOptions(), sizeChoices: this.sizeChoices(), sizeVal: this.state.size || 'std', onSize: this.onSize, ...this.stepVals(), showZoom: !!this.state.zoom, closeZoom: this.closeZoom, openZoomAx: this.openZoomAx, zoomBoxRef: this.zoomBoxRef, zoomRef: this.zoomRef, zoomScale: (this.state.zoomW || 1000) / this.dims().W, aspectNum: this.dims().W / this.dims().H, hasOrder: !!this.state.order, resetOrder: this.resetOrder, showExample: !!this.state.showExample, showIllus: !!this.state.illus, openIllus: this.openIllus, closeIllus: this.closeIllus, exampleRows: this.exampleRows(), openExample: this.openExample, closeExample: this.closeExample, stop: this.stop, text: this.state.text, error: this.state.error,
       maxLines: this.props.maxLines ?? 5,
       summary: slides.length ? `${slides.length} screens` + (passages ? ` from ${passages} passage${passages === 1 ? '' : 's'}` : '') + (nExtra ? `, ${nExtra} illustration` : '') : '',
       axNotes: ax.notes || '', axOnNotes: this.axOnNotes, axRegen: this.axRegen, axClear: this.axClear, axTidy: this.axTidy, axTidyLabel: ax.undo == null ? 'Tidy notes' : 'Undo tidy', axTidyStyle: { padding: '8px 16px', border: '1px solid ' + ((ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.25)'), borderRadius: 999, background: '#fff', color: (ax.notes || '').trim() ? '#000' : 'rgba(0,0,0,0.45)', fontFamily: 'var(--font-sans)', fontSize: 14, cursor: 'pointer' }, axAdd: this.axAdd, axErr: ax.err || '', axMsg: ax.msg || '', axReady: !!(ax.notes || '').trim(), axBoxRef: this.axBoxRef, axRef: this.axRef, axScale: (this.state.axW || 380) / this.dims().W, axWhere: ax.where || 'after', axOnWhere: this.axOnWhere, axTarget: axTg.some(o => o.v === ax.target) ? ax.target : (axTg.length ? axTg[axTg.length - 1].v : ''), axOnTarget: this.axOnTarget, axTargets: axTg,

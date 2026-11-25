@@ -16,11 +16,23 @@ The words on a scripture screen are editable in place: click them and type. Ente
 
 **The verse's words are painted by `paintVerse`, not rendered as template children**, the way the Illustration Screens are. This is the whole reason the editor works. `contenteditable` rebuilds those nodes as someone types, and anything the renderer owns it also diffs — so if the renderer owns them, its next diff starts from nodes the browser has already replaced. In practice that meant the slide silently drifting away from the document (type `Extra text`, edit again, and the slide reads `text text` while the document reads `Extra text More`), or `removeChild` throwing and unmounting the whole page. Restoring the markup afterwards does not fix it, and nor does restoring the original node objects — both were tried. Owning the children here means an edit and a re-render cannot disagree. `vkey` is the identity of the painted words, so a repaint happens exactly when they change and never under the caret.
 
+Inside both editable areas the browser's own bold, italic and underline are taken over. Left alone they inject `<b>`, `<i>` and `<u>` into the slide, which shows immediately and then disappears when the words are read back out on commit — formatting that appears to work and silently does not. On the verse, Ctrl/Cmd + B does the real highlight; everything else is blocked. On the reference all three are blocked, because a reference has a single style in the design and there is nothing for bold to mean there.
+
+The reference line is editable the same way, and painted by `paintRefEl` for the same reason. Its edit is written back over the reference's own characters in the source: `passages` now records `rb`/`rl`, the absolute span the reference occupies, because a reference can sit on a different line from the words it belongs to and because the displayed form is normalised rather than verbatim. The span carries whatever separated the reference from the verse, so that whitespace is put back around the new text. **An edit that no longer reads as a reference is refused and reverted** — otherwise the passage would quietly stop being a passage and take its screen with it.
+
 `spliceVerse` writes back. A passage's words sit at `[base + vs, base + ve)` in the source; rebuilding every chunk of the passage with this slide's pieces substituted regenerates them, markers and all — the same splice `deleteSlide` performs, substituting instead of removing. A slide edited to empty is refused, because emptying a slide is a delete and that has its own button and its own undo.
 
 Nothing commits until blur, so no state changes and nothing re-renders while someone is typing, and `checkFit` bails out mid-edit for the same reason. Because the usual fit is held off, `fitLive` shrinks the words in the DOM alone — no state, no re-render — mirroring `checkFit`'s limits in rendered pixels, and grows them back as words are deleted; otherwise typing a paragraph would run it off the bottom of the screen. Highlighted words carry `data-kw="1"` so the edit can be read back out of the DOM, and `dragDown` ignores `[contenteditable="true"]` so pressing on the words places a caret instead of picking the card up.
 
 ## Checking your words (Step 3)
+
+### Not added
+
+Under the box, a **Not added** list shows every line of the document that did not become a screen — the pastor's points, headings, illustration cues and prose. Clicking a line finds and selects it in the box above; **Make a screen** turns it into one.
+
+`leftOut` derives the list rather than tracking it: every passage records the line indexes it came from, so whatever is left over is the remainder. **Make a screen** writes `*SCREEN ` onto the front of the line, which is already how a non-scripture line becomes a screen, so the slide appears in document order — where the point sits in the notes, not at the end. The `*SCREEN` marker fades in the box the same way `**` does.
+
+To take a screen back out, delete the `*SCREEN ` marker in the box; deleting the slide with its × removes the line from the document altogether.
 
 The importers write `**` around any words the uploaded document had in bold, so a volunteer opens Step 3 and finds markup they never typed. The box now shows formatting instead of markup: highlighted words appear in violet and the `**` fade back to near-invisible grey.
 
